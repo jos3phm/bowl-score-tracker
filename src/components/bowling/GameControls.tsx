@@ -8,7 +8,7 @@ interface GameControlsProps {
   disabled?: boolean;
   currentFrame: number;
   currentShot: 1 | 2 | 3;
-  isFirstShotStrike?: boolean; // Add this prop to explicitly pass strike status
+  isFirstShotStrike?: boolean;
 }
 
 export const GameControls = ({
@@ -19,11 +19,16 @@ export const GameControls = ({
   disabled,
   currentFrame,
   currentShot,
-  isFirstShotStrike = false // Default to false if not provided
+  isFirstShotStrike = false
 }: GameControlsProps) => {
   // Disable strike button on second shot unless it's the 10th frame with a first strike
   const isStrikeDisabled = disabled || 
     (currentShot === 2 && (currentFrame !== 10 || !isFirstShotStrike));
+
+  // Disable spare button on first shot, and in 10th frame third shot if first two shots were strikes
+  const isSpareDisabled = disabled || 
+    currentShot === 1 || 
+    (currentFrame === 10 && currentShot === 3 && isFirstShotStrike);
 
   return (
     <div className="flex gap-2 justify-center flex-wrap">
@@ -36,7 +41,7 @@ export const GameControls = ({
       </Button>
       <Button
         onClick={onSpare}
-        disabled={disabled}
+        disabled={isSpareDisabled}
         className="bg-secondary hover:bg-secondary/90"
       >
         Spare
