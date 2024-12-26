@@ -141,43 +141,55 @@ const Index = () => {
       const followingFrame = i < 8 ? frames[i + 2] : null;
 
       if (frame.isStrike) {
-        // Strike: 10 + next two shots
+        // For a strike, we need the next two shots
         score += 10;
         
         if (nextFrame) {
-          if (nextFrame.isStrike) {
-            // Next shot is a strike
-            score += 10;
-            if (i < 8) {
-              // Need the first shot of the following frame
-              if (followingFrame?.isStrike) {
-                score += 10;
-              } else if (followingFrame?.firstShot) {
-                score += followingFrame.firstShot.length;
+          if (nextFrame.firstShot) {
+            if (nextFrame.isStrike) {
+              // Next shot is a strike
+              score += 10;
+              // Need one more shot
+              if (i < 8 && followingFrame?.firstShot) {
+                // Get the first shot of the following frame
+                score += followingFrame.isStrike ? 10 : followingFrame.firstShot.length;
+              } else if (i === 8 && nextFrame.secondShot) {
+                // Special case for 9th frame strike followed by 10th frame
+                score += nextFrame.secondShot.length;
               }
-            } else if (i === 8 && nextFrame.secondShot) {
-              // Special case for 9th frame strike followed by 10th frame strike
-              score += nextFrame.secondShot.length;
+            } else {
+              // Next frame is not a strike, add first shot
+              score += nextFrame.firstShot.length;
+              // Add second shot if available
+              if (nextFrame.secondShot) {
+                score += nextFrame.secondShot.length;
+              } else {
+                // If second shot isn't recorded yet, return null
+                return 0;
+              }
             }
           } else {
-            // Next frame is not a strike, add both shots if available
-            if (nextFrame.firstShot) {
-              score += nextFrame.firstShot.length;
-            }
-            if (nextFrame.secondShot) {
-              score += nextFrame.secondShot.length;
-            }
+            // If next frame's first shot isn't recorded yet, return null
+            return 0;
           }
         }
       } else if (frame.isSpare) {
-        // Spare: 10 + next one shot
+        // For a spare, we need the next one shot
         score += 10;
         if (nextFrame?.firstShot) {
           score += nextFrame.firstShot.length;
+        } else {
+          // If next frame's first shot isn't recorded yet, return null
+          return 0;
         }
       } else {
         // Open frame: just add the pins knocked down
-        score += (frame.firstShot?.length || 0) + (frame.secondShot?.length || 0);
+        if (frame.firstShot && frame.secondShot) {
+          score += frame.firstShot.length + frame.secondShot.length;
+        } else if (frame.firstShot) {
+          // If second shot isn't recorded yet in an open frame, return null
+          return 0;
+        }
       }
     }
     
