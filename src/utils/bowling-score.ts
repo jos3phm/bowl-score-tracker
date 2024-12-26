@@ -19,64 +19,59 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
       score += frame.firstShot.length;
       console.log(`10th frame first shot: ${frame.firstShot.length}`);
       
-      if (frame.secondShot !== null) {
-        score += frame.secondShot.length;
-        console.log(`10th frame second shot: ${frame.secondShot.length}`);
-      } else if (frame.firstShot.length === 10 || frame.isSpare) {
-        return null; // Waiting for second shot after strike/spare
+      // Need second shot for all cases
+      if (frame.secondShot === null) {
+        console.log('Waiting for second shot');
+        return null;
       }
       
-      if (frame.thirdShot !== null) {
+      score += frame.secondShot.length;
+      console.log(`10th frame second shot: ${frame.secondShot.length}`);
+      
+      // Need third shot only after strike or spare
+      if (frame.isStrike || frame.isSpare) {
+        if (frame.thirdShot === null) {
+          console.log('Waiting for third shot after strike/spare');
+          return null;
+        }
         score += frame.thirdShot.length;
         console.log(`10th frame third shot: ${frame.thirdShot.length}`);
-      } else if ((frame.firstShot.length === 10 || frame.isSpare) && frame.secondShot !== null) {
-        return null; // Waiting for third shot after strike/spare
       }
     } else if (frame.isStrike) {
       score += 10;
       console.log('Strike detected, added 10');
       
-      // Calculate strike bonus
-      if (nextFrame?.firstShot) {
-        if (nextFrame.isStrike) {
-          score += 10;
-          console.log('First bonus: strike (10)');
-          
-          if (followingFrame?.firstShot) {
-            score += followingFrame.isStrike ? 10 : followingFrame.firstShot.length;
-            console.log(`Second bonus: ${followingFrame.isStrike ? 'strike (10)' : followingFrame.firstShot.length}`);
-          } else {
-            return null;
-          }
+      if (!nextFrame?.firstShot) return null;
+      
+      if (nextFrame.isStrike) {
+        score += 10;
+        console.log('First bonus: strike (10)');
+        
+        if (i < 8) {
+          if (!followingFrame?.firstShot) return null;
+          score += followingFrame.isStrike ? 10 : followingFrame.firstShot.length;
+          console.log(`Second bonus: ${followingFrame.isStrike ? 'strike (10)' : followingFrame.firstShot.length}`);
         } else {
-          score += nextFrame.firstShot.length;
-          console.log(`First bonus: ${nextFrame.firstShot.length}`);
-          if (nextFrame.secondShot) {
-            score += nextFrame.secondShot.length;
-            console.log(`Second bonus: ${nextFrame.secondShot.length}`);
-          } else {
-            return null;
-          }
+          if (!nextFrame.secondShot) return null;
+          score += nextFrame.secondShot.length;
+          console.log(`Second bonus: ${nextFrame.secondShot.length}`);
         }
       } else {
-        return null;
+        if (!nextFrame.secondShot) return null;
+        score += nextFrame.firstShot.length + nextFrame.secondShot.length;
+        console.log(`Strike bonus: ${nextFrame.firstShot.length} + ${nextFrame.secondShot.length}`);
       }
     } else if (frame.isSpare) {
       score += 10;
       console.log('Spare detected, added 10');
       
-      if (nextFrame?.firstShot) {
-        score += nextFrame.isStrike ? 10 : nextFrame.firstShot.length;
-        console.log(`Spare bonus: ${nextFrame.isStrike ? 'strike (10)' : nextFrame.firstShot.length}`);
-      } else {
-        return null;
-      }
-    } else if (frame.firstShot && frame.secondShot) {
-      // Open frame
+      if (!nextFrame?.firstShot) return null;
+      score += nextFrame.firstShot.length;
+      console.log(`Spare bonus: ${nextFrame.firstShot.length}`);
+    } else {
+      if (!frame.secondShot) return null;
       score += frame.firstShot.length + frame.secondShot.length;
       console.log(`Open frame: ${frame.firstShot.length} + ${frame.secondShot.length}`);
-    } else {
-      return null;
     }
 
     console.log(`Running total after frame ${i + 1}: ${score}`);

@@ -11,6 +11,13 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
     const isActive = index === currentFrame - 1;
     const isTenth = index === 9;
 
+    const renderShot = (shot: Pin[] | null, isSpare: boolean, isLastShot: boolean = false) => {
+      if (shot === null) return "-";
+      if (shot.length === 10) return <span className="text-primary font-bold">X</span>;
+      if (isSpare && !isLastShot) return <span className="text-secondary font-bold">/</span>;
+      return shot.length;
+    };
+
     return (
       <div
         key={index}
@@ -25,44 +32,21 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
         <div className="grid grid-cols-2 gap-1 mb-1">
           {/* First shot */}
           <div className="text-center">
-            {frame.firstShot !== null ? (
-              frame.firstShot.length === 10 ? (
-                <span className="text-primary font-bold">X</span>
-              ) : (
-                frame.firstShot.length
-              )
-            ) : (
-              "-"
-            )}
+            {renderShot(frame.firstShot, false)}
           </div>
           
           {/* Second shot */}
           <div className="text-center">
-            {frame.secondShot !== null ? (
-              frame.isSpare ? (
-                <span className="text-secondary font-bold">/</span>
-              ) : frame.secondShot.length === 10 ? (
-                <span className="text-primary font-bold">X</span>
-              ) : (
-                frame.secondShot.length
-              )
-            ) : (
-              "-"
-            )}
+            {renderShot(frame.secondShot, frame.isSpare)}
           </div>
           
           {/* Third shot (10th frame only) */}
           {isTenth && (
             <div className="text-center col-span-2 border-t pt-1">
-              {frame.thirdShot !== null ? (
-                frame.thirdShot.length === 10 ? (
-                  <span className="text-primary font-bold">X</span>
-                ) : (
-                  frame.thirdShot.length
-                )
-              ) : (frame.isStrike || frame.isSpare) && frame.secondShot !== null ? (
-                "-"
-              ) : null}
+              {frame.isStrike || frame.isSpare ? 
+                renderShot(frame.thirdShot, false, true) : 
+                null
+              }
             </div>
           )}
         </div>
