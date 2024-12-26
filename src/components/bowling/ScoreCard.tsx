@@ -26,7 +26,7 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
           {/* First shot */}
           <div className="text-center">
             {frame.firstShot !== null ? (
-              frame.isStrike && !isTenth ? (
+              frame.firstShot.length === 10 ? (
                 <span className="text-primary font-bold">X</span>
               ) : (
                 frame.firstShot.length
@@ -41,7 +41,7 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
             {frame.secondShot !== null ? (
               frame.isSpare ? (
                 <span className="text-secondary font-bold">/</span>
-              ) : frame.isStrike && isTenth ? (
+              ) : frame.secondShot.length === 10 ? (
                 <span className="text-primary font-bold">X</span>
               ) : (
                 frame.secondShot.length
@@ -55,7 +55,7 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
           {isTenth && (
             <div className="text-center col-span-2 border-t pt-1">
               {frame.thirdShot !== null ? (
-                frame.isStrike || frame.thirdShot.length === 10 ? (
+                frame.thirdShot.length === 10 ? (
                   <span className="text-primary font-bold">X</span>
                 ) : (
                   frame.thirdShot.length
