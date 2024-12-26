@@ -1,4 +1,4 @@
-import { Frame } from "@/types/game";
+import { Frame, Pin } from "@/types/game";
 import { cn } from "@/lib/utils";
 
 interface ScoreCardProps {
