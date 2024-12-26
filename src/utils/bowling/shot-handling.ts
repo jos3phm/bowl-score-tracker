@@ -54,29 +54,35 @@ export const recordRegularShot = (
   frames: Frame[],
   frameIndex: number,
   shot: 1 | 2 | 3,
-  selectedPins: Pin[]
+  knockedDownPins: Pin[]
 ): Frame => {
   const frame = { ...frames[frameIndex] };
+  const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
   if (frameIndex === 9) { // 10th frame
     if (shot === 1) {
-      frame.firstShot = selectedPins;
-      frame.isStrike = selectedPins.length === 10;
+      // For first shot, record the pins that remained standing
+      frame.firstShot = allPins.filter(pin => !knockedDownPins.includes(pin));
+      frame.isStrike = knockedDownPins.length === 10;
     } else if (shot === 2) {
-      frame.secondShot = selectedPins;
+      // For second shot, record the pins that remained standing from those available
+      const availablePins = frame.firstShot || allPins;
+      frame.secondShot = availablePins.filter(pin => !knockedDownPins.includes(pin));
       if (!frame.isStrike) {
-        frame.isSpare = (frame.firstShot?.length || 0) + selectedPins.length === 10;
+        frame.isSpare = frame.firstShot!.length + knockedDownPins.length === 10;
       }
     } else if (shot === 3) {
-      frame.thirdShot = selectedPins;
+      frame.thirdShot = knockedDownPins;
     }
   } else {
     if (shot === 1) {
-      frame.firstShot = selectedPins;
-      frame.isStrike = selectedPins.length === 10;
+      // For first shot, record the pins that remained standing
+      frame.firstShot = allPins.filter(pin => !knockedDownPins.includes(pin));
+      frame.isStrike = knockedDownPins.length === 10;
     } else {
-      frame.secondShot = selectedPins;
-      frame.isSpare = (frame.firstShot?.length || 0) + selectedPins.length === 10;
+      // For second shot, record the pins that remained standing from those available
+      frame.secondShot = frame.firstShot!.filter(pin => !knockedDownPins.includes(pin));
+      frame.isSpare = frame.firstShot!.length === knockedDownPins.length;
     }
   }
 
