@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Frame, Pin } from "@/types/game";
 import { calculateFrameScore } from "@/utils/bowling-score";
+import { isGameComplete, canMakeSpare } from "@/utils/bowling/frame-validation";
+import { 
+  recordStrike,
+  recordSpare,
+  recordRegularShot
+} from "@/utils/bowling/shot-handling";
 
 export const useBowlingGame = () => {
   const [currentFrame, setCurrentFrame] = useState(1);
@@ -17,16 +23,38 @@ export const useBowlingGame = () => {
     }))
   );
 
-  const isGameComplete = () => {
-    const tenthFrame = frames[9];
-    if (!tenthFrame.firstShot) return false;
-    
-    if (tenthFrame.isStrike) {
-      return tenthFrame.secondShot !== null && tenthFrame.thirdShot !== null;
-    } else if (tenthFrame.isSpare) {
-      return tenthFrame.thirdShot !== null;
+  const updateFrameAndAdvance = (newFrame: Frame) => {
+    const newFrames = [...frames];
+    newFrames[currentFrame - 1] = newFrame;
+
+    // Recalculate scores
+    for (let i = 0; i <= currentFrame - 1; i++) {
+      newFrames[i].score = calculateFrameScore(newFrames, i);
+    }
+
+    setFrames(newFrames);
+    setSelectedPins([]);
+
+    // Advance to next shot/frame
+    if (currentFrame === 10) {
+      if (currentShot === 1) {
+        setCurrentShot(2);
+      } else if (currentShot === 2) {
+        if (newFrame.isStrike || newFrame.isSpare) {
+          setCurrentShot(3);
+        } else {
+          setCurrentFrame(11); // End game
+        }
+      } else if (currentShot === 3) {
+        setCurrentFrame(11); // End game
+      }
     } else {
-      return tenthFrame.secondShot !== null;
+      if (newFrame.isStrike || currentShot === 2) {
+        setCurrentFrame(currentFrame + 1);
+        setCurrentShot(1);
+      } else {
+        setCurrentShot(2);
+      }
     }
   };
 
@@ -36,160 +64,22 @@ export const useBowlingGame = () => {
 
   const handleStrike = () => {
     if (currentFrame > 10) return;
-
-    const newFrames = [...frames];
-    const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    
-    if (currentFrame === 10) {
-      if (currentShot === 1) {
-        newFrames[9] = {
-          ...newFrames[9],
-          firstShot: allPins,
-          isStrike: true,
-        };
-        setCurrentShot(2);
-      } else if (currentShot === 2) {
-        newFrames[9] = {
-          ...newFrames[9],
-          secondShot: allPins,
-        };
-        setCurrentShot(3);
-      } else if (currentShot === 3) {
-        newFrames[9] = {
-          ...newFrames[9],
-          thirdShot: allPins,
-        };
-        setCurrentFrame(11); // End game
-      }
-    } else {
-      newFrames[currentFrame - 1] = {
-        ...newFrames[currentFrame - 1],
-        firstShot: allPins,
-        secondShot: null,
-        isStrike: true,
-      };
-      setCurrentFrame(currentFrame + 1);
-      setCurrentShot(1);
-    }
-
-    // Recalculate scores for all frames
-    for (let i = 0; i <= currentFrame - 1; i++) {
-      newFrames[i].score = calculateFrameScore(newFrames, i);
-    }
-
-    setFrames(newFrames);
-    setSelectedPins([]);
+    const newFrame = recordStrike(frames, currentFrame - 1, currentShot);
+    updateFrameAndAdvance(newFrame);
   };
 
   const handleSpare = () => {
-    if (currentFrame > 10 || currentShot !== 2) return;
-
-    const newFrames = [...frames];
-    const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    const remainingPins = allPins.filter(
-      (pin) => !newFrames[currentFrame - 1].firstShot?.includes(pin)
-    );
-
-    if (currentFrame === 10) {
-      newFrames[9] = {
-        ...newFrames[9],
-        secondShot: remainingPins,
-        isSpare: true,
-      };
-      setCurrentShot(3);
-    } else {
-      newFrames[currentFrame - 1] = {
-        ...newFrames[currentFrame - 1],
-        secondShot: remainingPins,
-        isSpare: true,
-      };
-      setCurrentFrame(currentFrame + 1);
-      setCurrentShot(1);
-    }
-
-    // Recalculate scores for all frames
-    for (let i = 0; i <= currentFrame - 1; i++) {
-      newFrames[i].score = calculateFrameScore(newFrames, i);
-    }
-
-    setFrames(newFrames);
-    setSelectedPins([]);
+    if (currentFrame > 10) return;
+    if (!canMakeSpare(frames[currentFrame - 1], currentShot)) return;
+    
+    const newFrame = recordSpare(frames, currentFrame - 1, currentShot);
+    updateFrameAndAdvance(newFrame);
   };
 
   const handleRegularShot = () => {
     if (currentFrame > 10 || isGameComplete()) return;
-
-    // Even if no pins are selected, we should record it as a shot with 0 pins
-    const pinsForShot = selectedPins.length === 0 ? [] : selectedPins;
-    const isStrike = currentShot === 1 && pinsForShot.length === 10;
-
-    if (isStrike) {
-      handleStrike();
-      return;
-    }
-
-    const newFrames = [...frames].map((frame, index) => {
-      if (index === currentFrame - 1) {
-        const updatedFrame = { ...frame };
-        
-        if (currentFrame === 10) {
-          if (currentShot === 1) {
-            updatedFrame.firstShot = pinsForShot;
-          } else if (currentShot === 2) {
-            updatedFrame.secondShot = pinsForShot;
-            const totalPins = (updatedFrame.firstShot?.length || 0) + pinsForShot.length;
-            if (!updatedFrame.isStrike) {
-              updatedFrame.isSpare = totalPins === 10;
-            }
-          } else if (currentShot === 3) {
-            updatedFrame.thirdShot = pinsForShot;
-          }
-        } else {
-          if (currentShot === 1) {
-            updatedFrame.firstShot = pinsForShot;
-            updatedFrame.isStrike = false;
-            updatedFrame.isSpare = false;
-          } else if (currentShot === 2) {
-            updatedFrame.secondShot = pinsForShot;
-            const totalPins = (updatedFrame.firstShot?.length || 0) + pinsForShot.length;
-            updatedFrame.isSpare = totalPins === 10 && !updatedFrame.isStrike;
-          }
-        }
-        
-        return updatedFrame;
-      }
-      return frame;
-    });
-
-    // Recalculate scores for all frames
-    for (let i = 0; i <= currentFrame - 1; i++) {
-      newFrames[i].score = calculateFrameScore(newFrames, i);
-    }
-
-    setFrames(newFrames);
-    
-    if (currentFrame === 10) {
-      if (currentShot === 1) {
-        setCurrentShot(2);
-      } else if (currentShot === 2) {
-        if (newFrames[9].isStrike || newFrames[9].isSpare) {
-          setCurrentShot(3);
-        } else {
-          setCurrentFrame(11); // End game
-        }
-      } else if (currentShot === 3) {
-        setCurrentFrame(11); // End game
-      }
-    } else {
-      if (currentShot === 1) {
-        setCurrentShot(2);
-      } else {
-        setCurrentFrame(currentFrame + 1);
-        setCurrentShot(1);
-      }
-    }
-    
-    setSelectedPins([]);
+    const newFrame = recordRegularShot(frames, currentFrame - 1, currentShot, selectedPins);
+    updateFrameAndAdvance(newFrame);
   };
 
   const handleClear = () => {
@@ -201,7 +91,7 @@ export const useBowlingGame = () => {
     currentShot,
     selectedPins,
     frames,
-    isGameComplete: isGameComplete(),
+    isGameComplete: isGameComplete(frames),
     handlePinSelect,
     handleStrike,
     handleSpare,
