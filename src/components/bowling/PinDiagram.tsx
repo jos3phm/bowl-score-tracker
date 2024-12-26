@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Pin } from "@/types/game";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +10,8 @@ interface PinDiagramProps {
 
 export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiagramProps) => {
   const [hoveredPin, setHoveredPin] = useState<Pin | null>(null);
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   const handlePinClick = (pin: Pin) => {
     if (disabled) return;
@@ -20,6 +22,33 @@ export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiag
       onPinSelect([...selectedPins, pin]);
     }
   };
+
+  const handlePinMouseDown = (pin: Pin) => {
+    if (disabled) return;
+
+    const timer = setTimeout(() => {
+      // On long press, select all pins except the pressed one
+      const invertedSelection = allPins.filter(p => p !== pin);
+      onPinSelect(invertedSelection);
+    }, 500); // 500ms for long press
+
+    setLongPressTimer(timer);
+  };
+
+  const handlePinMouseUp = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+      }
+    };
+  }, [longPressTimer]);
 
   const renderPin = (pin: Pin, position: string) => {
     const isSelected = selectedPins.includes(pin);
@@ -40,8 +69,13 @@ export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiag
           disabled && "opacity-50 cursor-not-allowed"
         )}
         onClick={() => handlePinClick(pin)}
+        onMouseDown={() => handlePinMouseDown(pin)}
+        onMouseUp={handlePinMouseUp}
+        onMouseLeave={() => {
+          setHoveredPin(null);
+          handlePinMouseUp();
+        }}
         onMouseEnter={() => setHoveredPin(pin)}
-        onMouseLeave={() => setHoveredPin(null)}
         disabled={disabled}
       >
         {pin}

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PinDiagram } from "@/components/bowling/PinDiagram";
 import { ScoreCard } from "@/components/bowling/ScoreCard";
 import { GameControls } from "@/components/bowling/GameControls";
-import type { Frame, Pin, Game } from "@/types/game";
+import type { Frame, Pin } from "@/types/game";
 
 const Index = () => {
   const [currentFrame, setCurrentFrame] = useState(1);
@@ -52,7 +52,7 @@ const Index = () => {
 
     const newFrames = [...frames];
     const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    const remainingPins: Pin[] = allPins.filter(
+    const remainingPins = allPins.filter(
       (pin) => !newFrames[currentFrame - 1].firstShot?.includes(pin)
     );
 
@@ -70,6 +70,33 @@ const Index = () => {
     } else {
       setCurrentShot(3);
     }
+    setSelectedPins([]);
+  };
+
+  const handleRegularShot = () => {
+    if (currentFrame > 10 || selectedPins.length === 0) return;
+
+    const newFrames = [...frames];
+    const currentFrameData = newFrames[currentFrame - 1];
+
+    if (currentShot === 1) {
+      currentFrameData.firstShot = selectedPins;
+      setCurrentShot(2);
+    } else if (currentShot === 2) {
+      currentFrameData.secondShot = selectedPins;
+      if (currentFrame < 10) {
+        setCurrentFrame(currentFrame + 1);
+        setCurrentShot(1);
+      } else {
+        setCurrentShot(3);
+      }
+    } else if (currentFrame === 10 && currentShot === 3) {
+      currentFrameData.thirdShot = selectedPins;
+      setCurrentFrame(11); // End game
+    }
+
+    currentFrameData.score = calculateScore(newFrames, currentFrame - 1);
+    setFrames(newFrames);
     setSelectedPins([]);
   };
 
@@ -117,6 +144,7 @@ const Index = () => {
             <GameControls
               onStrike={handleStrike}
               onSpare={handleSpare}
+              onRegularShot={handleRegularShot}
               onClear={handleClear}
               disabled={currentFrame > 10}
             />

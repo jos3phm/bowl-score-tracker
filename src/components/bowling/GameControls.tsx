@@ -4,6 +4,7 @@ interface GameControlsProps {
   onStrike: () => void;
   onSpare: () => void;
   onClear: () => void;
+  onRegularShot: () => void;
   disabled?: boolean;
 }
 
@@ -11,10 +12,11 @@ export const GameControls = ({
   onStrike,
   onSpare,
   onClear,
+  onRegularShot,
   disabled
 }: GameControlsProps) => {
   return (
-    <div className="flex gap-2 justify-center">
+    <div className="flex gap-2 justify-center flex-wrap">
       <Button
         onClick={onStrike}
         disabled={disabled}
@@ -28,6 +30,13 @@ export const GameControls = ({
         className="bg-secondary hover:bg-secondary/90"
       >
         Spare
+      </Button>
+      <Button
+        onClick={onRegularShot}
+        disabled={disabled}
+        variant="default"
+      >
+        Record Shot
       </Button>
       <Button
         onClick={onClear}
