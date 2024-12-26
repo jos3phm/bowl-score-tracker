@@ -77,7 +77,7 @@ export const useBowlingGame = () => {
   };
 
   const handleRegularShot = () => {
-    if (currentFrame > 10 || isGameComplete()) return;
+    if (currentFrame > 10 || isGameComplete(frames)) return;
     const newFrame = recordRegularShot(frames, currentFrame - 1, currentShot, selectedPins);
     updateFrameAndAdvance(newFrame);
   };
