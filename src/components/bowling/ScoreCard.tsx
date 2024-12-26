@@ -26,7 +26,7 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
           {/* First shot */}
           <div className="text-center">
             {frame.firstShot !== null ? (
-              frame.isStrike ? (
+              frame.isStrike && !isTenth ? (
                 <span className="text-primary font-bold">X</span>
               ) : (
                 frame.firstShot.length
@@ -39,10 +39,10 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
           {/* Second shot */}
           <div className="text-center">
             {frame.secondShot !== null ? (
-              frame.isStrike && isTenth ? (
-                <span className="text-primary font-bold">X</span>
-              ) : frame.isSpare ? (
+              frame.isSpare ? (
                 <span className="text-secondary font-bold">/</span>
+              ) : frame.isStrike && isTenth ? (
+                <span className="text-primary font-bold">X</span>
               ) : (
                 frame.secondShot.length
               )
@@ -55,21 +55,23 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
           {isTenth && (
             <div className="text-center col-span-2 border-t pt-1">
               {frame.thirdShot !== null ? (
-                frame.isStrike ? (
+                frame.isStrike || frame.thirdShot.length === 10 ? (
                   <span className="text-primary font-bold">X</span>
                 ) : (
                   frame.thirdShot.length
                 )
-              ) : (
+              ) : frame.firstShot === null || 
+                 (frame.secondShot === null && !frame.isStrike) || 
+                 ((frame.isStrike || frame.isSpare) && frame.secondShot === null) ? (
                 "-"
-              )}
+              ) : null}
             </div>
           )}
         </div>
         
         {/* Running score */}
         <div className="text-center font-semibold border-t pt-1">
-          {frame.firstShot !== null && frame.score !== null ? frame.score : "-"}
+          {frame.score !== null ? frame.score : "-"}
         </div>
       </div>
     );

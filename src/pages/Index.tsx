@@ -21,6 +21,19 @@ const Index = () => {
     }))
   );
 
+  const isGameComplete = () => {
+    const tenthFrame = frames[9];
+    if (!tenthFrame.firstShot) return false;
+    
+    if (tenthFrame.isStrike) {
+      return tenthFrame.secondShot !== null && tenthFrame.thirdShot !== null;
+    } else if (tenthFrame.isSpare) {
+      return tenthFrame.thirdShot !== null;
+    } else {
+      return tenthFrame.secondShot !== null;
+    }
+  };
+
   const handlePinSelect = (pins: Pin[]) => {
     setSelectedPins(pins);
   };
@@ -84,7 +97,7 @@ const Index = () => {
   };
 
   const handleRegularShot = () => {
-    if (currentFrame > 10 || selectedPins.length === 0) return;
+    if (currentFrame > 10 || selectedPins.length === 0 || isGameComplete()) return;
 
     const isStrike = currentShot === 1 && selectedPins.length === 10;
 
@@ -103,7 +116,8 @@ const Index = () => {
           updatedFrame.isSpare = false;
         } else if (currentShot === 2) {
           updatedFrame.secondShot = selectedPins;
-          updatedFrame.isSpare = false;
+          const totalPins = (updatedFrame.firstShot?.length || 0) + selectedPins.length;
+          updatedFrame.isSpare = totalPins === 10 && !updatedFrame.isStrike;
         } else if (currentFrame === 10 && currentShot === 3) {
           updatedFrame.thirdShot = selectedPins;
         }
@@ -126,8 +140,13 @@ const Index = () => {
       if (currentFrame < 10) {
         setCurrentFrame(currentFrame + 1);
         setCurrentShot(1);
-      } else {
-        setCurrentShot(3);
+      } else if (currentFrame === 10) {
+        const frame = newFrames[9];
+        if (frame.isStrike || frame.isSpare) {
+          setCurrentShot(3);
+        } else {
+          setCurrentFrame(11); // End game
+        }
       }
     } else if (currentFrame === 10 && currentShot === 3) {
       setCurrentFrame(11); // End game
@@ -157,7 +176,7 @@ const Index = () => {
             <PinDiagram
               onPinSelect={handlePinSelect}
               selectedPins={selectedPins}
-              disabled={currentFrame > 10}
+              disabled={currentFrame > 10 || isGameComplete()}
             />
             
             <GameControls
@@ -165,7 +184,7 @@ const Index = () => {
               onSpare={handleSpare}
               onRegularShot={handleRegularShot}
               onClear={handleClear}
-              disabled={currentFrame > 10}
+              disabled={currentFrame > 10 || isGameComplete()}
             />
           </div>
           
