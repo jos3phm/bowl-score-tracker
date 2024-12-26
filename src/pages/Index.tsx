@@ -76,14 +76,32 @@ const Index = () => {
   const handleRegularShot = () => {
     if (currentFrame > 10 || selectedPins.length === 0) return;
 
-    const newFrames = [...frames];
-    const currentFrameData = newFrames[currentFrame - 1];
+    const newFrames = frames.map((frame, index) => {
+      if (index === currentFrame - 1) {
+        const updatedFrame = { ...frame };
+        
+        if (currentShot === 1) {
+          updatedFrame.firstShot = selectedPins;
+          updatedFrame.isStrike = false;
+          updatedFrame.isSpare = false;
+        } else if (currentShot === 2) {
+          updatedFrame.secondShot = selectedPins;
+          updatedFrame.isSpare = false;
+        } else if (currentFrame === 10 && currentShot === 3) {
+          updatedFrame.thirdShot = selectedPins;
+        }
+        
+        updatedFrame.score = calculateScore(newFrames, currentFrame - 1);
+        return updatedFrame;
+      }
+      return frame;
+    });
 
+    setFrames(newFrames);
+    
     if (currentShot === 1) {
-      currentFrameData.firstShot = selectedPins;
       setCurrentShot(2);
     } else if (currentShot === 2) {
-      currentFrameData.secondShot = selectedPins;
       if (currentFrame < 10) {
         setCurrentFrame(currentFrame + 1);
         setCurrentShot(1);
@@ -91,12 +109,9 @@ const Index = () => {
         setCurrentShot(3);
       }
     } else if (currentFrame === 10 && currentShot === 3) {
-      currentFrameData.thirdShot = selectedPins;
       setCurrentFrame(11); // End game
     }
-
-    currentFrameData.score = calculateScore(newFrames, currentFrame - 1);
-    setFrames(newFrames);
+    
     setSelectedPins([]);
   };
 
