@@ -60,9 +60,7 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
                 ) : (
                   frame.thirdShot.length
                 )
-              ) : frame.firstShot === null || 
-                 (frame.secondShot === null && !frame.isStrike) || 
-                 ((frame.isStrike || frame.isSpare) && frame.secondShot === null) ? (
+              ) : (frame.isStrike || frame.isSpare) && frame.secondShot !== null ? (
                 "-"
               ) : null}
             </div>

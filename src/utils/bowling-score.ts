@@ -14,49 +14,23 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
     // Base score for the current frame
     if (frame.firstShot === null) return null;
 
-    // For the current frame being calculated
-    if (i === frameIndex) {
-      if (i === 9) {
-        // 10th frame special handling
-        if (frame.isStrike) {
-          // Need second shot for strike
-          if (frame.secondShot === null) return null;
-          // Need third shot if second shot is strike or spare
-          if (frame.secondShot.length === 10 && frame.thirdShot === null) return null;
-        } else if (frame.isSpare) {
-          // Need third shot for spare
-          if (frame.thirdShot === null) return null;
-        } else {
-          // Open frame - need both shots
-          if (frame.secondShot === null) return null;
-        }
-      } else {
-        // Frames 1-9
-        if (frame.isStrike && i < 9) {
-          if (!nextFrame?.firstShot || (nextFrame.isStrike && !followingFrame?.firstShot)) {
-            return null;
-          }
-        } else if (frame.isSpare && i < 9) {
-          if (!nextFrame?.firstShot) {
-            return null;
-          }
-        } else if (!frame.secondShot && !frame.isStrike) {
-          return null;
-        }
-      }
-    }
-
     if (i === 9) {
-      // 10th frame scoring
+      // 10th frame special handling
       score += frame.firstShot.length;
+      console.log(`10th frame first shot: ${frame.firstShot.length}`);
       
-      if (frame.secondShot) {
+      if (frame.secondShot !== null) {
         score += frame.secondShot.length;
-        
-        // Add third shot if it exists (after strike or spare)
-        if (frame.thirdShot) {
-          score += frame.thirdShot.length;
-        }
+        console.log(`10th frame second shot: ${frame.secondShot.length}`);
+      } else if (frame.firstShot.length === 10 || frame.isSpare) {
+        return null; // Waiting for second shot after strike/spare
+      }
+      
+      if (frame.thirdShot !== null) {
+        score += frame.thirdShot.length;
+        console.log(`10th frame third shot: ${frame.thirdShot.length}`);
+      } else if ((frame.firstShot.length === 10 || frame.isSpare) && frame.secondShot !== null) {
+        return null; // Waiting for third shot after strike/spare
       }
     } else if (frame.isStrike) {
       score += 10;
@@ -71,6 +45,8 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
           if (followingFrame?.firstShot) {
             score += followingFrame.isStrike ? 10 : followingFrame.firstShot.length;
             console.log(`Second bonus: ${followingFrame.isStrike ? 'strike (10)' : followingFrame.firstShot.length}`);
+          } else {
+            return null;
           }
         } else {
           score += nextFrame.firstShot.length;
@@ -78,8 +54,12 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
           if (nextFrame.secondShot) {
             score += nextFrame.secondShot.length;
             console.log(`Second bonus: ${nextFrame.secondShot.length}`);
+          } else {
+            return null;
           }
         }
+      } else {
+        return null;
       }
     } else if (frame.isSpare) {
       score += 10;
@@ -88,11 +68,15 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
       if (nextFrame?.firstShot) {
         score += nextFrame.isStrike ? 10 : nextFrame.firstShot.length;
         console.log(`Spare bonus: ${nextFrame.isStrike ? 'strike (10)' : nextFrame.firstShot.length}`);
+      } else {
+        return null;
       }
     } else if (frame.firstShot && frame.secondShot) {
       // Open frame
       score += frame.firstShot.length + frame.secondShot.length;
       console.log(`Open frame: ${frame.firstShot.length} + ${frame.secondShot.length}`);
+    } else {
+      return null;
     }
 
     console.log(`Running total after frame ${i + 1}: ${score}`);
