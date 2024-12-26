@@ -1,38 +1,39 @@
 import { useState, useEffect } from "react";
-import { Pin } from "@/types/game";
-import { cn } from "@/lib/utils";
+import { Pin as PinType } from "@/types/game";
+import { Pin } from "./Pin";
+import { getHistoricalPinStyle } from "@/utils/bowling/pin-styles";
 
 interface PinDiagramProps {
-  onPinSelect: (pins: Pin[]) => void;
+  onPinSelect: (pins: PinType[]) => void;
   disabled?: boolean;
-  selectedPins?: Pin[];
-  remainingPins?: Pin[];
+  selectedPins?: PinType[];
+  remainingPins?: PinType[];
   historicalFrame?: {
-    firstShot: Pin[];
-    secondShot: Pin[];
+    firstShot: PinType[];
+    secondShot: PinType[];
     isSpare: boolean;
     isStrike: boolean;
   } | null;
   isHistoricalView?: boolean;
 }
 
-export const PinDiagram = ({ 
-  onPinSelect, 
-  disabled, 
+export const PinDiagram = ({
+  onPinSelect,
+  disabled = false,
   selectedPins = [],
   remainingPins,
   historicalFrame,
-  isHistoricalView = false
+  isHistoricalView = false,
 }: PinDiagramProps) => {
-  const [hoveredPin, setHoveredPin] = useState<Pin | null>(null);
+  const [hoveredPin, setHoveredPin] = useState<PinType | null>(null);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   const [isLongPress, setIsLongPress] = useState(false);
-  const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const allPins: PinType[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
   // Use remainingPins if provided (for second shot), otherwise use all pins
   const availablePins = remainingPins || allPins;
 
-  const handlePinClick = (pin: Pin) => {
+  const handlePinClick = (pin: PinType) => {
     if (disabled || isLongPress || isHistoricalView) return;
     
     if (selectedPins.includes(pin)) {
@@ -42,7 +43,7 @@ export const PinDiagram = ({
     }
   };
 
-  const handlePinMouseDown = (pin: Pin) => {
+  const handlePinMouseDown = (pin: PinType) => {
     if (disabled || isHistoricalView) return;
     setIsLongPress(false);
 
@@ -73,87 +74,33 @@ export const PinDiagram = ({
     };
   }, [longPressTimer]);
 
-  const getPinStyle = (pin: Pin) => {
-    if (!isHistoricalView) {
-      const isSelected = selectedPins.includes(pin);
-      const isPinAvailable = availablePins.includes(pin);
-      
-      if (!isPinAvailable) {
-        return "bg-gray-200 text-gray-400";
-      }
-      
-      return isSelected
-        ? "bg-primary text-white animate-pin-selected"
-        : "bg-white text-gray-800 border-2 border-gray-200";
-    }
-
-    if (historicalFrame) {
-      const isFirstShot = historicalFrame.firstShot.includes(pin);
-      const isSecondShot = historicalFrame.secondShot.includes(pin);
-      
-      if (historicalFrame.isStrike) {
-        return "bg-primary text-white";
-      }
-      
-      if (historicalFrame.isSpare) {
-        if (isFirstShot) {
-          return "bg-gray-200 text-gray-600";
-        }
-        return "bg-secondary text-white";
-      }
-      
-      if (isFirstShot) {
-        return "bg-primary text-white";
-      }
-      
-      if (isSecondShot) {
-        return "bg-secondary text-white";
-      }
-      
-      // Pin was missed in both shots
-      if (historicalFrame.firstShot.length > 0 || historicalFrame.secondShot.length > 0) {
-        return "bg-white text-gray-400 border-2 border-dashed border-gray-300";
-      }
-    }
-    
-    return "bg-white text-gray-800 border-2 border-gray-200";
-  };
-
-  const renderPin = (pin: Pin, position: string) => {
-    const isHovered = hoveredPin === pin;
+  const renderPin = (pin: PinType, position: string) => {
+    const isSelected = selectedPins.includes(pin);
+    const isPinAvailable = availablePins.includes(pin);
+    const historicalStyle = historicalFrame 
+      ? getHistoricalPinStyle(pin, historicalFrame)
+      : "";
 
     return (
-      <button
+      <Pin
         key={pin}
-        className={cn(
-          "w-10 h-10 rounded-full transition-all duration-300",
-          "flex items-center justify-center text-sm font-semibold",
-          "hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary",
-          position,
-          getPinStyle(pin),
-          isHovered && !disabled && !isHistoricalView && "shadow-lg",
-          (disabled || isHistoricalView) && "cursor-default"
-        )}
-        onClick={() => handlePinClick(pin)}
-        onMouseDown={() => handlePinMouseDown(pin)}
-        onMouseUp={handlePinMouseUp}
-        onMouseLeave={() => {
+        pin={pin}
+        position={position}
+        isSelected={isSelected}
+        isPinAvailable={isPinAvailable}
+        isHistoricalView={isHistoricalView}
+        historicalStyle={historicalStyle}
+        onPinClick={handlePinClick}
+        onPinMouseDown={handlePinMouseDown}
+        onPinMouseUp={handlePinMouseUp}
+        onPinMouseLeave={() => {
           setHoveredPin(null);
           handlePinMouseUp();
         }}
-        onMouseEnter={() => setHoveredPin(pin)}
-        onTouchStart={(e) => {
-          e.preventDefault();
-          handlePinMouseDown(pin);
-        }}
-        onTouchEnd={(e) => {
-          e.preventDefault();
-          handlePinMouseUp();
-        }}
-        disabled={disabled || isHistoricalView}
-      >
-        {pin}
-      </button>
+        onPinMouseEnter={(pin) => setHoveredPin(pin)}
+        isHovered={hoveredPin === pin}
+        disabled={disabled}
+      />
     );
   };
 
