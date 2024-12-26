@@ -27,9 +27,11 @@ const Index = () => {
     if (currentFrame > 10) return;
 
     const newFrames = [...frames];
+    const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    
     newFrames[currentFrame - 1] = {
       ...newFrames[currentFrame - 1],
-      firstShot: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      firstShot: allPins,
       secondShot: null,
       isStrike: true,
       score: calculateScore(newFrames, currentFrame - 1),
@@ -49,7 +51,7 @@ const Index = () => {
     if (currentFrame > 10 || currentShot !== 2) return;
 
     const newFrames = [...frames];
-    const remainingPins = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(
+    const remainingPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(
       pin => !newFrames[currentFrame - 1].firstShot?.includes(pin)
     );
 
