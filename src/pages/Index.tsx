@@ -51,8 +51,9 @@ const Index = () => {
     if (currentFrame > 10 || currentShot !== 2) return;
 
     const newFrames = [...frames];
-    const remainingPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(
-      pin => !newFrames[currentFrame - 1].firstShot?.includes(pin)
+    const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const remainingPins: Pin[] = allPins.filter(
+      (pin) => !newFrames[currentFrame - 1].firstShot?.includes(pin)
     );
 
     newFrames[currentFrame - 1] = {
