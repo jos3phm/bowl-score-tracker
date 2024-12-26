@@ -75,6 +75,10 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
       // Open frame
       score += frame.firstShot.length + frame.secondShot.length;
       console.log(`Open frame: ${frame.firstShot.length} + ${frame.secondShot.length}`);
+    } else if (frame.firstShot) {
+      // Only first shot completed
+      score += frame.firstShot.length;
+      console.log(`Partial frame: ${frame.firstShot.length}`);
     }
 
     console.log(`Running total after frame ${i + 1}: ${score}`);
