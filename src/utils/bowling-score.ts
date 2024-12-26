@@ -1,6 +1,6 @@
 import { Frame } from "@/types/game";
 
-export const calculateFrameScore = (frames: Frame[], frameIndex: number): number => {
+export const calculateFrameScore = (frames: Frame[], frameIndex: number): number | null => {
   let score = 0;
   
   // Calculate running total of all frames up to this one
@@ -12,7 +12,7 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
     console.log(`\nCalculating frame ${i + 1}:`);
     
     // Base score for the current frame
-    if (frame.firstShot === null) return 0;
+    if (frame.firstShot === null) return null;
 
     // For the current frame being calculated
     if (i === frameIndex) {
