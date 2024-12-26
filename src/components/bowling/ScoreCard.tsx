@@ -31,30 +31,26 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
         )}
       >
         <div className="text-xs text-gray-500 mb-1">Frame {index + 1}</div>
-        <div className="grid grid-cols-2 gap-1 mb-1">
-          {/* First shot */}
-          <div className="text-center">
-            {renderShot(frame.firstShot, false)}
-          </div>
-          
-          {/* Second shot */}
-          <div className="text-center">
-            {isTenth ? 
-              renderShot(frame.secondShot, false) :
-              (frame.isStrike ? 
-                "" : 
-                renderShot(frame.secondShot, frame.isSpare)
-              )
-            }
-          </div>
-          
-          {/* Third shot (10th frame only) */}
-          {isTenth && (frame.isStrike || frame.isSpare) && (
-            <div className="text-center col-span-2 border-t pt-1">
-              {renderShot(frame.thirdShot, false, true)}
+        {isTenth ? (
+          // Special layout for 10th frame
+          <div className="mb-1">
+            <div className="flex justify-center gap-1">
+              {renderShot(frame.firstShot, false)}
+              {renderShot(frame.secondShot, false)}
+              {(frame.isStrike || frame.isSpare) && renderShot(frame.thirdShot, false, true)}
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          // Regular frame layout
+          <div className="grid grid-cols-2 gap-1 mb-1">
+            <div className="text-center">
+              {renderShot(frame.firstShot, false)}
+            </div>
+            <div className="text-center">
+              {frame.isStrike ? "" : renderShot(frame.secondShot, frame.isSpare)}
+            </div>
+          </div>
+        )}
         
         {/* Running score */}
         <div className="text-center font-semibold border-t pt-1">
