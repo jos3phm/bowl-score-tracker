@@ -37,16 +37,15 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
           
           {/* Second shot */}
           <div className="text-center">
-            {renderShot(frame.secondShot, frame.isSpare)}
+            {isTenth && frame.isStrike ? 
+              renderShot(frame.secondShot, false) :
+              renderShot(frame.secondShot, frame.isSpare)}
           </div>
           
           {/* Third shot (10th frame only) */}
-          {isTenth && (
+          {isTenth && (frame.isStrike || frame.isSpare) && (
             <div className="text-center col-span-2 border-t pt-1">
-              {frame.isStrike || frame.isSpare ? 
-                renderShot(frame.thirdShot, false, true) : 
-                null
-              }
+              {renderShot(frame.thirdShot, false, true)}
             </div>
           )}
         </div>
