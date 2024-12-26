@@ -123,19 +123,55 @@ const Index = () => {
   };
 
   const calculateScore = (frames: Frame[], frameIndex: number): number => {
-    // This is a simplified scoring calculation
-    // You'll need to implement the full bowling scoring rules
     let score = 0;
+    
+    // Calculate score up to the current frame
     for (let i = 0; i <= frameIndex; i++) {
       const frame = frames[i];
+      const nextFrame = i < 9 ? frames[i + 1] : null;
+      const followingFrame = i < 8 ? frames[i + 2] : null;
+
       if (frame.isStrike) {
+        // Strike: 10 + next two shots
         score += 10;
+        
+        if (nextFrame) {
+          if (nextFrame.isStrike) {
+            // Next shot is a strike
+            score += 10;
+            if (i < 8) {
+              // Need the first shot of the following frame
+              if (followingFrame?.isStrike) {
+                score += 10;
+              } else if (followingFrame?.firstShot) {
+                score += followingFrame.firstShot.length;
+              }
+            } else if (i === 8 && nextFrame.secondShot) {
+              // Special case for 9th frame strike followed by 10th frame strike
+              score += nextFrame.secondShot.length;
+            }
+          } else {
+            // Next frame is not a strike, add both shots if available
+            if (nextFrame.firstShot) {
+              score += nextFrame.firstShot.length;
+            }
+            if (nextFrame.secondShot) {
+              score += nextFrame.secondShot.length;
+            }
+          }
+        }
       } else if (frame.isSpare) {
+        // Spare: 10 + next one shot
         score += 10;
+        if (nextFrame?.firstShot) {
+          score += nextFrame.firstShot.length;
+        }
       } else {
+        // Open frame: just add the pins knocked down
         score += (frame.firstShot?.length || 0) + (frame.secondShot?.length || 0);
       }
     }
+    
     return score;
   };
 
