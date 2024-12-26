@@ -3,6 +3,7 @@ import { ScoreCard } from "./ScoreCard";
 import { GameControls } from "./GameControls";
 import { GameStatus } from "./GameStatus";
 import { useBowlingGame } from "@/hooks/useBowlingGame";
+import { Pin } from "@/types/game";
 
 export const BowlingGame = () => {
   const {
@@ -23,6 +24,17 @@ export const BowlingGame = () => {
     ? frames[9]?.isStrike 
     : frames[currentFrame - 1]?.isStrike;
 
+  // Calculate remaining pins for second shot
+  const getRemainingPins = (): Pin[] | undefined => {
+    if (currentShot !== 2) return undefined;
+    
+    const frame = frames[currentFrame - 1];
+    if (!frame?.firstShot) return undefined;
+
+    const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    return allPins.filter(pin => !frame.firstShot?.includes(pin));
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container max-w-4xl mx-auto">
@@ -41,6 +53,7 @@ export const BowlingGame = () => {
               onPinSelect={handlePinSelect}
               selectedPins={selectedPins}
               disabled={currentFrame > 10 || isGameComplete}
+              remainingPins={getRemainingPins()}
             />
             
             <GameControls

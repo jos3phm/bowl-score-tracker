@@ -6,13 +6,22 @@ interface PinDiagramProps {
   onPinSelect: (pins: Pin[]) => void;
   disabled?: boolean;
   selectedPins?: Pin[];
+  remainingPins?: Pin[];
 }
 
-export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiagramProps) => {
+export const PinDiagram = ({ 
+  onPinSelect, 
+  disabled, 
+  selectedPins = [],
+  remainingPins
+}: PinDiagramProps) => {
   const [hoveredPin, setHoveredPin] = useState<Pin | null>(null);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   const [isLongPress, setIsLongPress] = useState(false);
   const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  
+  // Use remainingPins if provided (for second shot), otherwise use all pins
+  const availablePins = remainingPins || allPins;
 
   const handlePinClick = (pin: Pin) => {
     if (disabled || isLongPress) return;
@@ -30,7 +39,7 @@ export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiag
 
     const timer = setTimeout(() => {
       setIsLongPress(true);
-      const pinsToSelect = allPins.filter(p => p !== pin);
+      const pinsToSelect = availablePins.filter(p => p !== pin);
       onPinSelect(pinsToSelect);
     }, 500);
 
@@ -42,7 +51,6 @@ export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiag
       clearTimeout(longPressTimer);
       setLongPressTimer(null);
     }
-    // Reset long press state after a short delay
     setTimeout(() => {
       setIsLongPress(false);
     }, 50);
@@ -59,6 +67,23 @@ export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiag
   const renderPin = (pin: Pin, position: string) => {
     const isSelected = selectedPins.includes(pin);
     const isHovered = hoveredPin === pin;
+    const isPinAvailable = availablePins.includes(pin);
+
+    if (!isPinAvailable) {
+      return (
+        <div
+          key={pin}
+          className={cn(
+            "w-10 h-10 rounded-full transition-all duration-300",
+            "flex items-center justify-center text-sm font-semibold",
+            "bg-gray-200 text-gray-400",
+            position
+          )}
+        >
+          {pin}
+        </div>
+      );
+    }
 
     return (
       <button
