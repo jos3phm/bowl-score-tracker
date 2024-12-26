@@ -12,6 +12,10 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
     console.log(`\nCalculating frame ${i + 1}:`);
     
     // Base score for the current frame
+    if (frame.firstShot === null) {
+      return 0; // Frame not yet played
+    }
+
     if (frame.isStrike) {
       score += 10;
       console.log('Strike detected, added 10');
@@ -42,13 +46,8 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
                 console.log(`Second bonus from 10th frame second shot: ${nextFrame.secondShot.length}`);
               }
             } else if (followingFrame?.firstShot) {
-              if (followingFrame.isStrike) {
-                score += 10;
-                console.log('Second bonus: strike (10)');
-              } else {
-                score += followingFrame.firstShot.length;
-                console.log(`Second bonus: ${followingFrame.firstShot.length}`);
-              }
+              score += followingFrame.isStrike ? 10 : followingFrame.firstShot.length;
+              console.log(`Second bonus: ${followingFrame.isStrike ? 'strike (10)' : followingFrame.firstShot.length}`);
             }
           } else {
             // Next frame is not a strike
@@ -71,13 +70,8 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
           console.log(`10th frame spare bonus: ${frame.thirdShot.length}`);
         }
       } else if (nextFrame?.firstShot) {
-        if (nextFrame.isStrike) {
-          score += 10;
-          console.log('Spare bonus: strike (10)');
-        } else {
-          score += nextFrame.firstShot.length;
-          console.log(`Spare bonus: ${nextFrame.firstShot.length}`);
-        }
+        score += nextFrame.isStrike ? 10 : nextFrame.firstShot.length;
+        console.log(`Spare bonus: ${nextFrame.isStrike ? 'strike (10)' : nextFrame.firstShot.length}`);
       }
     } else if (frame.firstShot && frame.secondShot) {
       // Open frame

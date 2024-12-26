@@ -29,7 +29,7 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
               frame.isStrike ? (
                 <span className="text-primary font-bold">X</span>
               ) : (
-                frame.firstShot?.length || "0"
+                frame.firstShot.length
               )
             ) : (
               "-"
@@ -44,7 +44,7 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
               ) : frame.isSpare ? (
                 <span className="text-secondary font-bold">/</span>
               ) : (
-                frame.secondShot?.length || "0"
+                frame.secondShot.length
               )
             ) : (
               "-"
@@ -58,7 +58,7 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
                 frame.isStrike ? (
                   <span className="text-primary font-bold">X</span>
                 ) : (
-                  frame.thirdShot?.length || "0"
+                  frame.thirdShot.length
                 )
               ) : (
                 "-"
@@ -69,7 +69,7 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
         
         {/* Running score */}
         <div className="text-center font-semibold border-t pt-1">
-          {frame.score || "-"}
+          {frame.score > 0 ? frame.score : "-"}
         </div>
       </div>
     );
