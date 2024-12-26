@@ -53,7 +53,11 @@ export const useBowlingGame = () => {
     
     // Convert selected remaining pins to knocked down pins
     const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    const knockedDownPins = allPins.filter(pin => !selectedPins.includes(pin));
+    
+    // For the second shot, we only need to check if the remaining pin was knocked down
+    const knockedDownPins = currentShot === 2
+      ? allPins.filter(pin => !selectedPins.includes(pin) && frames[currentFrame - 1].firstShot?.includes(pin))
+      : allPins.filter(pin => !selectedPins.includes(pin));
     
     const newFrame = recordRegularShot(frames, currentFrame - 1, currentShot, knockedDownPins);
     updateFrameAndAdvance(newFrame);

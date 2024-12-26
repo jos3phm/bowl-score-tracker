@@ -39,7 +39,7 @@ export const BowlingGame = () => {
       return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     }
 
-    // For regular shots, return the pins that weren't knocked down
+    // For regular shots, return only the pins that were left standing (selected) in first shot
     return frame.firstShot;
   };
 
