@@ -14,6 +14,22 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
     // Base score for the current frame
     if (frame.firstShot === null) return 0;
 
+    // For the current frame being calculated
+    if (i === frameIndex) {
+      // If it's a strike, we need two more shots to display the score
+      if (frame.isStrike && i < 9) {
+        if (!nextFrame?.firstShot || (nextFrame.isStrike && !followingFrame?.firstShot)) {
+          return 0; // Don't display score yet
+        }
+      }
+      // If it's a spare, we need one more shot to display the score
+      else if (frame.isSpare && i < 9) {
+        if (!nextFrame?.firstShot) {
+          return 0; // Don't display score yet
+        }
+      }
+    }
+
     if (frame.isStrike) {
       score += 10;
       console.log('Strike detected, added 10');
@@ -75,10 +91,6 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
       // Open frame
       score += frame.firstShot.length + frame.secondShot.length;
       console.log(`Open frame: ${frame.firstShot.length} + ${frame.secondShot.length}`);
-    } else if (frame.firstShot) {
-      // Only first shot completed
-      score += frame.firstShot.length;
-      console.log(`Partial frame: ${frame.firstShot.length}`);
     }
 
     console.log(`Running total after frame ${i + 1}: ${score}`);
