@@ -39,9 +39,8 @@ export const BowlingGame = () => {
       return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     }
 
-    // Regular frame or 10th frame without strike
-    const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    return allPins.filter(pin => !frame.firstShot?.includes(pin));
+    // For regular shots, return the pins that weren't knocked down
+    return frame.firstShot;
   };
 
   // Get historical frame data for pin diagram
