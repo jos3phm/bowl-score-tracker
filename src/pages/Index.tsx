@@ -11,14 +11,14 @@ const Index = () => {
   const [currentShot, setCurrentShot] = useState<1 | 2 | 3>(1);
   const [selectedPins, setSelectedPins] = useState<Pin[]>([]);
   const [frames, setFrames] = useState<Frame[]>(
-    Array(10).fill({
+    Array(10).fill({}).map(() => ({
       firstShot: null,
       secondShot: null,
       thirdShot: null,
-      score: 0,
+      score: null,
       isStrike: false,
       isSpare: false,
-    })
+    }))
   );
 
   const handlePinSelect = (pins: Pin[]) => {
@@ -36,8 +36,12 @@ const Index = () => {
       firstShot: allPins,
       secondShot: null,
       isStrike: true,
-      score: calculateFrameScore(newFrames, currentFrame - 1),
     };
+
+    // Recalculate scores for all frames
+    for (let i = 0; i <= currentFrame - 1; i++) {
+      newFrames[i].score = calculateFrameScore(newFrames, i);
+    }
 
     setFrames(newFrames);
     if (currentFrame < 10) {
@@ -62,8 +66,12 @@ const Index = () => {
       ...newFrames[currentFrame - 1],
       secondShot: remainingPins,
       isSpare: true,
-      score: calculateFrameScore(newFrames, currentFrame - 1),
     };
+
+    // Recalculate scores for all frames
+    for (let i = 0; i <= currentFrame - 1; i++) {
+      newFrames[i].score = calculateFrameScore(newFrames, i);
+    }
 
     setFrames(newFrames);
     if (currentFrame < 10) {
@@ -78,7 +86,6 @@ const Index = () => {
   const handleRegularShot = () => {
     if (currentFrame > 10 || selectedPins.length === 0) return;
 
-    const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     const isStrike = currentShot === 1 && selectedPins.length === 10;
 
     if (isStrike) {
@@ -86,7 +93,7 @@ const Index = () => {
       return;
     }
 
-    const newFrames = frames.map((frame, index) => {
+    const newFrames = [...frames].map((frame, index) => {
       if (index === currentFrame - 1) {
         const updatedFrame = { ...frame };
         
@@ -106,7 +113,7 @@ const Index = () => {
       return frame;
     });
 
-    // Calculate scores for all frames up to the current one
+    // Recalculate scores for all frames
     for (let i = 0; i <= currentFrame - 1; i++) {
       newFrames[i].score = calculateFrameScore(newFrames, i);
     }
