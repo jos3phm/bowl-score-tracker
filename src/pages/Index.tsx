@@ -76,6 +76,7 @@ const Index = () => {
   const handleRegularShot = () => {
     if (currentFrame > 10 || selectedPins.length === 0) return;
 
+    // First create the new frame data without the score
     const newFrames = frames.map((frame, index) => {
       if (index === currentFrame - 1) {
         const updatedFrame = { ...frame };
@@ -91,11 +92,13 @@ const Index = () => {
           updatedFrame.thirdShot = selectedPins;
         }
         
-        updatedFrame.score = calculateScore(newFrames, currentFrame - 1);
         return updatedFrame;
       }
       return frame;
     });
+
+    // Now calculate and update the score
+    newFrames[currentFrame - 1].score = calculateScore(newFrames, currentFrame - 1);
 
     setFrames(newFrames);
     
