@@ -97,9 +97,11 @@ const Index = () => {
   };
 
   const handleRegularShot = () => {
-    if (currentFrame > 10 || selectedPins.length === 0 || isGameComplete()) return;
+    if (currentFrame > 10 || isGameComplete()) return;
 
-    const isStrike = currentShot === 1 && selectedPins.length === 10;
+    // Even if no pins are selected, we should record it as a shot with 0 pins
+    const pinsForShot = selectedPins.length === 0 ? [] : selectedPins;
+    const isStrike = currentShot === 1 && pinsForShot.length === 10;
 
     if (isStrike) {
       handleStrike();
@@ -111,15 +113,15 @@ const Index = () => {
         const updatedFrame = { ...frame };
         
         if (currentShot === 1) {
-          updatedFrame.firstShot = selectedPins;
+          updatedFrame.firstShot = pinsForShot;
           updatedFrame.isStrike = false;
           updatedFrame.isSpare = false;
         } else if (currentShot === 2) {
-          updatedFrame.secondShot = selectedPins;
-          const totalPins = (updatedFrame.firstShot?.length || 0) + selectedPins.length;
+          updatedFrame.secondShot = pinsForShot;
+          const totalPins = (updatedFrame.firstShot?.length || 0) + pinsForShot.length;
           updatedFrame.isSpare = totalPins === 10 && !updatedFrame.isStrike;
         } else if (currentFrame === 10 && currentShot === 3) {
-          updatedFrame.thirdShot = selectedPins;
+          updatedFrame.thirdShot = pinsForShot;
         }
         
         return updatedFrame;
