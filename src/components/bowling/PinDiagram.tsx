@@ -7,13 +7,22 @@ interface PinDiagramProps {
   disabled?: boolean;
   selectedPins?: Pin[];
   remainingPins?: Pin[];
+  historicalFrame?: {
+    firstShot: Pin[];
+    secondShot: Pin[];
+    isSpare: boolean;
+    isStrike: boolean;
+  } | null;
+  isHistoricalView?: boolean;
 }
 
 export const PinDiagram = ({ 
   onPinSelect, 
   disabled, 
   selectedPins = [],
-  remainingPins
+  remainingPins,
+  historicalFrame,
+  isHistoricalView = false
 }: PinDiagramProps) => {
   const [hoveredPin, setHoveredPin] = useState<Pin | null>(null);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
@@ -24,7 +33,7 @@ export const PinDiagram = ({
   const availablePins = remainingPins || allPins;
 
   const handlePinClick = (pin: Pin) => {
-    if (disabled || isLongPress) return;
+    if (disabled || isLongPress || isHistoricalView) return;
     
     if (selectedPins.includes(pin)) {
       onPinSelect(selectedPins.filter((p) => p !== pin));
@@ -34,7 +43,7 @@ export const PinDiagram = ({
   };
 
   const handlePinMouseDown = (pin: Pin) => {
-    if (disabled) return;
+    if (disabled || isHistoricalView) return;
     setIsLongPress(false);
 
     const timer = setTimeout(() => {
@@ -64,26 +73,54 @@ export const PinDiagram = ({
     };
   }, [longPressTimer]);
 
-  const renderPin = (pin: Pin, position: string) => {
-    const isSelected = selectedPins.includes(pin);
-    const isHovered = hoveredPin === pin;
-    const isPinAvailable = availablePins.includes(pin);
-
-    if (!isPinAvailable) {
-      return (
-        <div
-          key={pin}
-          className={cn(
-            "w-10 h-10 rounded-full transition-all duration-300",
-            "flex items-center justify-center text-sm font-semibold",
-            "bg-gray-200 text-gray-400",
-            position
-          )}
-        >
-          {pin}
-        </div>
-      );
+  const getPinStyle = (pin: Pin) => {
+    if (!isHistoricalView) {
+      const isSelected = selectedPins.includes(pin);
+      const isPinAvailable = availablePins.includes(pin);
+      
+      if (!isPinAvailable) {
+        return "bg-gray-200 text-gray-400";
+      }
+      
+      return isSelected
+        ? "bg-primary text-white animate-pin-selected"
+        : "bg-white text-gray-800 border-2 border-gray-200";
     }
+
+    if (historicalFrame) {
+      const isFirstShot = historicalFrame.firstShot.includes(pin);
+      const isSecondShot = historicalFrame.secondShot.includes(pin);
+      
+      if (historicalFrame.isStrike) {
+        return "bg-primary text-white";
+      }
+      
+      if (historicalFrame.isSpare) {
+        if (isFirstShot) {
+          return "bg-gray-200 text-gray-600";
+        }
+        return "bg-secondary text-white";
+      }
+      
+      if (isFirstShot) {
+        return "bg-primary text-white";
+      }
+      
+      if (isSecondShot) {
+        return "bg-secondary text-white";
+      }
+      
+      // Pin was missed in both shots
+      if (historicalFrame.firstShot.length > 0 || historicalFrame.secondShot.length > 0) {
+        return "bg-white text-gray-400 border-2 border-dashed border-gray-300";
+      }
+    }
+    
+    return "bg-white text-gray-800 border-2 border-gray-200";
+  };
+
+  const renderPin = (pin: Pin, position: string) => {
+    const isHovered = hoveredPin === pin;
 
     return (
       <button
@@ -93,11 +130,9 @@ export const PinDiagram = ({
           "flex items-center justify-center text-sm font-semibold",
           "hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary",
           position,
-          isSelected
-            ? "bg-primary text-white animate-pin-selected"
-            : "bg-white text-gray-800 border-2 border-gray-200",
-          isHovered && !disabled && "shadow-lg",
-          disabled && "opacity-50 cursor-not-allowed"
+          getPinStyle(pin),
+          isHovered && !disabled && !isHistoricalView && "shadow-lg",
+          (disabled || isHistoricalView) && "cursor-default"
         )}
         onClick={() => handlePinClick(pin)}
         onMouseDown={() => handlePinMouseDown(pin)}
@@ -115,7 +150,7 @@ export const PinDiagram = ({
           e.preventDefault();
           handlePinMouseUp();
         }}
-        disabled={disabled}
+        disabled={disabled || isHistoricalView}
       >
         {pin}
       </button>

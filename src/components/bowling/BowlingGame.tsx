@@ -4,6 +4,7 @@ import { GameControls } from "./GameControls";
 import { GameStatus } from "./GameStatus";
 import { useBowlingGame } from "@/hooks/useBowlingGame";
 import { Pin } from "@/types/game";
+import { useState } from "react";
 
 export const BowlingGame = () => {
   const {
@@ -18,6 +19,8 @@ export const BowlingGame = () => {
     handleRegularShot,
     handleClear,
   } = useBowlingGame();
+
+  const [selectedHistoricalFrame, setSelectedHistoricalFrame] = useState<number | null>(null);
 
   // Determine if the first shot of the current frame (or 10th frame) was a strike
   const isFirstShotStrike = currentFrame === 10 
@@ -41,6 +44,23 @@ export const BowlingGame = () => {
     return allPins.filter(pin => !frame.firstShot?.includes(pin));
   };
 
+  // Get historical frame data for pin diagram
+  const getHistoricalFrameData = () => {
+    if (selectedHistoricalFrame === null) return null;
+    
+    const frame = frames[selectedHistoricalFrame];
+    if (!frame) return null;
+
+    return {
+      firstShot: frame.firstShot || [],
+      secondShot: frame.secondShot || [],
+      isSpare: frame.isSpare,
+      isStrike: frame.isStrike
+    };
+  };
+
+  const historicalFrame = getHistoricalFrameData();
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container max-w-4xl mx-auto">
@@ -52,6 +72,8 @@ export const BowlingGame = () => {
           <ScoreCard
             frames={frames}
             currentFrame={currentFrame}
+            onFrameClick={(frameIndex) => setSelectedHistoricalFrame(frameIndex)}
+            selectedFrame={selectedHistoricalFrame}
           />
           
           <div className="space-y-6">
@@ -60,6 +82,8 @@ export const BowlingGame = () => {
               selectedPins={selectedPins}
               disabled={currentFrame > 10 || isGameComplete}
               remainingPins={getRemainingPins()}
+              historicalFrame={historicalFrame}
+              isHistoricalView={selectedHistoricalFrame !== null}
             />
             
             <GameControls

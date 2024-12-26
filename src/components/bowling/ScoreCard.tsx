@@ -4,18 +4,19 @@ import { cn } from "@/lib/utils";
 interface ScoreCardProps {
   frames: Frame[];
   currentFrame: number;
+  onFrameClick: (frameIndex: number) => void;
+  selectedFrame: number | null;
 }
 
-export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
+export const ScoreCard = ({ frames, currentFrame, onFrameClick, selectedFrame }: ScoreCardProps) => {
   const renderFrame = (frame: Frame, index: number) => {
     const isActive = index === currentFrame - 1;
+    const isSelected = index === selectedFrame;
     const isTenth = index === 9;
 
     const renderShot = (shot: Pin[] | null, isSpare: boolean, isLastShot: boolean = false) => {
-      if (shot === null) return "-";
-      // For second shots that are spares (and not in the last frame's final shot), show "/"
+      if (shot === null) return "";
       if (isSpare && !isLastShot) return <span className="text-secondary font-bold">/</span>;
-      // Only show "X" for shots that knocked down all 10 pins and aren't part of a spare
       if (shot.length === 10 && !isSpare) return <span className="text-primary font-bold">X</span>;
       return shot.length;
     };
@@ -24,11 +25,13 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
       <div
         key={index}
         className={cn(
-          "border rounded-lg p-2 min-w-[80px]",
+          "border rounded-lg p-2 min-w-[80px] cursor-pointer hover:border-primary/50",
           "transition-all duration-300",
           isActive && "border-primary shadow-lg",
-          !isActive && "border-gray-200"
+          isSelected && "border-secondary shadow-lg",
+          !isActive && !isSelected && "border-gray-200"
         )}
+        onClick={() => index < currentFrame - 1 ? onFrameClick(index) : null}
       >
         <div className="text-xs text-gray-500 mb-1">Frame {index + 1}</div>
         {isTenth ? (
