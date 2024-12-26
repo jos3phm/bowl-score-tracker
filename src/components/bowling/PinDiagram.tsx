@@ -29,7 +29,7 @@ export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiag
       <button
         key={pin}
         className={cn(
-          "w-8 h-8 rounded-full transition-all duration-300",
+          "w-10 h-10 rounded-full transition-all duration-300",
           "flex items-center justify-center text-sm font-semibold",
           "hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary",
           position,
@@ -50,24 +50,32 @@ export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiag
   };
 
   return (
-    <div className="relative w-64 h-48 mx-auto">
-      {/* Back row */}
-      {renderPin(7, "absolute left-0 top-0")}
-      {renderPin(8, "absolute left-1/3 top-0")}
-      {renderPin(9, "absolute right-1/3 top-0")}
-      {renderPin(10, "absolute right-0 top-0")}
+    <div className="relative w-48 h-64 mx-auto">
+      {/* Back row (pins 7,8,9,10) */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full flex justify-between">
+        {renderPin(7, "")}
+        {renderPin(8, "")}
+        {renderPin(9, "")}
+        {renderPin(10, "")}
+      </div>
       
-      {/* Middle row */}
-      {renderPin(4, "absolute left-[12.5%] top-1/3")}
-      {renderPin(5, "absolute left-1/2 top-1/3 -translate-x-1/2")}
-      {renderPin(6, "absolute right-[12.5%] top-1/3")}
+      {/* Middle row (pins 4,5,6) */}
+      <div className="absolute top-16 left-1/2 -translate-x-1/2 w-3/4 flex justify-between">
+        {renderPin(4, "")}
+        {renderPin(5, "")}
+        {renderPin(6, "")}
+      </div>
       
-      {/* Front row */}
-      {renderPin(2, "absolute left-1/4 top-2/3")}
-      {renderPin(3, "absolute right-1/4 top-2/3")}
+      {/* Second to last row (pins 2,3) */}
+      <div className="absolute top-32 left-1/2 -translate-x-1/2 w-1/2 flex justify-between">
+        {renderPin(2, "")}
+        {renderPin(3, "")}
+      </div>
       
-      {/* Head pin */}
-      {renderPin(1, "absolute left-1/2 bottom-0 -translate-x-1/2")}
+      {/* Front pin (pin 1) */}
+      <div className="absolute top-48 left-1/2 -translate-x-1/2">
+        {renderPin(1, "")}
+      </div>
     </div>
   );
 };
