@@ -19,14 +19,18 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
       // If it's a strike, we need two more shots to display the score
       if (frame.isStrike && i < 9) {
         if (!nextFrame?.firstShot || (nextFrame.isStrike && !followingFrame?.firstShot)) {
-          return 0; // Don't display score yet
+          return null; // Don't display score yet
         }
       }
       // If it's a spare, we need one more shot to display the score
       else if (frame.isSpare && i < 9) {
         if (!nextFrame?.firstShot) {
-          return 0; // Don't display score yet
+          return null; // Don't display score yet
         }
+      }
+      // For open frames, we need both shots
+      else if (!frame.secondShot && !frame.isStrike) {
+        return null; // Don't display score yet
       }
     }
 
