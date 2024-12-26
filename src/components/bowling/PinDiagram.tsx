@@ -27,9 +27,9 @@ export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiag
     if (disabled) return;
 
     const timer = setTimeout(() => {
-      // On long press, select all pins EXCEPT the pressed one
-      const otherPins = allPins.filter(p => p !== pin);
-      onPinSelect(otherPins);
+      // Select all pins EXCEPT the long-pressed pin
+      const pinsToSelect = allPins.filter(p => p !== pin);
+      onPinSelect(pinsToSelect);
     }, 500); // 500ms for long press
 
     setLongPressTimer(timer);
@@ -42,6 +42,7 @@ export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiag
     }
   };
 
+  // Cleanup timer on component unmount
   useEffect(() => {
     return () => {
       if (longPressTimer) {
@@ -76,6 +77,8 @@ export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiag
           handlePinMouseUp();
         }}
         onMouseEnter={() => setHoveredPin(pin)}
+        onTouchStart={() => handlePinMouseDown(pin)}
+        onTouchEnd={handlePinMouseUp}
         disabled={disabled}
       >
         {pin}
