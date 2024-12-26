@@ -27,9 +27,9 @@ export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiag
     if (disabled) return;
 
     const timer = setTimeout(() => {
-      // On long press, select all pins except the pressed one
-      const invertedSelection = allPins.filter(p => p !== pin);
-      onPinSelect(invertedSelection);
+      // On long press, select all pins EXCEPT the pressed one
+      const otherPins = allPins.filter(p => p !== pin);
+      onPinSelect(otherPins);
     }, 500); // 500ms for long press
 
     setLongPressTimer(timer);

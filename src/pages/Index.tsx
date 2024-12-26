@@ -76,6 +76,15 @@ const Index = () => {
   const handleRegularShot = () => {
     if (currentFrame > 10 || selectedPins.length === 0) return;
 
+    // Check if it's a strike on the first shot (all pins selected)
+    const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const isStrike = currentShot === 1 && selectedPins.length === 10;
+
+    if (isStrike) {
+      handleStrike();
+      return;
+    }
+
     // First create the new frame data without the score
     const newFrames = frames.map((frame, index) => {
       if (index === currentFrame - 1) {
