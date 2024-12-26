@@ -51,7 +51,7 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
           
           {/* Third shot (10th frame only) */}
           {isTenth && (
-            <div className="text-center col-span-2">
+            <div className="text-center col-span-2 border-t pt-1">
               {frame.thirdShot !== null ? (
                 frame.thirdShot?.length || "0"
               ) : (
@@ -62,7 +62,7 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
         </div>
         
         {/* Running score */}
-        <div className="text-center font-semibold">
+        <div className="text-center font-semibold border-t pt-1">
           {frame.score || "-"}
         </div>
       </div>
