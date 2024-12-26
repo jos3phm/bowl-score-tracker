@@ -11,10 +11,11 @@ interface PinDiagramProps {
 export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiagramProps) => {
   const [hoveredPin, setHoveredPin] = useState<Pin | null>(null);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [isLongPress, setIsLongPress] = useState(false);
   const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   const handlePinClick = (pin: Pin) => {
-    if (disabled) return;
+    if (disabled || isLongPress) return;
     
     if (selectedPins.includes(pin)) {
       onPinSelect(selectedPins.filter((p) => p !== pin));
@@ -25,12 +26,13 @@ export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiag
 
   const handlePinMouseDown = (pin: Pin) => {
     if (disabled) return;
+    setIsLongPress(false);
 
     const timer = setTimeout(() => {
-      // Select all pins EXCEPT the long-pressed pin
+      setIsLongPress(true);
       const pinsToSelect = allPins.filter(p => p !== pin);
       onPinSelect(pinsToSelect);
-    }, 500); // 500ms for long press
+    }, 500);
 
     setLongPressTimer(timer);
   };
@@ -40,9 +42,12 @@ export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiag
       clearTimeout(longPressTimer);
       setLongPressTimer(null);
     }
+    // Reset long press state after a short delay
+    setTimeout(() => {
+      setIsLongPress(false);
+    }, 50);
   };
 
-  // Cleanup timer on component unmount
   useEffect(() => {
     return () => {
       if (longPressTimer) {
@@ -77,8 +82,14 @@ export const PinDiagram = ({ onPinSelect, disabled, selectedPins = [] }: PinDiag
           handlePinMouseUp();
         }}
         onMouseEnter={() => setHoveredPin(pin)}
-        onTouchStart={() => handlePinMouseDown(pin)}
-        onTouchEnd={handlePinMouseUp}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          handlePinMouseDown(pin);
+        }}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          handlePinMouseUp();
+        }}
         disabled={disabled}
       >
         {pin}
