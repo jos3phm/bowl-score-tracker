@@ -18,6 +18,11 @@ export const BowlingGame = () => {
     handleClear,
   } = useBowlingGame();
 
+  // Determine if the first shot of the current frame (or 10th frame) was a strike
+  const isFirstShotStrike = currentFrame === 10 
+    ? frames[9]?.isStrike 
+    : frames[currentFrame - 1]?.isStrike;
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container max-w-4xl mx-auto">
@@ -46,6 +51,7 @@ export const BowlingGame = () => {
               disabled={currentFrame > 10 || isGameComplete}
               currentFrame={currentFrame}
               currentShot={currentShot}
+              isFirstShotStrike={isFirstShotStrike}
             />
           </div>
           
