@@ -13,9 +13,10 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
 
     const renderShot = (shot: Pin[] | null, isSpare: boolean, isLastShot: boolean = false) => {
       if (shot === null) return "-";
-      if (shot.length === 10) return <span className="text-primary font-bold">X</span>;
-      // Always show '/' for spares on non-last shots, regardless of first shot value
+      // For second shots that are spares (and not in the last frame's final shot), show "/"
       if (isSpare && !isLastShot) return <span className="text-secondary font-bold">/</span>;
+      // Only show "X" for shots that knocked down all 10 pins and aren't part of a spare
+      if (shot.length === 10 && !isSpare) return <span className="text-primary font-bold">X</span>;
       return shot.length;
     };
 
