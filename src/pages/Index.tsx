@@ -2,6 +2,8 @@ import { useState } from "react";
 import { PinDiagram } from "@/components/bowling/PinDiagram";
 import { ScoreCard } from "@/components/bowling/ScoreCard";
 import { GameControls } from "@/components/bowling/GameControls";
+import { GameStatus } from "@/components/bowling/GameStatus";
+import { calculateFrameScore } from "@/utils/bowling-score";
 import type { Frame, Pin } from "@/types/game";
 
 const Index = () => {
@@ -34,7 +36,7 @@ const Index = () => {
       firstShot: allPins,
       secondShot: null,
       isStrike: true,
-      score: calculateScore(newFrames, currentFrame - 1),
+      score: calculateFrameScore(newFrames, currentFrame - 1),
     };
 
     setFrames(newFrames);
@@ -60,7 +62,7 @@ const Index = () => {
       ...newFrames[currentFrame - 1],
       secondShot: remainingPins,
       isSpare: true,
-      score: calculateScore(newFrames, currentFrame - 1),
+      score: calculateFrameScore(newFrames, currentFrame - 1),
     };
 
     setFrames(newFrames);
@@ -76,7 +78,6 @@ const Index = () => {
   const handleRegularShot = () => {
     if (currentFrame > 10 || selectedPins.length === 0) return;
 
-    // Check if it's a strike on the first shot (all pins selected)
     const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     const isStrike = currentShot === 1 && selectedPins.length === 10;
 
@@ -85,7 +86,6 @@ const Index = () => {
       return;
     }
 
-    // First create the new frame data without the score
     const newFrames = frames.map((frame, index) => {
       if (index === currentFrame - 1) {
         const updatedFrame = { ...frame };
@@ -106,8 +106,10 @@ const Index = () => {
       return frame;
     });
 
-    // Now calculate and update the score
-    newFrames[currentFrame - 1].score = calculateScore(newFrames, currentFrame - 1);
+    // Calculate scores for all frames up to the current one
+    for (let i = 0; i <= currentFrame - 1; i++) {
+      newFrames[i].score = calculateFrameScore(newFrames, i);
+    }
 
     setFrames(newFrames);
     
@@ -129,62 +131,6 @@ const Index = () => {
 
   const handleClear = () => {
     setSelectedPins([]);
-  };
-
-  const calculateScore = (frames: Frame[], frameIndex: number): number => {
-    let score = 0;
-    
-    for (let i = 0; i <= frameIndex; i++) {
-      const frame = frames[i];
-      const nextFrame = i < 9 ? frames[i + 1] : null;
-      const followingFrame = i < 8 ? frames[i + 2] : null;
-
-      if (frame.isStrike) {
-        score += 10;
-        
-        // For a strike, we need the next two shots
-        if (nextFrame?.isStrike) {
-          // Next frame is also a strike
-          score += 10;
-          
-          if (i < 8 && followingFrame?.isStrike) {
-            // Third consecutive strike
-            score += 10;
-          } else if (i < 8 && followingFrame?.firstShot) {
-            // Following frame's first shot
-            score += followingFrame.firstShot.length;
-          } else if (i === 8 && nextFrame.secondShot) {
-            // Special case for 9th frame
-            score += nextFrame.secondShot.length;
-          } else {
-            // Not enough information yet
-            return 0;
-          }
-        } else if (nextFrame?.firstShot && nextFrame?.secondShot) {
-          // Next frame is complete
-          score += nextFrame.firstShot.length + nextFrame.secondShot.length;
-        } else {
-          // Not enough information yet
-          return 0;
-        }
-      } else if (frame.isSpare) {
-        score += 10;
-        if (nextFrame?.firstShot) {
-          score += nextFrame.firstShot.length;
-        } else {
-          return 0;
-        }
-      } else {
-        // Open frame
-        if (frame.firstShot && frame.secondShot) {
-          score += frame.firstShot.length + frame.secondShot.length;
-        } else {
-          return 0;
-        }
-      }
-    }
-    
-    return score;
   };
 
   return (
@@ -216,9 +162,10 @@ const Index = () => {
             />
           </div>
           
-          <div className="text-center text-gray-600">
-            Frame {currentFrame} • Shot {currentShot}
-          </div>
+          <GameStatus
+            currentFrame={currentFrame}
+            currentShot={currentShot}
+          />
         </div>
       </div>
     </div>
