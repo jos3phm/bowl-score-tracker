@@ -44,6 +44,8 @@ export const BowlingGame = () => {
               onRegularShot={handleRegularShot}
               onClear={handleClear}
               disabled={currentFrame > 10 || isGameComplete}
+              currentFrame={currentFrame}
+              currentShot={currentShot}
             />
           </div>
           
