@@ -12,9 +12,7 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
     console.log(`\nCalculating frame ${i + 1}:`);
     
     // Base score for the current frame
-    if (frame.firstShot === null) {
-      return 0; // Frame not yet played
-    }
+    if (frame.firstShot === null) return 0;
 
     if (frame.isStrike) {
       score += 10;

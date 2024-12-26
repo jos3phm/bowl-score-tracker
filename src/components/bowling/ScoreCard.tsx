@@ -69,7 +69,7 @@ export const ScoreCard = ({ frames, currentFrame }: ScoreCardProps) => {
         
         {/* Running score */}
         <div className="text-center font-semibold border-t pt-1">
-          {frame.score > 0 ? frame.score : "-"}
+          {frame.firstShot !== null ? frame.score : "-"}
         </div>
       </div>
     );
