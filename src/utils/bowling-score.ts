@@ -10,73 +10,79 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
     const followingFrame = i < 8 ? frames[i + 2] : null;
 
     console.log(`\nCalculating frame ${i + 1}:`);
-    console.log('Current frame:', {
-      isStrike: frame.isStrike,
-      isSpare: frame.isSpare,
-      firstShot: frame.firstShot?.length,
-      secondShot: frame.secondShot?.length,
-      thirdShot: frame.thirdShot?.length
-    });
-
-    // Base score for the frame
-    if (frame.firstShot) {
-      score += frame.firstShot.length;
-      console.log(`Added first shot: ${frame.firstShot.length}`);
-    }
     
-    if (frame.secondShot) {
-      score += frame.secondShot.length;
-      console.log(`Added second shot: ${frame.secondShot.length}`);
-    }
-
-    if (i === 9 && frame.thirdShot) {
-      score += frame.thirdShot.length;
-      console.log(`Added third shot: ${frame.thirdShot.length}`);
-    }
-
-    // Calculate strike bonus
+    // Base score for the current frame
     if (frame.isStrike) {
-      console.log('Strike detected, calculating bonus');
+      score += 10;
+      console.log('Strike detected, added 10');
       
+      // Calculate strike bonus
       if (i === 9) {
-        // 10th frame strikes are already counted in base score
-        console.log('10th frame strike, bonus already counted');
-      } else if (nextFrame) {
-        // First bonus ball
-        if (nextFrame.firstShot) {
-          score += nextFrame.firstShot.length;
-          console.log(`Strike bonus 1: ${nextFrame.firstShot.length}`);
-          
-          // Second bonus ball
+        // 10th frame
+        if (frame.secondShot) {
+          score += frame.secondShot.length;
+          console.log(`10th frame second shot: ${frame.secondShot.length}`);
+          if (frame.thirdShot) {
+            score += frame.thirdShot.length;
+            console.log(`10th frame third shot: ${frame.thirdShot.length}`);
+          }
+        }
+      } else {
+        // Regular frames (1-9)
+        if (nextFrame?.firstShot) {
           if (nextFrame.isStrike) {
+            score += 10;
+            console.log('First bonus: strike (10)');
+            
+            // Second bonus ball
             if (i === 8) {
-              // For 9th frame, use 10th frame's second shot
+              // 9th frame looking at 10th frame second shot
               if (nextFrame.secondShot) {
                 score += nextFrame.secondShot.length;
-                console.log(`Strike bonus 2 (10th frame second shot): ${nextFrame.secondShot.length}`);
+                console.log(`Second bonus from 10th frame second shot: ${nextFrame.secondShot.length}`);
               }
             } else if (followingFrame?.firstShot) {
-              score += followingFrame.firstShot.length;
-              console.log(`Strike bonus 2 (following frame): ${followingFrame.firstShot.length}`);
+              if (followingFrame.isStrike) {
+                score += 10;
+                console.log('Second bonus: strike (10)');
+              } else {
+                score += followingFrame.firstShot.length;
+                console.log(`Second bonus: ${followingFrame.firstShot.length}`);
+              }
             }
-          } else if (nextFrame.secondShot) {
-            score += nextFrame.secondShot.length;
-            console.log(`Strike bonus 2 (next frame second): ${nextFrame.secondShot.length}`);
+          } else {
+            // Next frame is not a strike
+            score += nextFrame.firstShot.length;
+            console.log(`First bonus: ${nextFrame.firstShot.length}`);
+            if (nextFrame.secondShot) {
+              score += nextFrame.secondShot.length;
+              console.log(`Second bonus: ${nextFrame.secondShot.length}`);
+            }
           }
         }
       }
-    }
-    // Calculate spare bonus
-    else if (frame.isSpare) {
-      console.log('Spare detected, calculating bonus');
+    } else if (frame.isSpare) {
+      score += 10;
+      console.log('Spare detected, added 10');
       
       if (i === 9) {
-        // 10th frame spares are already counted in base score
-        console.log('10th frame spare, bonus already counted');
+        if (frame.thirdShot) {
+          score += frame.thirdShot.length;
+          console.log(`10th frame spare bonus: ${frame.thirdShot.length}`);
+        }
       } else if (nextFrame?.firstShot) {
-        score += nextFrame.firstShot.length;
-        console.log(`Spare bonus: ${nextFrame.firstShot.length}`);
+        if (nextFrame.isStrike) {
+          score += 10;
+          console.log('Spare bonus: strike (10)');
+        } else {
+          score += nextFrame.firstShot.length;
+          console.log(`Spare bonus: ${nextFrame.firstShot.length}`);
+        }
       }
+    } else if (frame.firstShot && frame.secondShot) {
+      // Open frame
+      score += frame.firstShot.length + frame.secondShot.length;
+      console.log(`Open frame: ${frame.firstShot.length} + ${frame.secondShot.length}`);
     }
 
     console.log(`Running total after frame ${i + 1}: ${score}`);
