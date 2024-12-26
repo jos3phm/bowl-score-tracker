@@ -31,6 +31,12 @@ export const BowlingGame = () => {
     const frame = frames[currentFrame - 1];
     if (!frame?.firstShot) return undefined;
 
+    // Special case: In 10th frame after a strike, all pins are available
+    if (currentFrame === 10 && frame.isStrike) {
+      return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    }
+
+    // Regular frame or 10th frame without strike
     const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     return allPins.filter(pin => !frame.firstShot?.includes(pin));
   };
