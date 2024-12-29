@@ -6,7 +6,7 @@ interface GameStatusProps {
 export const GameStatus = ({ currentFrame, currentShot }: GameStatusProps) => {
   const displayFrame = currentFrame > 10 ? 10 : currentFrame;
   const displayShot = currentFrame > 10 
-    ? `Shot ${currentShot} (Bonus)`
+    ? `Shot ${currentShot}`
     : `Shot ${currentShot}`;
 
   return (
