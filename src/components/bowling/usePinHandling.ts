@@ -22,9 +22,12 @@ export const usePinHandling = (
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
     if (remainingPins === undefined) {
-      // First shot logic: keep the clicked pin standing, knock down others
-      const knockedDownPins = allPins.filter(p => p !== pin);
-      onPinSelect(knockedDownPins);
+      // First shot logic: toggle the clicked pin
+      onPinSelect(
+        selectedPins.includes(pin)
+          ? selectedPins.filter((p) => p !== pin)
+          : [...selectedPins, pin]
+      );
     } else {
       // Second shot logic: toggle individual pins
       onPinSelect(
