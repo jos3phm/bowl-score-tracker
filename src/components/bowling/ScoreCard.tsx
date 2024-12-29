@@ -64,9 +64,11 @@ export const ScoreCard = ({ frames, currentFrame, onFrameClick, selectedFrame }:
   };
 
   return (
-    <div className="w-full overflow-x-auto pb-4">
-      <div className="flex gap-3 px-4 min-w-max">
-        {frames.map((frame, index) => renderFrame(frame, index))}
+    <div className="relative w-full">
+      <div className="overflow-x-auto pb-4">
+        <div className="flex gap-3 px-4" style={{ width: "max-content" }}>
+          {frames.map((frame, index) => renderFrame(frame, index))}
+        </div>
       </div>
     </div>
   );
