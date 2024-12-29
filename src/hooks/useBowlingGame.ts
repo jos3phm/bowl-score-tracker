@@ -51,17 +51,8 @@ export const useBowlingGame = () => {
   const handleRegularShot = () => {
     if (currentFrame > 10 || isGameComplete(frames)) return;
     
-    const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    const knockedDownPins = allPins.filter(pin => !selectedPins.includes(pin));
-    
-    // Check for strike condition
-    if (currentShot === 1 && knockedDownPins.length === 10) {
-      const newFrame = recordStrike(frames, currentFrame - 1, currentShot);
-      updateFrameAndAdvance(newFrame);
-      return;
-    }
-    
-    const newFrame = recordRegularShot(frames, currentFrame - 1, currentShot, knockedDownPins);
+    // selectedPins now represents the remaining pins
+    const newFrame = recordRegularShot(frames, currentFrame - 1, currentShot, selectedPins);
     updateFrameAndAdvance(newFrame);
   };
 
