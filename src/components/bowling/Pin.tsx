@@ -57,14 +57,12 @@ export const Pin = ({
     const currentTime = new Date().getTime();
     const tapLength = currentTime - lastTap.current;
     
-    if (tapLength < DOUBLE_TAP_DELAY && tapLength > 0) {
-      // Double tap detected
-      if (!disabled && !isHistoricalView) {
+    if (!disabled && !isHistoricalView) {
+      if (tapLength < DOUBLE_TAP_DELAY && tapLength > 0) {
+        // Double tap detected
         onDoubleTapPin(pin);
-      }
-    } else {
-      // Single tap - update lastTap and handle regular click
-      if (!disabled && !isHistoricalView) {
+      } else {
+        // Single tap
         onPinClick(pin);
       }
     }
