@@ -56,6 +56,12 @@ export const recordRegularShot = (
   shot: 1 | 2 | 3,
   knockedDownPins: Pin[]
 ): Frame => {
+  // If all pins are knocked down on first shot (except in 10th frame),
+  // treat it as a strike
+  if (shot === 1 && frameIndex !== 9 && knockedDownPins.length === 10) {
+    return recordStrike(frames, frameIndex, shot);
+  }
+
   const frame = { ...frames[frameIndex] };
   const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
@@ -76,15 +82,10 @@ export const recordRegularShot = (
     }
   } else {
     if (shot === 1) {
-      // For first shot, record the pins that remained standing
       frame.firstShot = allPins.filter(pin => !knockedDownPins.includes(pin));
-      // If all pins are knocked down on first shot, treat it exactly like recordStrike
-      if (knockedDownPins.length === 10) {
-        return recordStrike(frames, frameIndex, shot);
-      }
     } else {
-      // For second shot, record the pins that remained standing from those available
-      frame.secondShot = frame.firstShot!.filter(pin => !knockedDownPins.includes(pin));
+      const availablePins = frame.firstShot!;
+      frame.secondShot = availablePins.filter(pin => !knockedDownPins.includes(pin));
       frame.isSpare = frame.firstShot!.length === knockedDownPins.length;
     }
   }
