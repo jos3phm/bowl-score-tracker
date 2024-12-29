@@ -31,14 +31,14 @@ export const PinDiagram = ({
   const allPins: PinType[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
   // For first shot, all pins are available
-  // For second shot, only pins that were knocked down in first shot are available
-  const availablePins = remainingPins || allPins;
+  // For second shot, only pins that were NOT knocked down in first shot are available
+  const availablePins = remainingPins === undefined ? allPins : remainingPins;
 
   const handlePinClick = (pin: PinType) => {
     if (disabled || isLongPress || isHistoricalView) return;
     
-    // For second shot, only allow selection of pins that were knocked down in first shot
-    if (remainingPins && !remainingPins.includes(pin)) return;
+    // For second shot, only allow selection of pins that were NOT knocked down in first shot
+    if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
     if (selectedPins.includes(pin)) {
       onPinSelect(selectedPins.filter((p) => p !== pin));
@@ -49,7 +49,7 @@ export const PinDiagram = ({
 
   const handlePinMouseDown = (pin: PinType) => {
     if (disabled || isHistoricalView) return;
-    if (remainingPins && !remainingPins.includes(pin)) return;
+    if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
     setIsLongPress(false);
 
@@ -89,14 +89,14 @@ export const PinDiagram = ({
 
     const getPinStyle = () => {
       if (!isHistoricalView) {
-        if (remainingPins) {
-          // Second shot - pins that were knocked down in first shot are available
+        if (remainingPins !== undefined) {
+          // Second shot - pins that were NOT knocked down in first shot are available
           if (remainingPins.includes(pin)) {
             return isSelected
               ? "bg-primary text-white animate-pin-selected"
               : "bg-white text-gray-800 border-2 border-gray-200";
           }
-          // Pins that weren't knocked down in first shot are grayed out
+          // Pins that were knocked down in first shot are grayed out
           return "bg-gray-200 text-gray-400";
         }
         // First shot - all pins are white/selectable
@@ -125,7 +125,7 @@ export const PinDiagram = ({
         }}
         onPinMouseEnter={(pin) => setHoveredPin(pin)}
         isHovered={hoveredPin === pin}
-        disabled={disabled || (remainingPins && !remainingPins.includes(pin))}
+        disabled={disabled || (remainingPins !== undefined && !remainingPins.includes(pin))}
       />
     );
   };
