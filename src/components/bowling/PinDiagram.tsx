@@ -50,15 +50,16 @@ export const PinDiagram = ({
     if (disabled || isHistoricalView) return;
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
-    // Get all available pins except the double-tapped one and any previously selected pins
-    const pinsToSelect = availablePins.filter(p => 
-      p !== pin && !selectedPins.includes(p)
-    );
+    // Get all pins that should be knocked down (all available pins except the double-tapped one)
+    const pinsToKnockDown = availablePins.filter(p => p !== pin);
     
-    // Combine with already selected pins
-    const allSelectedPins = [...selectedPins, ...pinsToSelect];
+    // The pins that will remain standing are the double-tapped pin and any previously selected pins
+    const remainingPinsAfterShot = [pin, ...selectedPins];
     
-    onPinSelect(allSelectedPins);
+    // The pins that are knocked down are all pins except the ones that will remain standing
+    const knockedDownPins = allPins.filter(p => !remainingPinsAfterShot.includes(p));
+    
+    onPinSelect(knockedDownPins);
     onRegularShot();
   };
 
