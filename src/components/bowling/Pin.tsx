@@ -14,6 +14,7 @@ interface PinProps {
   onPinMouseLeave: () => void;
   onPinMouseEnter: (pin: PinType) => void;
   onRegularShot: () => void;
+  onDoubleTapPin: (pin: PinType) => void;
   isHovered: boolean;
   disabled: boolean;
 }
@@ -31,6 +32,7 @@ export const Pin = ({
   onPinMouseLeave,
   onPinMouseEnter,
   onRegularShot,
+  onDoubleTapPin,
   isHovered,
   disabled,
 }: PinProps) => {
@@ -49,14 +51,14 @@ export const Pin = ({
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!disabled && !isHistoricalView) {
-      onRegularShot();
+      onDoubleTapPin(pin);
     }
   };
 
   const handleDoubleTap = (e: React.TouchEvent) => {
     e.preventDefault();
     if (!disabled && !isHistoricalView) {
-      onRegularShot();
+      onDoubleTapPin(pin);
     }
   };
 

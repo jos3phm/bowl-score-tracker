@@ -46,6 +46,16 @@ export const PinDiagram = ({
     }
   };
 
+  const handleDoubleTapPin = (pin: PinType) => {
+    if (disabled || isHistoricalView) return;
+    if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
+    
+    // Select all pins EXCEPT the double-tapped one
+    const pinsToSelect = availablePins.filter(p => p !== pin);
+    onPinSelect(pinsToSelect);
+    onRegularShot();
+  };
+
   const handlePinMouseDown = (pin: PinType) => {
     if (disabled || isHistoricalView) return;
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
@@ -104,6 +114,7 @@ export const PinDiagram = ({
         }}
         onPinMouseEnter={(pin) => setHoveredPin(pin)}
         onRegularShot={onRegularShot}
+        onDoubleTapPin={handleDoubleTapPin}
         isHovered={hoveredPin === pin}
         disabled={disabled || (remainingPins !== undefined && !remainingPins.includes(pin))}
       />
