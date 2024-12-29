@@ -41,7 +41,7 @@ export const PinDiagram = ({
     
     // For first shot, selectedPins represents knocked down pins
     if (remainingPins === undefined) {
-      // First shot - clicking a pin knocks down all OTHER pins
+      // First shot - clicking a pin means it stays standing, all others fall
       const knockedDownPins = allPins.filter(p => p !== pin);
       onPinSelect(knockedDownPins);
     } else {
