@@ -1,5 +1,6 @@
 import { Pin as PinType } from "@/types/game";
 import { Pin } from "./Pin";
+import { getHistoricalPinStyle } from "@/utils/bowling/pin-styles";
 
 interface PinRowProps {
   pins: PinType[];

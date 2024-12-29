@@ -7,7 +7,8 @@ export const usePinHandling = (
   disabled: boolean,
   isHistoricalView: boolean,
   remainingPins?: Pin[],
-  allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  selectedPins: Pin[] = []
 ) => {
   const [hoveredPin, setHoveredPin] = useState<Pin | null>(null);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
