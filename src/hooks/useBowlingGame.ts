@@ -54,9 +54,10 @@ export const useBowlingGame = () => {
     const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     const knockedDownPins = allPins.filter(pin => !selectedPins.includes(pin));
     
-    // Check for strike condition before recording the shot
-    if (currentShot === 1 && knockedDownPins.length === 10 && currentFrame !== 10) {
-      handleStrike();
+    // Check for strike condition
+    if (currentShot === 1 && knockedDownPins.length === 10) {
+      const newFrame = recordStrike(frames, currentFrame - 1, currentShot);
+      updateFrameAndAdvance(newFrame);
       return;
     }
     
