@@ -57,14 +57,11 @@ export const recordRegularShot = (
   remainingPins: Pin[]
 ): Frame => {
   const frame = { ...frames[frameIndex] };
-  const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
   if (frameIndex === 9) { // 10th frame
     if (shot === 1) {
-      frame.firstShot = allPins.filter(pin => !remainingPins.includes(pin));
-      if (remainingPins.length === 0) {
-        frame.isStrike = true;
-      }
+      frame.firstShot = remainingPins;
+      frame.isStrike = remainingPins.length === 10;
     } else if (shot === 2) {
       frame.secondShot = remainingPins;
       if (!frame.isStrike && frame.firstShot) {
@@ -75,7 +72,9 @@ export const recordRegularShot = (
     }
   } else {
     if (shot === 1) {
-      frame.firstShot = allPins.filter(pin => !remainingPins.includes(pin));
+      frame.firstShot = remainingPins;
+      // Remove the incorrect strike marking for first shot
+      frame.isStrike = false;
     } else {
       frame.secondShot = remainingPins;
       if (frame.firstShot) {
