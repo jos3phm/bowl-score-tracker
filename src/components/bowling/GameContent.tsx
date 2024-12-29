@@ -5,7 +5,7 @@ import { GameStatus } from "./GameStatus";
 
 interface GameContentProps {
   currentFrame: number;
-  currentShot: number;
+  currentShot: 1 | 2 | 3;
   selectedPins: Pin[];
   isGameComplete: boolean;
   isFirstShotStrike: boolean;
