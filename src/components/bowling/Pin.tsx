@@ -13,6 +13,7 @@ interface PinProps {
   onPinMouseUp: () => void;
   onPinMouseLeave: () => void;
   onPinMouseEnter: (pin: PinType) => void;
+  onRegularShot: () => void;
   isHovered: boolean;
   disabled: boolean;
 }
@@ -29,6 +30,7 @@ export const Pin = ({
   onPinMouseUp,
   onPinMouseLeave,
   onPinMouseEnter,
+  onRegularShot,
   isHovered,
   disabled,
 }: PinProps) => {
@@ -44,6 +46,20 @@ export const Pin = ({
     return historicalStyle;
   };
 
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!disabled && !isHistoricalView) {
+      onRegularShot();
+    }
+  };
+
+  const handleDoubleTap = (e: React.TouchEvent) => {
+    e.preventDefault();
+    if (!disabled && !isHistoricalView) {
+      onRegularShot();
+    }
+  };
+
   return (
     <button
       className={cn(
@@ -56,6 +72,7 @@ export const Pin = ({
         (disabled || isHistoricalView) && "cursor-default"
       )}
       onClick={() => onPinClick(pin)}
+      onDoubleClick={handleDoubleClick}
       onMouseDown={() => onPinMouseDown(pin)}
       onMouseUp={onPinMouseUp}
       onMouseLeave={onPinMouseLeave}
@@ -68,6 +85,7 @@ export const Pin = ({
         e.preventDefault();
         onPinMouseUp();
       }}
+      onTouchEndCapture={handleDoubleTap}
       disabled={disabled || isHistoricalView}
     >
       {pin}

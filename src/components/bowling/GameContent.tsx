@@ -48,6 +48,7 @@ export const GameContent = ({
     <div className="space-y-6">
       <PinDiagram
         onPinSelect={onPinSelect}
+        onRegularShot={onRegularShot}
         selectedPins={selectedPins}
         disabled={currentFrame > 10 || isGameComplete}
         remainingPins={remainingPins}

@@ -5,6 +5,7 @@ import { getHistoricalPinStyle } from "@/utils/bowling/pin-styles";
 
 interface PinDiagramProps {
   onPinSelect: (pins: PinType[]) => void;
+  onRegularShot: () => void;
   disabled?: boolean;
   selectedPins?: PinType[];
   remainingPins?: PinType[];
@@ -19,6 +20,7 @@ interface PinDiagramProps {
 
 export const PinDiagram = ({
   onPinSelect,
+  onRegularShot,
   disabled = false,
   selectedPins = [],
   remainingPins,
@@ -30,14 +32,11 @@ export const PinDiagram = ({
   const [isLongPress, setIsLongPress] = useState(false);
   const allPins: PinType[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
-  // For first shot, all pins are available
-  // For second shot, only pins that were NOT knocked down in first shot are available
   const availablePins = remainingPins === undefined ? allPins : remainingPins;
 
   const handlePinClick = (pin: PinType) => {
     if (disabled || isLongPress || isHistoricalView) return;
     
-    // For second shot, only allow selection of pins that were NOT knocked down in first shot
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
     if (selectedPins.includes(pin)) {
@@ -87,26 +86,6 @@ export const PinDiagram = ({
       ? getHistoricalPinStyle(pin, historicalFrame)
       : "";
 
-    const getPinStyle = () => {
-      if (!isHistoricalView) {
-        if (remainingPins !== undefined) {
-          // Second shot - pins that were NOT knocked down in first shot are available
-          if (remainingPins.includes(pin)) {
-            return isSelected
-              ? "bg-primary text-white animate-pin-selected"
-              : "bg-white text-gray-800 border-2 border-gray-200";
-          }
-          // Pins that were knocked down in first shot are grayed out
-          return "bg-gray-200 text-gray-400";
-        }
-        // First shot - all pins are white/selectable
-        return isSelected
-          ? "bg-primary text-white animate-pin-selected"
-          : "bg-white text-gray-800 border-2 border-gray-200";
-      }
-      return historicalStyle;
-    };
-
     return (
       <Pin
         key={pin}
@@ -115,7 +94,7 @@ export const PinDiagram = ({
         isSelected={isSelected}
         isPinAvailable={isPinAvailable}
         isHistoricalView={isHistoricalView}
-        historicalStyle={getPinStyle()}
+        historicalStyle={historicalStyle}
         onPinClick={handlePinClick}
         onPinMouseDown={handlePinMouseDown}
         onPinMouseUp={handlePinMouseUp}
@@ -124,6 +103,7 @@ export const PinDiagram = ({
           handlePinMouseUp();
         }}
         onPinMouseEnter={(pin) => setHoveredPin(pin)}
+        onRegularShot={onRegularShot}
         isHovered={hoveredPin === pin}
         disabled={disabled || (remainingPins !== undefined && !remainingPins.includes(pin))}
       />
