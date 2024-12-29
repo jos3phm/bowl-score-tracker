@@ -7,7 +7,6 @@ export const recordStrike = (
   shot: 1 | 2 | 3
 ): Frame => {
   const frame = { ...frames[frameIndex] };
-  const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   if (frameIndex === 9) { // 10th frame
     if (shot === 1) {
@@ -63,6 +62,7 @@ export const recordRegularShot = (
   }
 
   const frame = { ...frames[frameIndex] };
+  const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
   if (frameIndex === 9) { // 10th frame
     if (shot === 1) {
@@ -80,9 +80,12 @@ export const recordRegularShot = (
     }
   } else {
     if (shot === 1) {
+      // For first shot, store the remaining pins (selected pins)
       frame.firstShot = remainingPins;
     } else {
+      // For second shot, store the remaining pins
       frame.secondShot = remainingPins;
+      // It's a spare if no pins remain after second shot
       frame.isSpare = remainingPins.length === 0;
     }
   }
