@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Pin } from "@/types/game";
 
 interface GameControlsProps {
   onStrike: () => void;
@@ -9,6 +10,7 @@ interface GameControlsProps {
   currentFrame: number;
   currentShot: 1 | 2 | 3;
   isFirstShotStrike?: boolean;
+  selectedPins?: Pin[];
 }
 
 export const GameControls = ({
@@ -19,7 +21,8 @@ export const GameControls = ({
   disabled,
   currentFrame,
   currentShot,
-  isFirstShotStrike = false
+  isFirstShotStrike = false,
+  selectedPins = []
 }: GameControlsProps) => {
   // Disable strike button on second shot unless it's the 10th frame with a first strike
   const isStrikeDisabled = disabled || 
@@ -29,6 +32,10 @@ export const GameControls = ({
   const isSpareDisabled = disabled || 
     currentShot === 1 || 
     (currentFrame === 10 && currentShot === 3 && isFirstShotStrike);
+
+  // Disable regular shot button when all pins are selected on first shot
+  const isRegularShotDisabled = disabled || 
+    (currentShot === 1 && selectedPins.length === 10);
 
   return (
     <div className="flex gap-2 justify-center flex-wrap">
@@ -48,7 +55,7 @@ export const GameControls = ({
       </Button>
       <Button
         onClick={onRegularShot}
-        disabled={disabled}
+        disabled={isRegularShotDisabled}
         variant="default"
       >
         Record Shot

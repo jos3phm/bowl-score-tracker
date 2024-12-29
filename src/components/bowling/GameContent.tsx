@@ -59,6 +59,7 @@ export const GameContent = ({
         currentFrame={currentFrame}
         currentShot={currentShot}
         isFirstShotStrike={isFirstShotStrike}
+        selectedPins={selectedPins}
       />
       
       <GameStatus
