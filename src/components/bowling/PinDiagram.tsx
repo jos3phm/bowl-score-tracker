@@ -92,12 +92,12 @@ export const PinDiagram = ({
       if (!isHistoricalView) {
         if (remainingPins) {
           // Second shot
-          if (!isPinAvailable) {
-            return "bg-gray-200 text-gray-400"; // Knocked down pins
+          if (remainingPins.includes(pin)) {
+            return isSelected
+              ? "bg-primary text-white animate-pin-selected" // Selected remaining pin
+              : "bg-white text-gray-800 border-2 border-gray-200"; // Available remaining pin
           }
-          return isSelected
-            ? "bg-primary text-white animate-pin-selected" // Selected remaining pin
-            : "bg-white text-gray-800 border-2 border-gray-200"; // Available remaining pin
+          return "bg-gray-200 text-gray-400"; // Knocked down pins
         }
         // First shot
         return isSelected
@@ -125,7 +125,7 @@ export const PinDiagram = ({
         }}
         onPinMouseEnter={(pin) => setHoveredPin(pin)}
         isHovered={hoveredPin === pin}
-        disabled={disabled || (remainingPins && !isPinAvailable)}
+        disabled={disabled || (remainingPins && !remainingPins.includes(pin))}
       />
     );
   };
