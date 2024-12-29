@@ -56,19 +56,3 @@ export const useFrameAdvancement = (
 
   return { updateFrameAndAdvance };
 };
-
-const calculateFrameScore = (frames: Frame[], frameIndex: number): number | null => {
-  // Score calculation logic
-  let score = 0;
-  for (let i = 0; i <= frameIndex; i++) {
-    const frame = frames[i];
-    if (frame.isStrike) {
-      score += 10 + (frames[i + 1]?.firstShot?.length || 0) + (frames[i + 1]?.secondShot?.length || 0);
-    } else if (frame.isSpare) {
-      score += 10 + (frames[i + 1]?.firstShot?.length || 0);
-    } else {
-      score += (frame.firstShot?.length || 0) + (frame.secondShot?.length || 0);
-    }
-  }
-  return score;
-};
