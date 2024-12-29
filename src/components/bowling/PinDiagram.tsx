@@ -48,7 +48,6 @@ export const PinDiagram = ({
 
   const handlePinMouseDown = (pin: PinType) => {
     if (disabled || isHistoricalView) return;
-    // For second shot, only allow selection of remaining pins
     if (remainingPins && !remainingPins.includes(pin)) return;
     
     setIsLongPress(false);
@@ -87,17 +86,16 @@ export const PinDiagram = ({
       ? getHistoricalPinStyle(pin, historicalFrame)
       : "";
 
-    // For second shot, show remaining pins in white (available) and knocked down pins in gray
     const getPinStyle = () => {
       if (!isHistoricalView) {
         if (remainingPins) {
-          // Second shot
+          // Second shot - pins that were knocked down in first shot are available
           if (remainingPins.includes(pin)) {
             return isSelected
               ? "bg-primary text-white animate-pin-selected" // Selected remaining pin
               : "bg-white text-gray-800 border-2 border-gray-200"; // Available remaining pin
           }
-          return "bg-gray-200 text-gray-400"; // Knocked down pins
+          return "bg-gray-200 text-gray-400"; // Pins that weren't knocked down in first shot
         }
         // First shot
         return isSelected
