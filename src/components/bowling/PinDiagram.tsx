@@ -58,7 +58,6 @@ export const PinDiagram = ({
     
     // The pins that are knocked down are all available pins except the ones that will remain standing
     const knockedDownPins = availablePins.filter(p => !pinsRemaining.includes(p));
-    
     onPinSelect(knockedDownPins);
     onRegularShot();
   };
