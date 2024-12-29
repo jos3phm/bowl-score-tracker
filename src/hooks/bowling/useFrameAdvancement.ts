@@ -16,19 +16,25 @@ export const useFrameAdvancement = (
 
     // Recalculate scores
     for (let i = 0; i <= currentFrame - 1; i++) {
-      newFrames[i].score = calculateFrameScore(newFrames, i);
+      const score = calculateFrameScore(newFrames, i);
+      newFrames[i] = { ...newFrames[i], score };
     }
 
     setFrames(newFrames);
     setSelectedPins([]);
 
-    // Advance to next shot/frame
+    // Immediate frame advancement for strikes in frames 1-9
+    if (newFrame.isStrike && currentFrame < 10) {
+      setCurrentFrame(currentFrame + 1);
+      setCurrentShot(1);
+      return;
+    }
+
+    // Special handling for 10th frame
     if (currentFrame === 10) {
-      // Special handling for 10th frame
       if (currentShot === 1) {
         setCurrentShot(2);
       } else if (currentShot === 2) {
-        // Only advance to third shot if strike or spare
         if (newFrame.isStrike || newFrame.isSpare) {
           setCurrentShot(3);
         } else {
@@ -38,17 +44,31 @@ export const useFrameAdvancement = (
         setCurrentFrame(11); // End game
       }
     } else {
-      // For frames 1-9
-      // If it's a strike OR it's the second shot, advance to next frame
-      if (newFrame.isStrike || currentShot === 2) {
+      // Regular frames (1-9)
+      if (currentShot === 2 || newFrame.isStrike) {
         setCurrentFrame(currentFrame + 1);
         setCurrentShot(1);
       } else {
-        // If it's not a strike and it's the first shot, advance to second shot
         setCurrentShot(2);
       }
     }
   };
 
   return { updateFrameAndAdvance };
+};
+
+const calculateFrameScore = (frames: Frame[], frameIndex: number): number | null => {
+  // Score calculation logic
+  let score = 0;
+  for (let i = 0; i <= frameIndex; i++) {
+    const frame = frames[i];
+    if (frame.isStrike) {
+      score += 10 + (frames[i + 1]?.firstShot?.length || 0) + (frames[i + 1]?.secondShot?.length || 0);
+    } else if (frame.isSpare) {
+      score += 10 + (frames[i + 1]?.firstShot?.length || 0);
+    } else {
+      score += (frame.firstShot?.length || 0) + (frame.secondShot?.length || 0);
+    }
+  }
+  return score;
 };
