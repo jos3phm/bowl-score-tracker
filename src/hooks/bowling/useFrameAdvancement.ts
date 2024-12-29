@@ -36,6 +36,8 @@ export const useFrameAdvancement = (
         setCurrentFrame(11); // End game
       }
     } else {
+      // For frames 1-9, advance to next frame immediately after a strike
+      // or to second shot after a non-strike first shot
       if (newFrame.isStrike || currentShot === 2) {
         setCurrentFrame(currentFrame + 1);
         setCurrentShot(1);
