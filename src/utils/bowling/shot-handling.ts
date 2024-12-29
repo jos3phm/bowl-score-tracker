@@ -66,7 +66,7 @@ export const recordRegularShot = (
   
   if (frameIndex === 9) { // 10th frame
     if (shot === 1) {
-      frame.firstShot = remainingPins;
+      frame.firstShot = allPins.filter(pin => !remainingPins.includes(pin));
       if (remainingPins.length === 0) {
         frame.isStrike = true;
       }
@@ -80,8 +80,8 @@ export const recordRegularShot = (
     }
   } else {
     if (shot === 1) {
-      // For first shot, store the remaining pins (selected pins)
-      frame.firstShot = remainingPins;
+      // For first shot, store the knocked down pins (all pins minus remaining pins)
+      frame.firstShot = allPins.filter(pin => !remainingPins.includes(pin));
     } else {
       // For second shot, store the remaining pins
       frame.secondShot = remainingPins;
