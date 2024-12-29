@@ -63,13 +63,12 @@ export const Pin = ({
         onDoubleTapPin(pin);
       }
     } else {
-      // Single tap
+      // Single tap - update lastTap and handle regular click
+      lastTap.current = currentTime;
       if (!disabled && !isHistoricalView) {
         onPinClick(pin);
       }
     }
-    
-    lastTap.current = currentTime;
   };
 
   return (
