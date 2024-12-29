@@ -55,7 +55,10 @@ export const PinDiagram = ({
       p !== pin && !selectedPins.includes(p)
     );
     
-    onPinSelect(pinsToSelect);
+    // Combine with already selected pins
+    const allSelectedPins = [...selectedPins, ...pinsToSelect];
+    
+    onPinSelect(allSelectedPins);
     onRegularShot();
   };
 
