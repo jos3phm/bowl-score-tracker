@@ -41,7 +41,11 @@ export const GameContent = ({
 }: GameContentProps) => {
   const handleMiss = () => {
     onPinSelect([]);
-    onRegularShot(); // Changed from onStrike to onRegularShot
+    if (currentShot === 1) {
+      onRegularShot();
+    } else {
+      onRegularShot();
+    }
   };
 
   return (
