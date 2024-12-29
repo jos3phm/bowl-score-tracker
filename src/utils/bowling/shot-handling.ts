@@ -63,7 +63,11 @@ export const recordRegularShot = (
     if (shot === 1) {
       // For first shot, record the pins that remained standing
       frame.firstShot = allPins.filter(pin => !knockedDownPins.includes(pin));
-      frame.isStrike = knockedDownPins.length === 10;
+      // If all pins are knocked down, it's a strike
+      if (knockedDownPins.length === 10) {
+        frame.isStrike = true;
+        frame.secondShot = null;
+      }
     } else if (shot === 2) {
       // For second shot, record the pins that remained standing from those available
       const availablePins = frame.firstShot || allPins;
@@ -78,7 +82,11 @@ export const recordRegularShot = (
     if (shot === 1) {
       // For first shot, record the pins that remained standing
       frame.firstShot = allPins.filter(pin => !knockedDownPins.includes(pin));
-      frame.isStrike = knockedDownPins.length === 10;
+      // If all pins are knocked down, it's a strike
+      if (knockedDownPins.length === 10) {
+        frame.isStrike = true;
+        frame.secondShot = null;
+      }
     } else {
       // For second shot, record the pins that remained standing from those available
       frame.secondShot = frame.firstShot!.filter(pin => !knockedDownPins.includes(pin));
