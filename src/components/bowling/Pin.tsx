@@ -1,5 +1,6 @@
 import { Pin as PinType } from "@/types/game";
 import { cn } from "@/lib/utils";
+import { useRef } from "react";
 
 interface PinProps {
   pin: PinType;
@@ -48,18 +49,27 @@ export const Pin = ({
     return historicalStyle;
   };
 
-  const handleDoubleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!disabled && !isHistoricalView) {
-      onDoubleTapPin(pin);
-    }
-  };
+  const lastTap = useRef<number>(0);
+  const DOUBLE_TAP_DELAY = 300; // milliseconds
 
-  const handleDoubleTap = (e: React.TouchEvent) => {
+  const handleTap = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
-    if (!disabled && !isHistoricalView) {
-      onDoubleTapPin(pin);
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap.current;
+    
+    if (tapLength < DOUBLE_TAP_DELAY && tapLength > 0) {
+      // Double tap detected
+      if (!disabled && !isHistoricalView) {
+        onDoubleTapPin(pin);
+      }
+    } else {
+      // Single tap
+      if (!disabled && !isHistoricalView) {
+        onPinClick(pin);
+      }
     }
+    
+    lastTap.current = currentTime;
   };
 
   return (
@@ -73,8 +83,7 @@ export const Pin = ({
         isHovered && !disabled && !isHistoricalView && "shadow-lg",
         (disabled || isHistoricalView) && "cursor-default"
       )}
-      onClick={() => onPinClick(pin)}
-      onDoubleClick={handleDoubleClick}
+      onClick={handleTap}
       onMouseDown={() => onPinMouseDown(pin)}
       onMouseUp={onPinMouseUp}
       onMouseLeave={onPinMouseLeave}
@@ -85,9 +94,9 @@ export const Pin = ({
       }}
       onTouchEnd={(e) => {
         e.preventDefault();
+        handleTap(e);
         onPinMouseUp();
       }}
-      onTouchEndCapture={handleDoubleTap}
       disabled={disabled || isHistoricalView}
     >
       {pin}
