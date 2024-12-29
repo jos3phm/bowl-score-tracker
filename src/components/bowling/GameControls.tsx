@@ -56,18 +56,18 @@ export const GameControls = ({
         Spare
       </Button>
       <Button
-        onClick={onRegularShot}
-        disabled={isRegularShotDisabled}
-        variant="default"
-      >
-        Record Shot
-      </Button>
-      <Button
         onClick={onMiss}
         disabled={disabled}
         variant="destructive"
       >
         Miss
+      </Button>
+      <Button
+        onClick={onRegularShot}
+        disabled={isRegularShotDisabled}
+        variant="default"
+      >
+        Record Shot
       </Button>
       <Button
         onClick={onClear}
