@@ -16,8 +16,8 @@ export const ScoreCard = ({ frames, currentFrame, onFrameClick, selectedFrame }:
 
     const renderShot = (shot: Pin[] | null, isSpare: boolean, isLastShot: boolean = false) => {
       if (shot === null) return "";
-      if (isSpare && !isLastShot) return <span className="text-secondary font-bold">/</span>;
       if (shot.length === 10 && !isSpare) return <span className="text-primary font-bold">X</span>;
+      if (isSpare && !isLastShot) return <span className="text-secondary font-bold">/</span>;
       return shot.length;
     };
 
@@ -39,7 +39,11 @@ export const ScoreCard = ({ frames, currentFrame, onFrameClick, selectedFrame }:
           <div className="mb-1">
             <div className="flex justify-center gap-1">
               {renderShot(frame.firstShot, false)}
-              {renderShot(frame.secondShot, false)}
+              {frame.isSpare ? (
+                <span className="text-secondary font-bold">/</span>
+              ) : (
+                renderShot(frame.secondShot, false)
+              )}
               {(frame.isStrike || frame.isSpare) && renderShot(frame.thirdShot, false, true)}
             </div>
           </div>
@@ -50,7 +54,13 @@ export const ScoreCard = ({ frames, currentFrame, onFrameClick, selectedFrame }:
               {renderShot(frame.firstShot, false)}
             </div>
             <div className="text-center">
-              {frame.isStrike ? "" : renderShot(frame.secondShot, frame.isSpare)}
+              {frame.isStrike ? "" : (
+                frame.isSpare ? (
+                  <span className="text-secondary font-bold">/</span>
+                ) : (
+                  renderShot(frame.secondShot, false)
+                )
+              )}
             </div>
           </div>
         )}
