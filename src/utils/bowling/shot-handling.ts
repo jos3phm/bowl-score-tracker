@@ -7,18 +7,19 @@ export const recordStrike = (
   shot: 1 | 2 | 3
 ): Frame => {
   const frame = { ...frames[frameIndex] };
+  const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   if (frameIndex === 9) { // 10th frame
     if (shot === 1) {
-      frame.firstShot = [];
+      frame.firstShot = allPins;
       frame.isStrike = true;
     } else if (shot === 2) {
-      frame.secondShot = [];
+      frame.secondShot = allPins;
     } else if (shot === 3) {
-      frame.thirdShot = [];
+      frame.thirdShot = allPins;
     }
   } else {
-    frame.firstShot = [];
+    frame.firstShot = allPins;
     frame.secondShot = null;
     frame.isStrike = true;
   }
@@ -36,13 +37,13 @@ export const recordSpare = (
 
   if (frameIndex === 9) { // 10th frame
     if (shot === 2) {
-      frame.secondShot = [];
+      frame.secondShot = remainingPins;
       frame.isSpare = true;
     } else if (shot === 3) {
-      frame.thirdShot = [];
+      frame.thirdShot = remainingPins;
     }
   } else {
-    frame.secondShot = [];
+    frame.secondShot = remainingPins;
     frame.isSpare = true;
   }
 
@@ -55,12 +56,6 @@ export const recordRegularShot = (
   shot: 1 | 2 | 3,
   remainingPins: Pin[]
 ): Frame => {
-  // If no pins are remaining on first shot (except in 10th frame),
-  // treat it as a strike
-  if (shot === 1 && frameIndex !== 9 && remainingPins.length === 0) {
-    return recordStrike(frames, frameIndex, shot);
-  }
-
   const frame = { ...frames[frameIndex] };
   const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
@@ -72,21 +67,20 @@ export const recordRegularShot = (
       }
     } else if (shot === 2) {
       frame.secondShot = remainingPins;
-      if (!frame.isStrike) {
-        frame.isSpare = frame.firstShot!.length === remainingPins.length;
+      if (!frame.isStrike && frame.firstShot) {
+        frame.isSpare = frame.firstShot.length + remainingPins.length === 10;
       }
     } else if (shot === 3) {
       frame.thirdShot = remainingPins;
     }
   } else {
     if (shot === 1) {
-      // For first shot, store the knocked down pins (all pins minus remaining pins)
       frame.firstShot = allPins.filter(pin => !remainingPins.includes(pin));
     } else {
-      // For second shot, store the remaining pins
       frame.secondShot = remainingPins;
-      // It's a spare if no pins remain after second shot
-      frame.isSpare = remainingPins.length === 0;
+      if (frame.firstShot) {
+        frame.isSpare = frame.firstShot.length + remainingPins.length === 10;
+      }
     }
   }
 
