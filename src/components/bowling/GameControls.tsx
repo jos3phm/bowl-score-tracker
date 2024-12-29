@@ -6,6 +6,7 @@ interface GameControlsProps {
   onSpare: () => void;
   onClear: () => void;
   onRegularShot: () => void;
+  onMiss: () => void;
   disabled?: boolean;
   currentFrame: number;
   currentShot: 1 | 2 | 3;
@@ -18,6 +19,7 @@ export const GameControls = ({
   onSpare,
   onClear,
   onRegularShot,
+  onMiss,
   disabled,
   currentFrame,
   currentShot,
@@ -59,6 +61,13 @@ export const GameControls = ({
         variant="default"
       >
         Record Shot
+      </Button>
+      <Button
+        onClick={onMiss}
+        disabled={disabled}
+        variant="destructive"
+      >
+        Miss
       </Button>
       <Button
         onClick={onClear}

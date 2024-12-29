@@ -39,6 +39,11 @@ export const GameContent = ({
   onRegularShot,
   onClear,
 }: GameContentProps) => {
+  const handleMiss = () => {
+    onPinSelect([]);
+    onRegularShot();
+  };
+
   return (
     <div className="space-y-6">
       <PinDiagram
@@ -54,6 +59,7 @@ export const GameContent = ({
         onStrike={onStrike}
         onSpare={onSpare}
         onRegularShot={onRegularShot}
+        onMiss={handleMiss}
         onClear={onClear}
         disabled={currentFrame > 10 || isGameComplete}
         currentFrame={currentFrame}
