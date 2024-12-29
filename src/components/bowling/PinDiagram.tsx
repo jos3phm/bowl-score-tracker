@@ -30,13 +30,14 @@ export const PinDiagram = ({
   const [isLongPress, setIsLongPress] = useState(false);
   const allPins: PinType[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
-  // Use remainingPins if provided (for second shot), otherwise use all pins
+  // For first shot, all pins are available
+  // For second shot, only pins that were knocked down in first shot are available
   const availablePins = remainingPins || allPins;
 
   const handlePinClick = (pin: PinType) => {
     if (disabled || isLongPress || isHistoricalView) return;
     
-    // For second shot, only allow selection of remaining pins
+    // For second shot, only allow selection of pins that were knocked down in first shot
     if (remainingPins && !remainingPins.includes(pin)) return;
     
     if (selectedPins.includes(pin)) {
@@ -92,12 +93,13 @@ export const PinDiagram = ({
           // Second shot - pins that were knocked down in first shot are available
           if (remainingPins.includes(pin)) {
             return isSelected
-              ? "bg-primary text-white animate-pin-selected" // Selected remaining pin
-              : "bg-white text-gray-800 border-2 border-gray-200"; // Available remaining pin
+              ? "bg-primary text-white animate-pin-selected"
+              : "bg-white text-gray-800 border-2 border-gray-200";
           }
-          return "bg-gray-200 text-gray-400"; // Pins that weren't knocked down in first shot
+          // Pins that weren't knocked down in first shot are grayed out
+          return "bg-gray-200 text-gray-400";
         }
-        // First shot
+        // First shot - all pins are white/selectable
         return isSelected
           ? "bg-primary text-white animate-pin-selected"
           : "bg-white text-gray-800 border-2 border-gray-200";
