@@ -25,7 +25,7 @@ export const ScoreCard = ({ frames, currentFrame, onFrameClick, selectedFrame }:
       <div
         key={index}
         className={cn(
-          "border rounded-lg p-2 min-w-[80px] flex-shrink-0 cursor-pointer hover:border-primary/50",
+          "border rounded-lg p-2 w-[90px] flex-shrink-0 cursor-pointer hover:border-primary/50",
           "transition-all duration-300",
           isActive && "border-primary shadow-lg",
           isSelected && "border-secondary shadow-lg",
@@ -64,8 +64,8 @@ export const ScoreCard = ({ frames, currentFrame, onFrameClick, selectedFrame }:
   };
 
   return (
-    <div className="w-full overflow-x-auto pb-4">
-      <div className="flex gap-2 p-2 min-w-fit mx-auto max-w-full">
+    <div className="w-full overflow-x-auto pb-4 px-4">
+      <div className="flex gap-3 justify-start min-w-max w-full">
         {frames.map((frame, index) => renderFrame(frame, index))}
       </div>
     </div>
