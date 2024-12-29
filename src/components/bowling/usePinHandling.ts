@@ -21,21 +21,11 @@ export const usePinHandling = (
     
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
-    if (remainingPins === undefined) {
-      // First shot logic: toggle the clicked pin
-      onPinSelect(
-        selectedPins.includes(pin)
-          ? selectedPins.filter((p) => p !== pin)
-          : [...selectedPins, pin]
-      );
-    } else {
-      // Second shot logic: toggle individual pins
-      onPinSelect(
-        selectedPins.includes(pin)
-          ? selectedPins.filter((p) => p !== pin)
-          : [...selectedPins, pin]
-      );
-    }
+    const newSelectedPins = selectedPins.includes(pin)
+      ? selectedPins.filter((p) => p !== pin)
+      : [...selectedPins, pin];
+    
+    onPinSelect(newSelectedPins);
   };
 
   const handleDoubleTapPin = (pin: Pin) => {
