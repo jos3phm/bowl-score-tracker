@@ -50,8 +50,11 @@ export const PinDiagram = ({
     if (disabled || isHistoricalView) return;
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
-    // Select all pins EXCEPT the double-tapped one
-    const pinsToSelect = availablePins.filter(p => p !== pin);
+    // Get all available pins except the double-tapped one and any previously selected pins
+    const pinsToSelect = availablePins.filter(p => 
+      p !== pin && !selectedPins.includes(p)
+    );
+    
     onPinSelect(pinsToSelect);
     onRegularShot();
   };
