@@ -39,11 +39,24 @@ export const PinDiagram = ({
     
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
-    // Toggle pin selection
-    if (selectedPins.includes(pin)) {
-      onPinSelect(selectedPins.filter((p) => p !== pin));
+    // For first shot, selectedPins represents knocked down pins
+    // For second shot, we use remainingPins logic
+    if (remainingPins === undefined) {
+      // First shot - toggle the knocked down state
+      if (selectedPins.includes(pin)) {
+        // Pin was knocked down, now it's standing
+        onPinSelect(selectedPins.filter((p) => p !== pin));
+      } else {
+        // Pin was standing, now it's knocked down
+        onPinSelect([...selectedPins, pin]);
+      }
     } else {
-      onPinSelect([...selectedPins, pin]);
+      // Second shot - use remaining pins logic
+      if (selectedPins.includes(pin)) {
+        onPinSelect(selectedPins.filter((p) => p !== pin));
+      } else {
+        onPinSelect([...selectedPins, pin]);
+      }
     }
   };
 
