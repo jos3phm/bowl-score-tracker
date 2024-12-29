@@ -24,9 +24,11 @@ export const useFrameAdvancement = (
 
     // Advance to next shot/frame
     if (currentFrame === 10) {
+      // Special handling for 10th frame
       if (currentShot === 1) {
         setCurrentShot(2);
       } else if (currentShot === 2) {
+        // Only advance to third shot if strike or spare
         if (newFrame.isStrike || newFrame.isSpare) {
           setCurrentShot(3);
         } else {
@@ -36,12 +38,13 @@ export const useFrameAdvancement = (
         setCurrentFrame(11); // End game
       }
     } else {
-      // For frames 1-9, advance to next frame immediately after a strike
-      // or to second shot after a non-strike first shot
+      // For frames 1-9
+      // If it's a strike OR it's the second shot, advance to next frame
       if (newFrame.isStrike || currentShot === 2) {
         setCurrentFrame(currentFrame + 1);
         setCurrentShot(1);
       } else {
+        // If it's not a strike and it's the first shot, advance to second shot
         setCurrentShot(2);
       }
     }
