@@ -35,9 +35,11 @@ export const BowlingGame = () => {
       return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     }
 
-    // Get all pins that were NOT knocked down in the first shot
+    // Get all pins that were knocked down in the first shot
+    const knockedDownPins = frame.firstShot;
+    // Return all pins that were NOT knocked down in the first shot
     const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    return allPins.filter(pin => !frame.firstShot?.includes(pin));
+    return allPins.filter(pin => !knockedDownPins.includes(pin));
   };
 
   const getHistoricalFrameData = () => {

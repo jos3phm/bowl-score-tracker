@@ -54,31 +54,33 @@ export const recordRegularShot = (
   frames: Frame[],
   frameIndex: number,
   shot: 1 | 2 | 3,
-  remainingPins: Pin[]
+  selectedPins: Pin[]
 ): Frame => {
+  console.log(`Recording regular shot for frame ${frameIndex + 1}, shot ${shot}`);
+  console.log('Selected pins:', selectedPins);
+  
   const frame = { ...frames[frameIndex] };
   
   if (frameIndex === 9) { // 10th frame
     if (shot === 1) {
-      frame.firstShot = remainingPins;
-      frame.isStrike = remainingPins.length === 10;
+      frame.firstShot = selectedPins;
+      frame.isStrike = selectedPins.length === 10;
     } else if (shot === 2) {
-      frame.secondShot = remainingPins;
+      frame.secondShot = selectedPins;
       if (!frame.isStrike && frame.firstShot) {
-        frame.isSpare = frame.firstShot.length + remainingPins.length === 10;
+        frame.isSpare = frame.firstShot.length + selectedPins.length === 10;
       }
     } else if (shot === 3) {
-      frame.thirdShot = remainingPins;
+      frame.thirdShot = selectedPins;
     }
   } else {
     if (shot === 1) {
-      frame.firstShot = remainingPins;
-      // Remove the incorrect strike marking for first shot
-      frame.isStrike = false;
+      frame.firstShot = selectedPins;
+      frame.isStrike = selectedPins.length === 10;
     } else {
-      frame.secondShot = remainingPins;
+      frame.secondShot = selectedPins;
       if (frame.firstShot) {
-        frame.isSpare = frame.firstShot.length + remainingPins.length === 10;
+        frame.isSpare = frame.firstShot.length + selectedPins.length === 10;
       }
     }
   }
