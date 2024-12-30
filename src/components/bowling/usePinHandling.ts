@@ -32,7 +32,8 @@ export const usePinHandling = (
     if (disabled || isHistoricalView) return;
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
-    const knockedDownPins = availablePins.filter(p => p !== pin);
+    // On double tap, select all pins EXCEPT the tapped one
+    const knockedDownPins = availablePins.filter(p => p === pin);
     onPinSelect(knockedDownPins);
     onRegularShot();
   };
