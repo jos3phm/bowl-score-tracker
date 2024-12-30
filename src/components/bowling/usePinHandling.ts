@@ -17,24 +17,24 @@ export const usePinHandling = (
   
   const availablePins = remainingPins === undefined ? allPins : remainingPins;
 
+  // Only update local state when selectedPins prop changes and is different
   useEffect(() => {
-    setLocalSelectedPins(selectedPins);
+    if (JSON.stringify(localSelectedPins) !== JSON.stringify(selectedPins)) {
+      setLocalSelectedPins(selectedPins);
+    }
   }, [selectedPins]);
 
   const handlePinClick = useCallback((pin: Pin) => {
     if (disabled || isLongPress || isHistoricalView) return;
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
-    setLocalSelectedPins(prevPins => {
-      const isSelected = prevPins.includes(pin);
-      const newSelectedPins = isSelected
-        ? prevPins.filter(p => p !== pin)
-        : [...prevPins, pin];
-      
-      onPinSelect(newSelectedPins);
-      return newSelectedPins;
-    });
-  }, [disabled, isLongPress, isHistoricalView, remainingPins, onPinSelect]);
+    const newSelectedPins = localSelectedPins.includes(pin)
+      ? localSelectedPins.filter(p => p !== pin)
+      : [...localSelectedPins, pin];
+    
+    setLocalSelectedPins(newSelectedPins);
+    onPinSelect(newSelectedPins);
+  }, [disabled, isLongPress, isHistoricalView, remainingPins, localSelectedPins, onPinSelect]);
 
   const handleDoubleTapPin = useCallback((pin: Pin) => {
     if (disabled || isHistoricalView) return;
