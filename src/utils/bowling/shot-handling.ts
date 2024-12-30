@@ -1,5 +1,4 @@
 import { Frame, Pin } from "@/types/game";
-import { getRemainingPins } from "./frame-validation";
 
 export const recordStrike = (
   frames: Frame[],
@@ -86,4 +85,22 @@ export const recordRegularShot = (
   }
 
   return frame;
+};
+
+const getRemainingPins = (frame: Frame, shot: 1 | 2 | 3): Pin[] => {
+  const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  
+  if (shot === 1 || frame.isStrike) return allPins;
+  
+  if (shot === 2) {
+    return allPins.filter(pin => !frame.firstShot?.includes(pin));
+  }
+  
+  if (shot === 3) {
+    // If previous shot was a strike, all pins are available
+    if (frame.secondShot?.length === 10) return allPins;
+    return allPins.filter(pin => !frame.secondShot?.includes(pin));
+  }
+  
+  return [];
 };
