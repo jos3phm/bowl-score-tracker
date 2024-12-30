@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Pin } from "@/types/game";
 
 export const usePinHandling = (
@@ -13,46 +13,45 @@ export const usePinHandling = (
   const [hoveredPin, setHoveredPin] = useState<Pin | null>(null);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   const [isLongPress, setIsLongPress] = useState(false);
-  const [localSelectedPins, setLocalSelectedPins] = useState<Pin[]>(selectedPins);
+  const [localSelectedPins, setLocalSelectedPins] = useState<Pin[]>([]);
   
   const availablePins = remainingPins === undefined ? allPins : remainingPins;
 
   useEffect(() => {
-    // Update local state when props change
     setLocalSelectedPins(selectedPins);
   }, [selectedPins]);
 
-  const handlePinClick = (pin: Pin) => {
+  const handlePinClick = useCallback((pin: Pin) => {
     if (disabled || isLongPress || isHistoricalView) return;
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
-    // Toggle the clicked pin in the selection
-    const isSelected = localSelectedPins.includes(pin);
-    const newSelectedPins = isSelected
-      ? localSelectedPins.filter(p => p !== pin)
-      : [...localSelectedPins, pin];
-    
-    setLocalSelectedPins(newSelectedPins);
-    onPinSelect(newSelectedPins);
-  };
+    setLocalSelectedPins(prevPins => {
+      const isSelected = prevPins.includes(pin);
+      const newSelectedPins = isSelected
+        ? prevPins.filter(p => p !== pin)
+        : [...prevPins, pin];
+      
+      onPinSelect(newSelectedPins);
+      return newSelectedPins;
+    });
+  }, [disabled, isLongPress, isHistoricalView, remainingPins, onPinSelect]);
 
-  const handleDoubleTapPin = (pin: Pin) => {
+  const handleDoubleTapPin = useCallback((pin: Pin) => {
     if (disabled || isHistoricalView) return;
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
-    // On double tap, select all pins EXCEPT the tapped one
     const knockedDownPins = availablePins.filter(p => p !== pin);
     setLocalSelectedPins(knockedDownPins);
     onPinSelect(knockedDownPins);
     onRegularShot();
-  };
+  }, [disabled, isHistoricalView, remainingPins, availablePins, onPinSelect, onRegularShot]);
 
-  const handlePinMouseDown = (pin: Pin) => {
+  const handlePinMouseDown = useCallback((pin: Pin) => {
     if (disabled || isHistoricalView) return;
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
     setIsLongPress(false);
-
+    
     const timer = setTimeout(() => {
       setIsLongPress(true);
       const pinsToSelect = availablePins.filter(p => p !== pin);
@@ -61,9 +60,9 @@ export const usePinHandling = (
     }, 500);
 
     setLongPressTimer(timer);
-  };
+  }, [disabled, isHistoricalView, remainingPins, availablePins, onPinSelect]);
 
-  const handlePinMouseUp = () => {
+  const handlePinMouseUp = useCallback(() => {
     if (longPressTimer) {
       clearTimeout(longPressTimer);
       setLongPressTimer(null);
@@ -71,7 +70,7 @@ export const usePinHandling = (
     setTimeout(() => {
       setIsLongPress(false);
     }, 50);
-  };
+  }, [longPressTimer]);
 
   useEffect(() => {
     return () => {
