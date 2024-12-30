@@ -31,9 +31,12 @@ export const useBowlingGame = () => {
     setSelectedPins,
   );
 
-  const handlePinSelect = (pins: Pin[]) => {
-    console.log('Selected pins:', pins); // Debug log
-    setSelectedPins([...pins]); // Create a new array to ensure state update
+  const handlePinSelect = (pinsOrUpdater: Pin[] | ((currentPins: Pin[]) => Pin[])) => {
+    if (typeof pinsOrUpdater === 'function') {
+      setSelectedPins(pinsOrUpdater);
+    } else {
+      setSelectedPins(pinsOrUpdater);
+    }
   };
 
   const handleStrike = () => {
@@ -52,7 +55,6 @@ export const useBowlingGame = () => {
 
   const handleRegularShot = () => {
     if (currentFrame > 10 || isGameComplete(frames)) return;
-    console.log('Recording regular shot with pins:', selectedPins); // Debug log
     
     const newFrame = recordRegularShot(frames, currentFrame - 1, currentShot, selectedPins);
     updateFrameAndAdvance(newFrame);

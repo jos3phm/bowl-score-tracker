@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Pin } from "@/types/game";
 
 export const usePinHandling = (
@@ -8,7 +8,6 @@ export const usePinHandling = (
   isHistoricalView: boolean,
   remainingPins?: Pin[],
   allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-  selectedPins: Pin[] = []
 ) => {
   const [hoveredPin, setHoveredPin] = useState<Pin | null>(null);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
@@ -20,17 +19,15 @@ export const usePinHandling = (
     if (disabled || isLongPress || isHistoricalView) return;
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
 
-    const isSelected = selectedPins.includes(pin);
-    let newSelectedPins: Pin[];
-    
-    if (isSelected) {
-      newSelectedPins = selectedPins.filter(p => p !== pin);
-    } else {
-      newSelectedPins = [...selectedPins, pin];
-    }
-    
-    onPinSelect(newSelectedPins);
-  }, [disabled, isLongPress, isHistoricalView, remainingPins, selectedPins, onPinSelect]);
+    onPinSelect((currentPins) => {
+      const isSelected = currentPins.includes(pin);
+      if (isSelected) {
+        return currentPins.filter(p => p !== pin);
+      } else {
+        return [...currentPins, pin];
+      }
+    });
+  }, [disabled, isLongPress, isHistoricalView, remainingPins, onPinSelect]);
 
   const handleDoubleTapPin = useCallback((pin: Pin) => {
     if (disabled || isHistoricalView) return;
