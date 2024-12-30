@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Pin } from "@/types/game";
 import { isGameComplete, canMakeSpare } from "@/utils/bowling/frame-validation";
 import { 
@@ -31,7 +32,8 @@ export const useBowlingGame = () => {
   );
 
   const handlePinSelect = (pins: Pin[]) => {
-    setSelectedPins(pins);
+    console.log('Selected pins:', pins); // Debug log
+    setSelectedPins([...pins]); // Create a new array to ensure state update
   };
 
   const handleStrike = () => {
@@ -50,8 +52,8 @@ export const useBowlingGame = () => {
 
   const handleRegularShot = () => {
     if (currentFrame > 10 || isGameComplete(frames)) return;
+    console.log('Recording regular shot with pins:', selectedPins); // Debug log
     
-    // selectedPins now represents the remaining pins
     const newFrame = recordRegularShot(frames, currentFrame - 1, currentShot, selectedPins);
     updateFrameAndAdvance(newFrame);
   };
