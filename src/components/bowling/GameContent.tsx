@@ -17,7 +17,7 @@ interface GameContentProps {
     isStrike: boolean;
   } | null;
   isHistoricalView: boolean;
-  onPinSelect: (pins: Pin[]) => void;
+  onPinSelect: (pins: Pin[] | ((currentPins: Pin[]) => Pin[])) => void;
   onStrike: () => void;
   onSpare: () => void;
   onRegularShot: () => void;

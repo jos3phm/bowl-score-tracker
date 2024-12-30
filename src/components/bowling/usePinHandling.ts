@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { Pin } from "@/types/game";
 
 export const usePinHandling = (
-  onPinSelect: (pins: Pin[]) => void,
+  onPinSelect: (pins: Pin[] | ((currentPins: Pin[]) => Pin[])) => void,
   onRegularShot: () => void,
   disabled: boolean,
   isHistoricalView: boolean,
