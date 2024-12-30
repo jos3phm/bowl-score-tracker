@@ -13,20 +13,26 @@ export const usePinHandling = (
   const [hoveredPin, setHoveredPin] = useState<Pin | null>(null);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   const [isLongPress, setIsLongPress] = useState(false);
+  const [localSelectedPins, setLocalSelectedPins] = useState<Pin[]>(selectedPins);
   
   const availablePins = remainingPins === undefined ? allPins : remainingPins;
 
+  useEffect(() => {
+    // Update local state when props change
+    setLocalSelectedPins(selectedPins);
+  }, [selectedPins]);
+
   const handlePinClick = (pin: Pin) => {
     if (disabled || isLongPress || isHistoricalView) return;
-    
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
     // Toggle the clicked pin in the selection
-    const isSelected = selectedPins.includes(pin);
+    const isSelected = localSelectedPins.includes(pin);
     const newSelectedPins = isSelected
-      ? selectedPins.filter(p => p !== pin)
-      : [...selectedPins, pin];
+      ? localSelectedPins.filter(p => p !== pin)
+      : [...localSelectedPins, pin];
     
+    setLocalSelectedPins(newSelectedPins);
     onPinSelect(newSelectedPins);
   };
 
@@ -36,6 +42,7 @@ export const usePinHandling = (
     
     // On double tap, select all pins EXCEPT the tapped one
     const knockedDownPins = availablePins.filter(p => p !== pin);
+    setLocalSelectedPins(knockedDownPins);
     onPinSelect(knockedDownPins);
     onRegularShot();
   };
@@ -49,6 +56,7 @@ export const usePinHandling = (
     const timer = setTimeout(() => {
       setIsLongPress(true);
       const pinsToSelect = availablePins.filter(p => p !== pin);
+      setLocalSelectedPins(pinsToSelect);
       onPinSelect(pinsToSelect);
     }, 500);
 
