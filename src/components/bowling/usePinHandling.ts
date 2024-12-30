@@ -13,35 +13,25 @@ export const usePinHandling = (
   const [hoveredPin, setHoveredPin] = useState<Pin | null>(null);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   const [isLongPress, setIsLongPress] = useState(false);
-  const [localSelectedPins, setLocalSelectedPins] = useState<Pin[]>([]);
   
   const availablePins = remainingPins === undefined ? allPins : remainingPins;
-
-  // Only update local state when selectedPins prop changes and is different
-  useEffect(() => {
-    if (JSON.stringify(localSelectedPins) !== JSON.stringify(selectedPins)) {
-      setLocalSelectedPins(selectedPins);
-    }
-  }, [selectedPins]);
 
   const handlePinClick = useCallback((pin: Pin) => {
     if (disabled || isLongPress || isHistoricalView) return;
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
-    const newSelectedPins = localSelectedPins.includes(pin)
-      ? localSelectedPins.filter(p => p !== pin)
-      : [...localSelectedPins, pin];
+    const newSelectedPins = selectedPins.includes(pin)
+      ? selectedPins.filter(p => p !== pin)
+      : [...selectedPins, pin];
     
-    setLocalSelectedPins(newSelectedPins);
     onPinSelect(newSelectedPins);
-  }, [disabled, isLongPress, isHistoricalView, remainingPins, localSelectedPins, onPinSelect]);
+  }, [disabled, isLongPress, isHistoricalView, remainingPins, selectedPins, onPinSelect]);
 
   const handleDoubleTapPin = useCallback((pin: Pin) => {
     if (disabled || isHistoricalView) return;
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
     const knockedDownPins = availablePins.filter(p => p !== pin);
-    setLocalSelectedPins(knockedDownPins);
     onPinSelect(knockedDownPins);
     onRegularShot();
   }, [disabled, isHistoricalView, remainingPins, availablePins, onPinSelect, onRegularShot]);
@@ -55,7 +45,6 @@ export const usePinHandling = (
     const timer = setTimeout(() => {
       setIsLongPress(true);
       const pinsToSelect = availablePins.filter(p => p !== pin);
-      setLocalSelectedPins(pinsToSelect);
       onPinSelect(pinsToSelect);
     }, 500);
 
