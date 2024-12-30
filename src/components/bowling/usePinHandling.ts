@@ -20,9 +20,11 @@ export const usePinHandling = (
     if (disabled || isLongPress || isHistoricalView) return;
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
-    const newSelectedPins = selectedPins.includes(pin)
+    // Toggle pin selection
+    const isSelected = selectedPins.includes(pin);
+    const newSelectedPins = isSelected
       ? selectedPins.filter(p => p !== pin)
-      : [...selectedPins, pin];
+      : [...selectedPins, pin].sort((a, b) => a - b);
     
     onPinSelect(newSelectedPins);
   }, [disabled, isLongPress, isHistoricalView, remainingPins, selectedPins, onPinSelect]);
@@ -31,7 +33,11 @@ export const usePinHandling = (
     if (disabled || isHistoricalView) return;
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
-    const knockedDownPins = availablePins.filter(p => p !== pin);
+    // Select all pins except the tapped one
+    const knockedDownPins = availablePins
+      .filter(p => p !== pin)
+      .sort((a, b) => a - b);
+    
     onPinSelect(knockedDownPins);
     onRegularShot();
   }, [disabled, isHistoricalView, remainingPins, availablePins, onPinSelect, onRegularShot]);
@@ -44,7 +50,10 @@ export const usePinHandling = (
     
     const timer = setTimeout(() => {
       setIsLongPress(true);
-      const pinsToSelect = availablePins.filter(p => p !== pin);
+      // Select all pins except the long-pressed one
+      const pinsToSelect = availablePins
+        .filter(p => p !== pin)
+        .sort((a, b) => a - b);
       onPinSelect(pinsToSelect);
     }, 500);
 
