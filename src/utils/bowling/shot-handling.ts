@@ -64,9 +64,9 @@ export const recordRegularShot = (
   
   if (frameIndex === 9) { // 10th frame
     if (shot === 1) {
-      frame.firstShot = allPins.filter(pin => !selectedPins.includes(pin));
-      frame.isStrike = selectedPins.length === 0; // Strike if no pins remain
-      frame.isSplit = !frame.isStrike && isSplit(selectedPins);
+      frame.firstShot = selectedPins.length === 0 ? [] : allPins.filter(pin => !selectedPins.includes(pin));
+      frame.isStrike = selectedPins.length === 0 ? false : frame.firstShot.length === 10;
+      frame.isSplit = !frame.isStrike && selectedPins.length > 1 && isSplit(selectedPins);
     } else if (shot === 2) {
       frame.secondShot = selectedPins;
       if (!frame.isStrike && frame.firstShot) {
@@ -77,9 +77,9 @@ export const recordRegularShot = (
     }
   } else {
     if (shot === 1) {
-      frame.firstShot = allPins.filter(pin => !selectedPins.includes(pin));
-      frame.isStrike = selectedPins.length === 0; // Strike if no pins remain
-      frame.isSplit = !frame.isStrike && isSplit(selectedPins);
+      frame.firstShot = selectedPins.length === 0 ? [] : allPins.filter(pin => !selectedPins.includes(pin));
+      frame.isStrike = selectedPins.length === 0 ? false : frame.firstShot.length === 10;
+      frame.isSplit = !frame.isStrike && selectedPins.length > 1 && isSplit(selectedPins);
     } else {
       frame.secondShot = selectedPins;
       if (frame.firstShot) {
