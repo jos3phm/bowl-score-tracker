@@ -38,6 +38,20 @@ export const BowlingBallList = ({ bowlingBalls, onDelete, onAdd }: BowlingBallLi
     }
   };
 
+  const handleAdd = async (ball: Omit<BowlingBall, 'id'>) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error('No session found');
+    }
+    
+    const ballWithUserId = {
+      ...ball,
+      user_id: session.user.id
+    };
+    
+    await onAdd(ballWithUserId);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -56,7 +70,7 @@ export const BowlingBallList = ({ bowlingBalls, onDelete, onAdd }: BowlingBallLi
         </div>
 
         <BowlingBallForm
-          onAdd={onAdd}
+          onAdd={handleAdd}
           brandSuggestions={brandSuggestions}
           nameSuggestions={nameSuggestions}
           onBrandSearch={(value) => fetchSuggestions('brand', value)}
