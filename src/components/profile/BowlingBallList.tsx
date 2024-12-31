@@ -67,34 +67,61 @@ export const BowlingBallList = ({ bowlingBalls, onDelete, onAdd }: BowlingBallLi
   };
 
   const handleToggleSpare = async (id: string, isSpare: boolean) => {
-    const { error } = await supabase
-      .from('bowling_balls')
-      .update({ is_spare_ball: isSpare })
-      .eq('id', id);
+    try {
+      // First, if we're setting a new spare ball, unset any existing spare ball
+      if (isSpare) {
+        const { error: unsetError } = await supabase
+          .from('bowling_balls')
+          .update({ is_spare_ball: false })
+          .eq('is_spare_ball', true);
 
-    if (error) {
+        if (unsetError) {
+          console.error('Error unsetting previous spare ball:', unsetError);
+          toast({
+            title: "Error updating ball",
+            description: unsetError.message,
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+
+      // Then update the selected ball
+      const { error } = await supabase
+        .from('bowling_balls')
+        .update({ is_spare_ball: isSpare })
+        .eq('id', id);
+
+      if (error) {
+        toast({
+          title: "Error updating ball",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Refresh the list by refetching the data
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data: updatedBalls } = await supabase
+        .from('bowling_balls')
+        .select('*')
+        .eq('user_id', session.user.id);
+
+      if (updatedBalls) {
+        toast({
+          title: isSpare ? "Spare ball set" : "Spare ball unset",
+          description: isSpare ? "This ball has been set as your spare ball" : "This ball is no longer your spare ball",
+        });
+      }
+    } catch (error) {
+      console.error('Error in handleToggleSpare:', error);
       toast({
-        title: "Error updating ball",
-        description: error.message,
+        title: "Error",
+        description: "An error occurred while updating the spare ball status",
         variant: "destructive",
-      });
-      return;
-    }
-
-    // Refresh the list by refetching the data
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-
-    const { data: updatedBalls } = await supabase
-      .from('bowling_balls')
-      .select('*')
-      .eq('user_id', session.user.id);
-
-    if (updatedBalls) {
-      // Update the local state through the parent component
-      toast({
-        title: isSpare ? "Spare ball set" : "Spare ball unset",
-        description: isSpare ? "This ball has been set as your spare ball" : "This ball is no longer your spare ball",
       });
     }
   };
