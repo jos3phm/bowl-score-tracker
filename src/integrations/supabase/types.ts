@@ -11,7 +11,9 @@ export type Database = {
     Tables: {
       bowling_balls: {
         Row: {
+          brand: string | null
           created_at: string
+          hook_rating: number | null
           id: string
           name: string
           notes: string | null
@@ -20,7 +22,9 @@ export type Database = {
           weight: number | null
         }
         Insert: {
+          brand?: string | null
           created_at?: string
+          hook_rating?: number | null
           id?: string
           name: string
           notes?: string | null
@@ -29,7 +33,9 @@ export type Database = {
           weight?: number | null
         }
         Update: {
+          brand?: string | null
           created_at?: string
+          hook_rating?: number | null
           id?: string
           name?: string
           notes?: string | null
