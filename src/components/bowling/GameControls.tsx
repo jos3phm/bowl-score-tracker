@@ -39,7 +39,7 @@ export const GameControls = ({
   onBallSelect,
   selectedBallId,
 }: GameControlsProps) => {
-  const { data: bowlingBalls } = useQuery({
+  const { data: bowlingBalls, isError } = useQuery({
     queryKey: ['bowlingBalls'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -47,7 +47,10 @@ export const GameControls = ({
         .select('*')
         .order('name');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching bowling balls:', error);
+        throw error;
+      }
       return data;
     },
   });
@@ -69,14 +72,13 @@ export const GameControls = ({
     <div className="space-y-4">
       <div className="flex justify-center">
         <Select
-          value={selectedBallId || ""}
-          onValueChange={(value) => onBallSelect(value || null)}
+          value={selectedBallId || undefined}
+          onValueChange={(value) => onBallSelect(value)}
         >
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Select ball" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">No ball selected</SelectItem>
             {bowlingBalls?.map((ball) => (
               <SelectItem key={ball.id} value={ball.id}>
                 {ball.name} {ball.is_spare_ball ? "(Spare)" : ""}
