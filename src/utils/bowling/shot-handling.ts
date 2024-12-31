@@ -56,35 +56,35 @@ export const recordRegularShot = (
   selectedPins: Pin[]
 ): Frame => {
   console.log(`Recording regular shot for frame ${frameIndex + 1}, shot ${shot}`);
-  console.log('Selected pins:', selectedPins);
+  console.log('Selected pins (remaining):', selectedPins);
   
   const frame = { ...frames[frameIndex] };
-  
-  // Calculate the actual sum of the pin values
-  const pinSum = selectedPins.reduce((sum, pin) => sum + pin, 0);
+  const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
   if (frameIndex === 9) { // 10th frame
     if (shot === 1) {
-      frame.firstShot = selectedPins;
-      frame.isStrike = pinSum === 55; // Sum of all pins (1+2+3+...+10)
+      // Selected pins are the remaining pins, so knocked down pins are the complement
+      frame.firstShot = allPins.filter(pin => !selectedPins.includes(pin));
+      frame.isStrike = selectedPins.length === 0; // Strike if no pins remain
     } else if (shot === 2) {
       frame.secondShot = selectedPins;
       if (!frame.isStrike && frame.firstShot) {
-        const firstShotSum = frame.firstShot.reduce((sum, pin) => sum + pin, 0);
-        frame.isSpare = firstShotSum + pinSum === 55;
+        // For second shot, selected pins are actually knocked down
+        frame.isSpare = frame.firstShot.length + selectedPins.length === 10;
       }
     } else if (shot === 3) {
       frame.thirdShot = selectedPins;
     }
   } else {
     if (shot === 1) {
-      frame.firstShot = selectedPins;
-      frame.isStrike = pinSum === 55;
+      // Selected pins are the remaining pins, so knocked down pins are the complement
+      frame.firstShot = allPins.filter(pin => !selectedPins.includes(pin));
+      frame.isStrike = selectedPins.length === 0; // Strike if no pins remain
     } else {
+      // For second shot, selected pins are actually knocked down
       frame.secondShot = selectedPins;
       if (frame.firstShot) {
-        const firstShotSum = frame.firstShot.reduce((sum, pin) => sum + pin, 0);
-        frame.isSpare = firstShotSum + pinSum === 55;
+        frame.isSpare = frame.firstShot.length + selectedPins.length === 10;
       }
     }
   }
