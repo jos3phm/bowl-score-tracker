@@ -33,11 +33,11 @@ export const BowlingGame = () => {
     if (!frame?.firstShot) return undefined;
 
     if (currentFrame === 10 && frame.isStrike) {
-      return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+      return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as Pin[];
     }
 
     const knockedDownPins = frame.firstShot;
-    return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(pin => !knockedDownPins.includes(pin));
+    return ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as Pin[]).filter(pin => !knockedDownPins.includes(pin));
   };
 
   const getHistoricalFrameData = () => {
