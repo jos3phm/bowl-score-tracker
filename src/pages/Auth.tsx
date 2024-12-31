@@ -48,7 +48,8 @@ const AuthPage = () => {
           <ul className="list-disc list-inside space-y-1">
             <li>Password must be at least 6 characters long</li>
             <li>Make sure to use a valid email address</li>
-            <li>Check your email for confirmation after signing up</li>
+            <li>Double-check your credentials when signing in</li>
+            <li>If you forgot your password, use the reset option</li>
           </ul>
         </div>
         <Auth
@@ -62,6 +63,12 @@ const AuthPage = () => {
                   brandAccent: '#1d4ed8',
                 }
               }
+            },
+            className: {
+              message: 'text-red-600 text-sm',
+              button: 'bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors',
+              input: 'w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+              label: 'block text-sm font-medium text-gray-700 mb-1',
             }
           }}
           providers={[]}
@@ -70,11 +77,13 @@ const AuthPage = () => {
             variables: {
               sign_up: {
                 password_input_placeholder: "Password (min. 6 characters)",
-                email_input_placeholder: "Your email address"
+                email_input_placeholder: "Your email address",
+                button_label: "Create account"
               },
               sign_in: {
                 password_input_placeholder: "Your password",
-                email_input_placeholder: "Your email address"
+                email_input_placeholder: "Your email address",
+                button_label: "Sign in"
               }
             }
           }}
