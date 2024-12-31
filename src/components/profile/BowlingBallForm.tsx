@@ -20,6 +20,7 @@ export type BowlingBall = {
   notes: string | null;
   brand: string | null;
   hook_rating: number | null;
+  is_spare_ball: boolean; // Added this line
 };
 
 interface BowlingBallFormProps {
@@ -45,6 +46,7 @@ export const BowlingBallForm = ({
     weight: "",
     hook_rating: "",
     notes: "",
+    is_spare_ball: false, // Added this line
   });
 
   const handleAddBall = async () => {
@@ -92,8 +94,9 @@ export const BowlingBallForm = ({
         weight: newBall.weight ? parseFloat(newBall.weight) : null,
         notes: newBall.notes || null,
         hook_rating: newBall.hook_rating ? parseInt(newBall.hook_rating) : null,
+        is_spare_ball: false, // Default to false when adding a new ball
       });
-      setNewBall({ brand: "", name: "", weight: "", notes: "", hook_rating: "" });
+      setNewBall({ brand: "", name: "", weight: "", notes: "", hook_rating: "", is_spare_ball: false });
       toast({
         title: "Bowling ball added",
         description: "Your bowling ball has been added successfully.",
