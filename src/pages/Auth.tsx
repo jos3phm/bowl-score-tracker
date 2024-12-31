@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { AuthChangeEvent } from "@supabase/supabase-js";
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -21,16 +22,16 @@ const AuthPage = () => {
     checkUser();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session) => {
       if (session) {
         navigate("/");
       }
 
-      // Handle auth errors
-      if (event === 'USER_DELETED') {
+      // Handle auth events
+      if (event === 'SIGNED_OUT') {
         toast({
-          title: "Account deleted",
-          description: "Your account has been successfully deleted.",
+          title: "Signed out",
+          description: "You have been successfully signed out.",
         });
       }
     });
