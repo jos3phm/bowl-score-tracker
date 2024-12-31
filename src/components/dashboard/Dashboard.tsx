@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle, History, BarChart3 } from "lucide-react";
+import { PlusCircle, History, BarChart3, UserRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export const Dashboard = () => {
@@ -10,7 +10,7 @@ export const Dashboard = () => {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Welcome to Bowl Score Haven</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -63,6 +63,25 @@ export const Dashboard = () => {
               onClick={() => navigate("/history")}
             >
               View History
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <UserRound className="h-5 w-5 text-green-500" />
+              Profile
+            </CardTitle>
+            <CardDescription>Manage your bowling profile</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => navigate("/profile")}
+            >
+              View Profile
             </Button>
           </CardContent>
         </Card>

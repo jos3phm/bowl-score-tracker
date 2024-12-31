@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bowling_balls: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          updated_at: string
+          user_id: string | null
+          weight: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string | null
+          weight?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string | null
+          weight?: number | null
+        }
+        Relationships: []
+      }
       games: {
         Row: {
           created_at: string
@@ -41,21 +71,42 @@ export type Database = {
       }
       profiles: {
         Row: {
+          birthday: string | null
+          bowling_hand: string | null
+          bowling_style: string | null
+          city: string | null
+          country: string | null
           created_at: string
           email: string
+          gender: string | null
           id: string
+          state: string | null
           updated_at: string
         }
         Insert: {
+          birthday?: string | null
+          bowling_hand?: string | null
+          bowling_style?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string
           email: string
+          gender?: string | null
           id: string
+          state?: string | null
           updated_at?: string
         }
         Update: {
+          birthday?: string | null
+          bowling_hand?: string | null
+          bowling_style?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string
           email?: string
+          gender?: string | null
           id?: string
+          state?: string | null
           updated_at?: string
         }
         Relationships: []
