@@ -6,6 +6,7 @@ import { GameContainer } from "./GameContainer";
 import { GameContent } from "./GameContent";
 import { GameComplete } from "./GameComplete";
 import { useBallSelection } from "@/hooks/bowling/useBallSelection";
+import { toast } from "sonner";
 
 export const BowlingGame = () => {
   const {
@@ -33,9 +34,17 @@ export const BowlingGame = () => {
     shotHandler: () => void,
     shotType: 'strike' | 'spare' | 'regular'
   ) => {
-    const success = await recordBallUsage(currentFrame, currentShot, shotType);
-    if (success) {
-      shotHandler();
+    // Record the shot first
+    shotHandler();
+    
+    // If a ball is selected, try to record its usage
+    if (selectedBallId) {
+      try {
+        await recordBallUsage(currentFrame, currentShot, shotType);
+      } catch (error) {
+        console.error('Failed to record ball usage:', error);
+        toast.error('Failed to record ball usage, but shot was recorded');
+      }
     }
   };
 
