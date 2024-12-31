@@ -3,9 +3,11 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 const AuthPage = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     // Check if user is already logged in
@@ -19,23 +21,33 @@ const AuthPage = () => {
     checkUser();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session) {
         navigate("/");
+      }
+
+      // Handle auth errors
+      if (event === 'USER_DELETED') {
+        toast({
+          title: "Account deleted",
+          description: "Your account has been successfully deleted.",
+        });
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-lg">
         <h1 className="text-2xl font-bold text-center mb-6">Bowl Score Haven</h1>
         <div className="mb-4 text-sm text-gray-600 bg-gray-50 p-4 rounded-md">
-          <p className="font-medium mb-2">Password Requirements:</p>
+          <p className="font-medium mb-2">Important Notes:</p>
           <ul className="list-disc list-inside space-y-1">
-            <li>Minimum 6 characters long</li>
+            <li>Password must be at least 6 characters long</li>
+            <li>Make sure to use a valid email address</li>
+            <li>Check your email for confirmation after signing up</li>
           </ul>
         </div>
         <Auth
@@ -57,6 +69,10 @@ const AuthPage = () => {
             variables: {
               sign_up: {
                 password_input_placeholder: "Password (min. 6 characters)",
+                email_input_placeholder: "Your email address"
+              },
+              sign_in: {
+                password_input_placeholder: "Your password",
                 email_input_placeholder: "Your email address"
               }
             }
