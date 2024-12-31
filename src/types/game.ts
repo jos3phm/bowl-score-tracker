@@ -4,9 +4,10 @@ export type Frame = {
   firstShot: Pin[] | null;
   secondShot: Pin[] | null;
   thirdShot?: Pin[] | null; // For 10th frame
-  score: number;
+  score: number | null;
   isStrike: boolean;
   isSpare: boolean;
+  isSplit?: boolean;
 };
 
 export type Game = {

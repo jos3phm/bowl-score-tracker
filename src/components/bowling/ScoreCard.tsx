@@ -14,11 +14,16 @@ export const ScoreCard = ({ frames, currentFrame, onFrameClick, selectedFrame }:
     const isSelected = index === selectedFrame;
     const isTenth = index === 9;
 
-    const renderShot = (shot: Pin[] | null, isSpare: boolean, isLastShot: boolean = false) => {
+    const renderShot = (shot: Pin[] | null, isSpare: boolean, isLastShot: boolean = false, isSplit: boolean = false) => {
       if (shot === null) return "";
       if (shot.length === 10 && !isSpare) return <span className="text-primary font-bold">X</span>;
       if (isSpare && !isLastShot) return <span className="text-secondary font-bold">/</span>;
-      return shot.length;
+      const score = shot.length;
+      return isSplit ? (
+        <span className="inline-block rounded-full border-2 border-gray-400 w-6 h-6 text-center">
+          {score}
+        </span>
+      ) : score;
     };
 
     return (
@@ -37,7 +42,7 @@ export const ScoreCard = ({ frames, currentFrame, onFrameClick, selectedFrame }:
         {isTenth ? (
           <div className="mb-1">
             <div className="flex justify-center gap-1">
-              {renderShot(frame.firstShot, false)}
+              {renderShot(frame.firstShot, false, false, frame.isSplit)}
               {frame.isSpare ? (
                 <span className="text-secondary font-bold">/</span>
               ) : (
@@ -49,7 +54,7 @@ export const ScoreCard = ({ frames, currentFrame, onFrameClick, selectedFrame }:
         ) : (
           <div className="grid grid-cols-2 gap-1 mb-1">
             <div className="text-center">
-              {renderShot(frame.firstShot, false)}
+              {renderShot(frame.firstShot, false, false, frame.isSplit)}
             </div>
             <div className="text-center">
               {frame.isSpare ? (

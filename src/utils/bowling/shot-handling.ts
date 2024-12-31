@@ -1,4 +1,5 @@
 import { Frame, Pin } from "@/types/game";
+import { isSplit } from "./split-detection";
 
 export const recordStrike = (
   frames: Frame[],
@@ -63,13 +64,12 @@ export const recordRegularShot = (
   
   if (frameIndex === 9) { // 10th frame
     if (shot === 1) {
-      // Selected pins are the remaining pins, so knocked down pins are the complement
       frame.firstShot = allPins.filter(pin => !selectedPins.includes(pin));
       frame.isStrike = selectedPins.length === 0; // Strike if no pins remain
+      frame.isSplit = !frame.isStrike && isSplit(selectedPins);
     } else if (shot === 2) {
       frame.secondShot = selectedPins;
       if (!frame.isStrike && frame.firstShot) {
-        // For second shot, selected pins are actually knocked down
         frame.isSpare = frame.firstShot.length + selectedPins.length === 10;
       }
     } else if (shot === 3) {
@@ -77,11 +77,10 @@ export const recordRegularShot = (
     }
   } else {
     if (shot === 1) {
-      // Selected pins are the remaining pins, so knocked down pins are the complement
       frame.firstShot = allPins.filter(pin => !selectedPins.includes(pin));
       frame.isStrike = selectedPins.length === 0; // Strike if no pins remain
+      frame.isSplit = !frame.isStrike && isSplit(selectedPins);
     } else {
-      // For second shot, selected pins are actually knocked down
       frame.secondShot = selectedPins;
       if (frame.firstShot) {
         frame.isSpare = frame.firstShot.length + selectedPins.length === 10;
@@ -102,7 +101,6 @@ const getRemainingPins = (frame: Frame, shot: 1 | 2 | 3): Pin[] => {
   }
   
   if (shot === 3) {
-    // If previous shot was a strike, all pins are available
     if (frame.secondShot?.length === 10) return allPins;
     return allPins.filter(pin => !frame.secondShot?.includes(pin));
   }
