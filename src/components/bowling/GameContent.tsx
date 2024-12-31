@@ -22,6 +22,8 @@ interface GameContentProps {
   onSpare: () => void;
   onRegularShot: () => void;
   onClear: () => void;
+  onBallSelect: (ballId: string | null) => void;
+  selectedBallId: string | null;
 }
 
 export const GameContent = ({
@@ -38,6 +40,8 @@ export const GameContent = ({
   onSpare,
   onRegularShot,
   onClear,
+  onBallSelect,
+  selectedBallId,
 }: GameContentProps) => {
   const handleMiss = () => {
     onPinSelect([]);
@@ -67,6 +71,8 @@ export const GameContent = ({
         currentShot={currentShot}
         isFirstShotStrike={isFirstShotStrike}
         selectedPins={selectedPins}
+        onBallSelect={onBallSelect}
+        selectedBallId={selectedBallId}
       />
       
       <GameStatus

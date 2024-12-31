@@ -9,6 +9,48 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ball_usage: {
+        Row: {
+          ball_id: string
+          created_at: string
+          frame_number: number
+          game_id: string
+          id: string
+          shot_number: number
+        }
+        Insert: {
+          ball_id: string
+          created_at?: string
+          frame_number: number
+          game_id: string
+          id?: string
+          shot_number: number
+        }
+        Update: {
+          ball_id?: string
+          created_at?: string
+          frame_number?: number
+          game_id?: string
+          id?: string
+          shot_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ball_usage_ball_id_fkey"
+            columns: ["ball_id"]
+            isOneToOne: false
+            referencedRelation: "bowling_balls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ball_usage_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bowling_balls: {
         Row: {
           brand: string | null
@@ -18,6 +60,7 @@ export type Database = {
           is_spare_ball: boolean | null
           name: string
           notes: string | null
+          total_shots: number | null
           updated_at: string
           user_id: string | null
           weight: number | null
@@ -30,6 +73,7 @@ export type Database = {
           is_spare_ball?: boolean | null
           name: string
           notes?: string | null
+          total_shots?: number | null
           updated_at?: string
           user_id?: string | null
           weight?: number | null
@@ -42,6 +86,7 @@ export type Database = {
           is_spare_ball?: boolean | null
           name?: string
           notes?: string | null
+          total_shots?: number | null
           updated_at?: string
           user_id?: string | null
           weight?: number | null

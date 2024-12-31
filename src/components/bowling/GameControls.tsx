@@ -1,5 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Pin } from "@/types/game";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface GameControlsProps {
   onStrike: () => void;
@@ -12,6 +21,8 @@ interface GameControlsProps {
   currentShot: 1 | 2 | 3;
   isFirstShotStrike?: boolean;
   selectedPins?: Pin[];
+  onBallSelect: (ballId: string | null) => void;
+  selectedBallId: string | null;
 }
 
 export const GameControls = ({
@@ -24,8 +35,23 @@ export const GameControls = ({
   currentFrame,
   currentShot,
   isFirstShotStrike = false,
-  selectedPins = []
+  selectedPins = [],
+  onBallSelect,
+  selectedBallId,
 }: GameControlsProps) => {
+  const { data: bowlingBalls } = useQuery({
+    queryKey: ['bowlingBalls'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('bowling_balls')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
   // Disable strike button on second shot unless it's the 10th frame with a first strike
   const isStrikeDisabled = disabled || 
     (currentShot === 2 && (currentFrame !== 10 || !isFirstShotStrike));
@@ -40,42 +66,63 @@ export const GameControls = ({
     (currentShot === 1 && selectedPins.length === 10);
 
   return (
-    <div className="flex gap-2 justify-center flex-wrap">
-      <Button
-        onClick={onStrike}
-        disabled={isStrikeDisabled}
-        className="bg-primary hover:bg-primary/90"
-      >
-        Strike
-      </Button>
-      <Button
-        onClick={onSpare}
-        disabled={isSpareDisabled}
-        className="bg-secondary hover:bg-secondary/90"
-      >
-        Spare
-      </Button>
-      <Button
-        onClick={onMiss}
-        disabled={disabled}
-        variant="destructive"
-      >
-        Miss
-      </Button>
-      <Button
-        onClick={onRegularShot}
-        disabled={isRegularShotDisabled}
-        variant="default"
-      >
-        Record Shot
-      </Button>
-      <Button
-        onClick={onClear}
-        disabled={disabled}
-        variant="outline"
-      >
-        Clear
-      </Button>
+    <div className="space-y-4">
+      <div className="flex justify-center">
+        <Select
+          value={selectedBallId || ""}
+          onValueChange={(value) => onBallSelect(value || null)}
+        >
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Select ball" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">No ball selected</SelectItem>
+            {bowlingBalls?.map((ball) => (
+              <SelectItem key={ball.id} value={ball.id}>
+                {ball.name} {ball.is_spare_ball ? "(Spare)" : ""}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex gap-2 justify-center flex-wrap">
+        <Button
+          onClick={onStrike}
+          disabled={isStrikeDisabled}
+          className="bg-primary hover:bg-primary/90"
+        >
+          Strike
+        </Button>
+        <Button
+          onClick={onSpare}
+          disabled={isSpareDisabled}
+          className="bg-secondary hover:bg-secondary/90"
+        >
+          Spare
+        </Button>
+        <Button
+          onClick={onMiss}
+          disabled={disabled}
+          variant="destructive"
+        >
+          Miss
+        </Button>
+        <Button
+          onClick={onRegularShot}
+          disabled={isRegularShotDisabled}
+          variant="default"
+        >
+          Record Shot
+        </Button>
+        <Button
+          onClick={onClear}
+          disabled={disabled}
+          variant="outline"
+        >
+          Clear
+        </Button>
+      </div>
     </div>
   );
 };

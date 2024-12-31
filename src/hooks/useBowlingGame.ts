@@ -8,6 +8,7 @@ import {
 } from "@/utils/bowling/shot-handling";
 import { useGameState } from "./bowling/useGameState";
 import { useFrameAdvancement } from "./bowling/useFrameAdvancement";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useBowlingGame = () => {
   const {
@@ -20,6 +21,8 @@ export const useBowlingGame = () => {
     frames,
     setFrames,
   } = useGameState();
+
+  const [gameId] = useState(() => crypto.randomUUID());
 
   const { updateFrameAndAdvance } = useFrameAdvancement(
     frames,
@@ -75,5 +78,6 @@ export const useBowlingGame = () => {
     handleSpare,
     handleRegularShot,
     handleClear,
+    gameId,
   };
 };
