@@ -15,6 +15,7 @@ export type Database = {
           created_at: string
           hook_rating: number | null
           id: string
+          is_spare_ball: boolean | null
           name: string
           notes: string | null
           updated_at: string
@@ -26,6 +27,7 @@ export type Database = {
           created_at?: string
           hook_rating?: number | null
           id?: string
+          is_spare_ball?: boolean | null
           name: string
           notes?: string | null
           updated_at?: string
@@ -37,6 +39,7 @@ export type Database = {
           created_at?: string
           hook_rating?: number | null
           id?: string
+          is_spare_ball?: boolean | null
           name?: string
           notes?: string | null
           updated_at?: string

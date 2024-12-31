@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { BowlingBallItem } from "./BowlingBallItem";
 import { BowlingBallForm, BowlingBall } from "./BowlingBallForm";
+import { useToast } from "@/components/ui/use-toast";
 
 interface BowlingBallListProps {
   bowlingBalls: BowlingBall[];
@@ -11,6 +12,7 @@ interface BowlingBallListProps {
 }
 
 export const BowlingBallList = ({ bowlingBalls, onDelete, onAdd }: BowlingBallListProps) => {
+  const { toast } = useToast();
   const [brandSuggestions, setBrandSuggestions] = useState<string[]>([]);
   const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
 
@@ -64,6 +66,39 @@ export const BowlingBallList = ({ bowlingBalls, onDelete, onAdd }: BowlingBallLi
     await onAdd(ballWithUserId);
   };
 
+  const handleToggleSpare = async (id: string, isSpare: boolean) => {
+    const { error } = await supabase
+      .from('bowling_balls')
+      .update({ is_spare_ball: isSpare })
+      .eq('id', id);
+
+    if (error) {
+      toast({
+        title: "Error updating ball",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Refresh the list by refetching the data
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const { data: updatedBalls } = await supabase
+      .from('bowling_balls')
+      .select('*')
+      .eq('user_id', session.user.id);
+
+    if (updatedBalls) {
+      // Update the local state through the parent component
+      toast({
+        title: isSpare ? "Spare ball set" : "Spare ball unset",
+        description: isSpare ? "This ball has been set as your spare ball" : "This ball is no longer your spare ball",
+      });
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -77,6 +112,7 @@ export const BowlingBallList = ({ bowlingBalls, onDelete, onAdd }: BowlingBallLi
               key={ball.id} 
               ball={ball} 
               onDelete={onDelete}
+              onToggleSpare={handleToggleSpare}
             />
           ))}
         </div>

@@ -24,6 +24,7 @@ type BowlingBall = {
   notes: string | null;
   brand: string | null;
   hook_rating: number | null;
+  is_spare_ball: boolean;
 };
 
 const Profile = () => {
@@ -65,9 +66,16 @@ const Profile = () => {
   };
 
   const fetchBowlingBalls = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      navigate("/auth");
+      return;
+    }
+
     const { data, error } = await supabase
       .from("bowling_balls")
       .select("*")
+      .eq("user_id", session.user.id)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -79,7 +87,7 @@ const Profile = () => {
       return;
     }
 
-    setBowlingBalls(data);
+    setBowlingBalls(data || []);
   };
 
   const updateProfile = async (field: string, value: string) => {
