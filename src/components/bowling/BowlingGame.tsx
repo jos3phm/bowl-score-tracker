@@ -51,6 +51,22 @@ export const BowlingGame = () => {
     }
 
     try {
+      // Verify ball ownership before inserting
+      const { data: ballOwnership, error: ballOwnershipError } = await supabase
+        .from('bowling_balls')
+        .select('user_id')
+        .eq('id', selectedBallId)
+        .single();
+
+      if (ballOwnershipError || !ballOwnership) {
+        toast({
+          title: "Error",
+          description: "Invalid ball selection",
+          variant: "destructive",
+        });
+        return false;
+      }
+
       const { error: insertError } = await supabase
         .from('ball_usage')
         .insert({
