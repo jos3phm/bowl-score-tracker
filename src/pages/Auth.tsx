@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 const AuthPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [authMode, setAuthMode] = useState<'signup' | 'signin'>('signin');
+  const [authMode, setAuthMode] = useState<'sign_up' | 'sign_in'>('sign_in');
 
   useEffect(() => {
     // Check if user is already logged in
@@ -48,7 +48,7 @@ const AuthPage = () => {
         description: "This email is already registered. Please log in instead.",
         variant: "destructive"
       });
-      setAuthMode('signin');
+      setAuthMode('sign_in');
     } else {
       toast({
         title: "Authentication Error",
@@ -75,15 +75,15 @@ const AuthPage = () => {
 
         <div className="flex justify-center mb-4">
           <Button 
-            variant={authMode === 'signin' ? 'default' : 'outline'}
-            onClick={() => setAuthMode('signin')}
+            variant={authMode === 'sign_in' ? 'default' : 'outline'}
+            onClick={() => setAuthMode('sign_in')}
             className="mr-2"
           >
             Sign In
           </Button>
           <Button 
-            variant={authMode === 'signup' ? 'default' : 'outline'}
-            onClick={() => setAuthMode('signup')}
+            variant={authMode === 'sign_up' ? 'default' : 'outline'}
+            onClick={() => setAuthMode('sign_up')}
           >
             Sign Up
           </Button>
