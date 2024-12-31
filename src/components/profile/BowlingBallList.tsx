@@ -15,7 +15,14 @@ export const BowlingBallList = ({ bowlingBalls, onDelete, onAdd }: BowlingBallLi
   const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
 
   const fetchSuggestions = async (field: 'brand' | 'name', value: string) => {
-    if (!value) return;
+    if (!value) {
+      if (field === 'brand') {
+        setBrandSuggestions([]);
+      } else {
+        setNameSuggestions([]);
+      }
+      return;
+    }
     
     const { data, error } = await supabase
       .from('bowling_balls')
@@ -25,6 +32,11 @@ export const BowlingBallList = ({ bowlingBalls, onDelete, onAdd }: BowlingBallLi
 
     if (error) {
       console.error(`Error fetching ${field} suggestions:`, error);
+      if (field === 'brand') {
+        setBrandSuggestions([]);
+      } else {
+        setNameSuggestions([]);
+      }
       return;
     }
 
