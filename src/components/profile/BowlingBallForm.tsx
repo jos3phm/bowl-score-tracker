@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type BowlingBall = {
+export type BowlingBall = {
   id: string;
   name: string;
   weight: number | null;

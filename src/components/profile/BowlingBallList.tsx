@@ -2,16 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { BowlingBallItem } from "./BowlingBallItem";
-import { BowlingBallForm } from "./BowlingBallForm";
-
-type BowlingBall = {
-  id: string;
-  name: string;
-  weight: number | null;
-  notes: string | null;
-  brand: string | null;
-  hook_rating: number | null;
-};
+import { BowlingBallForm, BowlingBall } from "./BowlingBallForm";
 
 interface BowlingBallListProps {
   bowlingBalls: BowlingBall[];
