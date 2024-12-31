@@ -1,9 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 type BowlingBall = {
   id: string;
@@ -24,18 +37,64 @@ export const BowlingBallList = ({ bowlingBalls, onDelete, onAdd }: BowlingBallLi
   const { toast } = useToast();
   const [addingBall, setAddingBall] = useState(false);
   const [newBall, setNewBall] = useState({
+    brand: "",
     name: "",
     weight: "",
-    notes: "",
-    brand: "",
     hook_rating: "",
+    notes: "",
   });
+  const [brandSuggestions, setBrandSuggestions] = useState<string[]>([]);
+  const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
+  const [brandOpen, setBrandOpen] = useState(false);
+  const [nameOpen, setNameOpen] = useState(false);
+
+  const fetchSuggestions = async (field: 'brand' | 'name', value: string) => {
+    if (!value) return;
+    
+    const { data, error } = await supabase
+      .from('bowling_balls')
+      .select(field)
+      .ilike(field, `${value}%`)
+      .limit(5);
+
+    if (error) {
+      console.error(`Error fetching ${field} suggestions:`, error);
+      return;
+    }
+
+    const uniqueValues = Array.from(new Set(data.map(item => item[field])))
+      .filter((item): item is string => item !== null);
+
+    if (field === 'brand') {
+      setBrandSuggestions(uniqueValues);
+    } else {
+      setNameSuggestions(uniqueValues);
+    }
+  };
 
   const handleAddBall = async () => {
+    if (!newBall.brand) {
+      toast({
+        title: "Brand required",
+        description: "Please enter a brand for your bowling ball.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!newBall.name) {
       toast({
         title: "Name required",
         description: "Please enter a name for your bowling ball.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!newBall.weight) {
+      toast({
+        title: "Weight required",
+        description: "Please enter a weight for your bowling ball.",
         variant: "destructive",
       });
       return;
@@ -65,13 +124,13 @@ export const BowlingBallList = ({ bowlingBalls, onDelete, onAdd }: BowlingBallLi
     setAddingBall(true);
     try {
       await onAdd({
+        brand: newBall.brand,
         name: newBall.name,
         weight,
         notes: newBall.notes || null,
-        brand: newBall.brand || null,
         hook_rating,
       });
-      setNewBall({ name: "", weight: "", notes: "", brand: "", hook_rating: "" });
+      setNewBall({ brand: "", name: "", weight: "", notes: "", hook_rating: "" });
       toast({
         title: "Bowling ball added",
         description: "Your bowling ball has been added successfully.",
@@ -114,20 +173,78 @@ export const BowlingBallList = ({ bowlingBalls, onDelete, onAdd }: BowlingBallLi
         <div className="space-y-4 pt-4 border-t">
           <h4 className="font-medium">Add New Ball</h4>
           <div className="space-y-2">
-            <Input
-              placeholder="Ball Name"
-              value={newBall.name}
-              onChange={(e) => setNewBall(prev => ({ ...prev, name: e.target.value }))}
-            />
-            <Input
-              placeholder="Brand"
-              value={newBall.brand}
-              onChange={(e) => setNewBall(prev => ({ ...prev, brand: e.target.value }))}
-            />
+            <Popover open={brandOpen} onOpenChange={setBrandOpen}>
+              <PopoverTrigger asChild>
+                <Input
+                  placeholder="Brand *"
+                  value={newBall.brand}
+                  onChange={(e) => {
+                    setNewBall(prev => ({ ...prev, brand: e.target.value }));
+                    fetchSuggestions('brand', e.target.value);
+                  }}
+                />
+              </PopoverTrigger>
+              {brandSuggestions.length > 0 && (
+                <PopoverContent className="p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search brands..." />
+                    <CommandEmpty>No brand found.</CommandEmpty>
+                    <CommandGroup>
+                      {brandSuggestions.map((brand) => (
+                        <CommandItem
+                          key={brand}
+                          onSelect={() => {
+                            setNewBall(prev => ({ ...prev, brand }));
+                            setBrandOpen(false);
+                          }}
+                        >
+                          {brand}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              )}
+            </Popover>
+
+            <Popover open={nameOpen} onOpenChange={setNameOpen}>
+              <PopoverTrigger asChild>
+                <Input
+                  placeholder="Ball Name *"
+                  value={newBall.name}
+                  onChange={(e) => {
+                    setNewBall(prev => ({ ...prev, name: e.target.value }));
+                    fetchSuggestions('name', e.target.value);
+                  }}
+                />
+              </PopoverTrigger>
+              {nameSuggestions.length > 0 && (
+                <PopoverContent className="p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search ball names..." />
+                    <CommandEmpty>No ball name found.</CommandEmpty>
+                    <CommandGroup>
+                      {nameSuggestions.map((name) => (
+                        <CommandItem
+                          key={name}
+                          onSelect={() => {
+                            setNewBall(prev => ({ ...prev, name }));
+                            setNameOpen(false);
+                          }}
+                        >
+                          {name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              )}
+            </Popover>
+
             <Input
               type="number"
               step="0.1"
-              placeholder="Weight (8-16 lbs)"
+              placeholder="Weight (8-16 lbs) *"
               value={newBall.weight}
               onChange={(e) => setNewBall(prev => ({ ...prev, weight: e.target.value }))}
             />
