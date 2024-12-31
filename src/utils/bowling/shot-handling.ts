@@ -60,17 +60,18 @@ export const recordRegularShot = (
   
   const frame = { ...frames[frameIndex] };
   
-  // Calculate the actual value of the selected pins
-  const pinValue = selectedPins.length;
+  // Calculate the actual sum of the pin values
+  const pinSum = selectedPins.reduce((sum, pin) => sum + pin, 0);
   
   if (frameIndex === 9) { // 10th frame
     if (shot === 1) {
       frame.firstShot = selectedPins;
-      frame.isStrike = pinValue === 10;
+      frame.isStrike = pinSum === 55; // Sum of all pins (1+2+3+...+10)
     } else if (shot === 2) {
       frame.secondShot = selectedPins;
       if (!frame.isStrike && frame.firstShot) {
-        frame.isSpare = frame.firstShot.length + pinValue === 10;
+        const firstShotSum = frame.firstShot.reduce((sum, pin) => sum + pin, 0);
+        frame.isSpare = firstShotSum + pinSum === 55;
       }
     } else if (shot === 3) {
       frame.thirdShot = selectedPins;
@@ -78,11 +79,12 @@ export const recordRegularShot = (
   } else {
     if (shot === 1) {
       frame.firstShot = selectedPins;
-      frame.isStrike = pinValue === 10;
+      frame.isStrike = pinSum === 55;
     } else {
       frame.secondShot = selectedPins;
       if (frame.firstShot) {
-        frame.isSpare = frame.firstShot.length + pinValue === 10;
+        const firstShotSum = frame.firstShot.reduce((sum, pin) => sum + pin, 0);
+        frame.isSpare = firstShotSum + pinSum === 55;
       }
     }
   }

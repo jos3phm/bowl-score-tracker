@@ -16,7 +16,7 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
 
     if (i === 9) {
       // 10th frame special handling
-      const firstShotScore = frame.firstShot.reduce((sum, pin) => sum + pin, 0);
+      const firstShotScore = frame.firstShot.length;
       console.log(`10th frame first shot: ${firstShotScore}`);
       score += firstShotScore;
       
@@ -26,7 +26,7 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
         return null;
       }
       
-      const secondShotScore = frame.secondShot.reduce((sum, pin) => sum + pin, 0);
+      const secondShotScore = frame.secondShot.length;
       score += secondShotScore;
       console.log(`10th frame second shot: ${secondShotScore}`);
       
@@ -36,7 +36,7 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
           console.log('Waiting for third shot after strike/spare');
           return null;
         }
-        const thirdShotScore = frame.thirdShot.reduce((sum, pin) => sum + pin, 0);
+        const thirdShotScore = frame.thirdShot.length;
         score += thirdShotScore;
         console.log(`10th frame third shot: ${thirdShotScore}`);
       }
@@ -52,19 +52,18 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
         
         if (i < 8) {
           if (!followingFrame?.firstShot) return null;
-          const followingFrameScore = followingFrame.isStrike ? 10 : followingFrame.firstShot.reduce((sum, pin) => sum + pin, 0);
+          const followingFrameScore = followingFrame.isStrike ? 10 : followingFrame.firstShot.length;
           score += followingFrameScore;
           console.log(`Second bonus: ${followingFrame.isStrike ? 'strike (10)' : followingFrameScore}`);
         } else {
           if (!nextFrame.secondShot) return null;
-          const nextFrameSecondShot = nextFrame.secondShot.reduce((sum, pin) => sum + pin, 0);
+          const nextFrameSecondShot = nextFrame.secondShot.length;
           score += nextFrameSecondShot;
           console.log(`Second bonus: ${nextFrameSecondShot}`);
         }
       } else {
         if (!nextFrame.secondShot) return null;
-        const nextFrameScore = nextFrame.firstShot.reduce((sum, pin) => sum + pin, 0) + 
-                             nextFrame.secondShot.reduce((sum, pin) => sum + pin, 0);
+        const nextFrameScore = nextFrame.firstShot.length + nextFrame.secondShot.length;
         score += nextFrameScore;
         console.log(`Strike bonus: ${nextFrameScore}`);
       }
@@ -73,15 +72,14 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
       console.log('Spare detected, added 10');
       
       if (!nextFrame?.firstShot) return null;
-      const nextFrameFirstShot = nextFrame.firstShot.reduce((sum, pin) => sum + pin, 0);
+      const nextFrameFirstShot = nextFrame.firstShot.length;
       score += nextFrameFirstShot;
       console.log(`Spare bonus: ${nextFrameFirstShot}`);
     } else {
       if (!frame.secondShot) return null;
-      const frameScore = frame.firstShot.reduce((sum, pin) => sum + pin, 0) + 
-                        frame.secondShot.reduce((sum, pin) => sum + pin, 0);
+      const frameScore = frame.firstShot.length + frame.secondShot.length;
       score += frameScore;
-      console.log(`Open frame: ${frame.firstShot.reduce((sum, pin) => sum + pin, 0)} + ${frame.secondShot.reduce((sum, pin) => sum + pin, 0)}`);
+      console.log(`Open frame: ${frame.firstShot.length} + ${frame.secondShot.length}`);
     }
 
     console.log(`Running total after frame ${i + 1}: ${score}`);
