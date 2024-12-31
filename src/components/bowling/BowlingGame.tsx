@@ -34,16 +34,17 @@ export const BowlingGame = () => {
     shotHandler: () => void,
     shotType: 'strike' | 'spare' | 'regular'
   ) => {
-    // Record the shot first
+    // Record the shot first, regardless of ball selection
     shotHandler();
     
-    // If a ball is selected, try to record its usage
+    // Only attempt to record ball usage if a ball is selected
     if (selectedBallId) {
       try {
         await recordBallUsage(currentFrame, currentShot, shotType);
       } catch (error) {
         console.error('Failed to record ball usage:', error);
-        toast.error('Failed to record ball usage, but shot was recorded');
+        // Only show error for ball usage, not the shot itself
+        toast.error('Failed to record ball usage. Make sure you own this ball.');
       }
     }
   };
