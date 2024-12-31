@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 
@@ -24,6 +24,49 @@ interface ProfileInformationProps {
 }
 
 export const ProfileInformation = ({ profile, updateProfile }: ProfileInformationProps) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
+  const [formData, setFormData] = useState<Profile>(profile || {
+    bowling_hand: null,
+    bowling_style: null,
+    birthday: null,
+    gender: null,
+    city: null,
+    state: null,
+    country: null,
+  });
+
+  const handleChange = (field: keyof Profile, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      // Update each changed field
+      const updates = Object.entries(formData).filter(([key, value]) => 
+        value !== profile?.[key as keyof Profile]
+      );
+
+      for (const [field, value] of updates) {
+        await updateProfile(field, value as string);
+      }
+
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -34,8 +77,8 @@ export const ProfileInformation = ({ profile, updateProfile }: ProfileInformatio
         <div className="space-y-2">
           <Label>Bowling Hand</Label>
           <Select
-            value={profile?.bowling_hand || ""}
-            onValueChange={(value) => updateProfile("bowling_hand", value)}
+            value={formData.bowling_hand || ""}
+            onValueChange={(value) => handleChange("bowling_hand", value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select your bowling hand" />
@@ -50,8 +93,8 @@ export const ProfileInformation = ({ profile, updateProfile }: ProfileInformatio
         <div className="space-y-2">
           <Label>Bowling Style</Label>
           <Select
-            value={profile?.bowling_style || ""}
-            onValueChange={(value) => updateProfile("bowling_style", value)}
+            value={formData.bowling_style || ""}
+            onValueChange={(value) => handleChange("bowling_style", value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select your bowling style" />
@@ -68,16 +111,16 @@ export const ProfileInformation = ({ profile, updateProfile }: ProfileInformatio
           <Label>Birthday</Label>
           <Input
             type="date"
-            value={profile?.birthday || ""}
-            onChange={(e) => updateProfile("birthday", e.target.value)}
+            value={formData.birthday || ""}
+            onChange={(e) => handleChange("birthday", e.target.value)}
           />
         </div>
 
         <div className="space-y-2">
           <Label>Gender</Label>
           <Select
-            value={profile?.gender || ""}
-            onValueChange={(value) => updateProfile("gender", value)}
+            value={formData.gender || ""}
+            onValueChange={(value) => handleChange("gender", value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select your gender" />
@@ -94,8 +137,8 @@ export const ProfileInformation = ({ profile, updateProfile }: ProfileInformatio
         <div className="space-y-2">
           <Label>City</Label>
           <Input
-            value={profile?.city || ""}
-            onChange={(e) => updateProfile("city", e.target.value)}
+            value={formData.city || ""}
+            onChange={(e) => handleChange("city", e.target.value)}
             placeholder="Enter your city"
           />
         </div>
@@ -103,8 +146,8 @@ export const ProfileInformation = ({ profile, updateProfile }: ProfileInformatio
         <div className="space-y-2">
           <Label>State</Label>
           <Input
-            value={profile?.state || ""}
-            onChange={(e) => updateProfile("state", e.target.value)}
+            value={formData.state || ""}
+            onChange={(e) => handleChange("state", e.target.value)}
             placeholder="Enter your state"
           />
         </div>
@@ -112,12 +155,22 @@ export const ProfileInformation = ({ profile, updateProfile }: ProfileInformatio
         <div className="space-y-2">
           <Label>Country</Label>
           <Input
-            value={profile?.country || ""}
-            onChange={(e) => updateProfile("country", e.target.value)}
+            value={formData.country || ""}
+            onChange={(e) => handleChange("country", e.target.value)}
             placeholder="Enter your country"
           />
         </div>
       </CardContent>
+      <CardFooter>
+        <Button 
+          onClick={handleSave} 
+          disabled={isSaving}
+          className="w-full"
+        >
+          {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isSaving ? "Saving..." : "Save Changes"}
+        </Button>
+      </CardFooter>
     </Card>
   );
 };
