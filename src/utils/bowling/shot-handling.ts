@@ -60,14 +60,17 @@ export const recordRegularShot = (
   
   const frame = { ...frames[frameIndex] };
   
+  // Calculate the actual value of the selected pins
+  const pinValue = selectedPins.length;
+  
   if (frameIndex === 9) { // 10th frame
     if (shot === 1) {
       frame.firstShot = selectedPins;
-      frame.isStrike = selectedPins.length === 10;
+      frame.isStrike = pinValue === 10;
     } else if (shot === 2) {
       frame.secondShot = selectedPins;
       if (!frame.isStrike && frame.firstShot) {
-        frame.isSpare = frame.firstShot.length + selectedPins.length === 10;
+        frame.isSpare = frame.firstShot.length + pinValue === 10;
       }
     } else if (shot === 3) {
       frame.thirdShot = selectedPins;
@@ -75,11 +78,11 @@ export const recordRegularShot = (
   } else {
     if (shot === 1) {
       frame.firstShot = selectedPins;
-      frame.isStrike = selectedPins.length === 10;
+      frame.isStrike = pinValue === 10;
     } else {
       frame.secondShot = selectedPins;
       if (frame.firstShot) {
-        frame.isSpare = frame.firstShot.length + selectedPins.length === 10;
+        frame.isSpare = frame.firstShot.length + pinValue === 10;
       }
     }
   }
