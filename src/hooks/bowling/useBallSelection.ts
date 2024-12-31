@@ -30,14 +30,14 @@ export const useBallSelection = (gameId: string) => {
     }
 
     try {
-      // Verify ball ownership before inserting
-      const { data: ballOwnership, error: ballOwnershipError } = await supabase
+      // First verify ball ownership
+      const { data: ball, error: ballError } = await supabase
         .from('bowling_balls')
-        .select('user_id')
+        .select('user_id, is_spare_ball')
         .eq('id', selectedBallId)
         .single();
 
-      if (ballOwnershipError || !ballOwnership) {
+      if (ballError || !ball) {
         toast({
           title: "Error",
           description: "Invalid ball selection",
@@ -46,6 +46,7 @@ export const useBallSelection = (gameId: string) => {
         return false;
       }
 
+      // Then record the ball usage
       const { error: insertError } = await supabase
         .from('ball_usage')
         .insert({
@@ -66,18 +67,7 @@ export const useBallSelection = (gameId: string) => {
       }
 
       // Handle ball switching logic
-      const { data: ball, error: ballError } = await supabase
-        .from('bowling_balls')
-        .select('is_spare_ball')
-        .eq('id', selectedBallId)
-        .single();
-
-      if (ballError) {
-        console.error('Error fetching ball details:', ballError);
-        return true; // Continue with the shot even if ball details fetch fails
-      }
-
-      if (ball?.is_spare_ball) {
+      if (ball.is_spare_ball) {
         setPreviousBallId(defaultBallId);
         setSelectedBallId(defaultBallId);
       } else {
