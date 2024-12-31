@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { AuthChangeEvent } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 
 const AuthPage = () => {
@@ -17,6 +16,7 @@ const AuthPage = () => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
+        console.log("Session found, redirecting to home");
         navigate("/");
       }
     };
@@ -24,12 +24,13 @@ const AuthPage = () => {
     checkUser();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event);
       if (session) {
+        console.log("New session detected, redirecting to home");
         navigate("/");
       }
 
-      // Handle auth events
       if (event === 'SIGNED_OUT') {
         toast({
           title: "Signed out",

@@ -5,17 +5,53 @@ import NewGame from "./pages/NewGame";
 import Stats from "./pages/Stats";
 import History from "./pages/History";
 import Profile from "./pages/Profile";
+import { AuthGuard } from "./components/auth/AuthGuard";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
-        <Route path="/new-game" element={<NewGame />} />
-        <Route path="/stats" element={<Stats />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/"
+          element={
+            <AuthGuard>
+              <Index />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/new-game"
+          element={
+            <AuthGuard>
+              <NewGame />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/stats"
+          element={
+            <AuthGuard>
+              <Stats />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/history"
+          element={
+            <AuthGuard>
+              <History />
+            </AuthGuard>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <AuthGuard>
+              <Profile />
+            </AuthGuard>
+          }
+        />
       </Routes>
     </Router>
   );
