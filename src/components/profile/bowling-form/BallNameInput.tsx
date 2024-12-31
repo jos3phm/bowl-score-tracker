@@ -26,15 +26,17 @@ export const BallNameInput = ({ value, onChange, onSearch, suggestions }: BallNa
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Input
-          placeholder="Enter ball model (e.g., Phaze II, Quantum)"
-          value={value}
-          onChange={(e) => {
-            onChange(e.target.value);
-            onSearch(e.target.value);
-          }}
-          className="w-full"
-        />
+        <div className="relative">
+          <Input
+            placeholder="Enter ball model (e.g., Phaze II, Quantum)"
+            value={value}
+            onChange={(e) => {
+              onChange(e.target.value);
+              onSearch(e.target.value);
+            }}
+            className="w-full"
+          />
+        </div>
       </PopoverTrigger>
       {suggestions.length > 0 && (
         <PopoverContent className="p-0" align="start">

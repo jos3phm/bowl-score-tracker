@@ -26,15 +26,17 @@ export const BrandInput = ({ value, onChange, onSearch, suggestions }: BrandInpu
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Input
-          placeholder="Enter brand name (e.g., Storm, Brunswick)"
-          value={value}
-          onChange={(e) => {
-            onChange(e.target.value);
-            onSearch(e.target.value);
-          }}
-          className="w-full"
-        />
+        <div className="relative">
+          <Input
+            placeholder="Enter brand name (e.g., Storm, Brunswick)"
+            value={value}
+            onChange={(e) => {
+              onChange(e.target.value);
+              onSearch(e.target.value);
+            }}
+            className="w-full"
+          />
+        </div>
       </PopoverTrigger>
       {suggestions.length > 0 && (
         <PopoverContent className="p-0" align="start">
