@@ -27,6 +27,19 @@ export const GameComplete = ({ totalScore, onNewGame }: GameCompleteProps) => {
   const handleSaveGame = async () => {
     try {
       setIsSaving(true);
+
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Error saving game",
+          description: "You must be logged in to save games",
+          variant: "destructive",
+        });
+        return;
+      }
+
       let photoUrl = null;
 
       if (photo) {
@@ -49,6 +62,7 @@ export const GameComplete = ({ totalScore, onNewGame }: GameCompleteProps) => {
       const { error: saveError } = await supabase
         .from('games')
         .insert({
+          user_id: user.id,
           total_score: totalScore,
           notes,
           photo_url: photoUrl,
