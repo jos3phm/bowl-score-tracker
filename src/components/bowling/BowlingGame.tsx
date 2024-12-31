@@ -58,9 +58,9 @@ export const BowlingGame = () => {
   const historicalFrame = getHistoricalFrameData();
 
   const calculateTotalScore = () => {
-    return frames.reduce((total, frame) => {
-      return total + (frame.score || 0);
-    }, 0);
+    // Get the last frame's score since it contains the cumulative total
+    const lastFrame = frames[9];
+    return lastFrame?.score || 0;
   };
 
   const handleNewGame = () => {
