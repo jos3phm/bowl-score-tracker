@@ -3,7 +3,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { AuthChangeEvent } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 
@@ -41,23 +41,6 @@ const AuthPage = () => {
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
 
-  const handleAuthError = (error: any) => {
-    if (error.message === "User already registered") {
-      toast({
-        title: "Account Exists",
-        description: "This email is already registered. Please log in instead.",
-        variant: "destructive"
-      });
-      setAuthMode('sign_in');
-    } else {
-      toast({
-        title: "Authentication Error",
-        description: error.message || "An unexpected error occurred",
-        variant: "destructive"
-      });
-    }
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-lg">
@@ -92,7 +75,6 @@ const AuthPage = () => {
         <Auth
           supabaseClient={supabase}
           view={authMode}
-          onError={handleAuthError}
           appearance={{
             theme: ThemeSupa,
             variables: {
