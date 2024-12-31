@@ -2,13 +2,15 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { AuthChangeEvent } from "@supabase/supabase-js";
+import { Button } from "@/components/ui/button";
 
 const AuthPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [authMode, setAuthMode] = useState<'signup' | 'signin'>('signin');
 
   useEffect(() => {
     // Check if user is already logged in
@@ -39,10 +41,28 @@ const AuthPage = () => {
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
 
+  const handleAuthError = (error: any) => {
+    if (error.message === "User already registered") {
+      toast({
+        title: "Account Exists",
+        description: "This email is already registered. Please log in instead.",
+        variant: "destructive"
+      });
+      setAuthMode('signin');
+    } else {
+      toast({
+        title: "Authentication Error",
+        description: error.message || "An unexpected error occurred",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-lg">
         <h1 className="text-2xl font-bold text-center mb-6">Bowl Score Haven</h1>
+        
         <div className="mb-4 text-sm text-gray-600 bg-gray-50 p-4 rounded-md">
           <p className="font-medium mb-2">Important Notes:</p>
           <ul className="list-disc list-inside space-y-1">
@@ -52,8 +72,27 @@ const AuthPage = () => {
             <li>If you forgot your password, use the reset option</li>
           </ul>
         </div>
+
+        <div className="flex justify-center mb-4">
+          <Button 
+            variant={authMode === 'signin' ? 'default' : 'outline'}
+            onClick={() => setAuthMode('signin')}
+            className="mr-2"
+          >
+            Sign In
+          </Button>
+          <Button 
+            variant={authMode === 'signup' ? 'default' : 'outline'}
+            onClick={() => setAuthMode('signup')}
+          >
+            Sign Up
+          </Button>
+        </div>
+
         <Auth
           supabaseClient={supabase}
+          view={authMode}
+          onError={handleAuthError}
           appearance={{
             theme: ThemeSupa,
             variables: {
