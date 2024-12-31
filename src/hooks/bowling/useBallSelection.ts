@@ -20,11 +20,7 @@ export const useBallSelection = (gameId: string) => {
     shotType: 'strike' | 'spare' | 'regular'
   ) => {
     if (!gameId || !selectedBallId) {
-      toast({
-        title: "Error",
-        description: "Please select a ball before making a shot",
-        variant: "destructive",
-      });
+      toast.error("Please select a ball before making a shot");
       return false;
     }
 
@@ -42,11 +38,7 @@ export const useBallSelection = (gameId: string) => {
 
       if (error) {
         console.error('Error recording ball usage:', error);
-        toast({
-          title: "Error",
-          description: "Failed to record ball usage. Make sure you own this ball.",
-          variant: "destructive",
-        });
+        toast.error("Failed to record ball usage. Make sure you own this ball.");
         return false;
       }
 
@@ -62,11 +54,7 @@ export const useBallSelection = (gameId: string) => {
       return true;
     } catch (error) {
       console.error('Error recording ball usage:', error);
-      toast({
-        title: "Error",
-        description: "Failed to record ball usage",
-        variant: "destructive",
-      });
+      toast.error("Failed to record ball usage");
       return false;
     }
   };
