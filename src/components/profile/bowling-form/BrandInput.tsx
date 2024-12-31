@@ -33,6 +33,7 @@ export const BrandInput = ({ value, onChange, onSearch, suggestions }: BrandInpu
             onChange(e.target.value);
             onSearch(e.target.value);
           }}
+          className="w-full"
         />
       </PopoverTrigger>
       {suggestions.length > 0 && (

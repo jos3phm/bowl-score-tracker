@@ -33,6 +33,7 @@ export const BallNameInput = ({ value, onChange, onSearch, suggestions }: BallNa
             onChange(e.target.value);
             onSearch(e.target.value);
           }}
+          className="w-full"
         />
       </PopoverTrigger>
       {suggestions.length > 0 && (

@@ -5,7 +5,13 @@ import { Loader2, Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { BrandInput } from "./bowling-form/BrandInput";
 import { BallNameInput } from "./bowling-form/BallNameInput";
-import { validateBowlingBall } from "./bowling-form/formValidation";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type BowlingBall = {
   id: string;
@@ -42,13 +48,37 @@ export const BowlingBallForm = ({
   });
 
   const handleAddBall = async () => {
-    const errors = validateBowlingBall(newBall);
-    
-    if (Object.keys(errors).length > 0) {
-      const firstError = Object.values(errors)[0];
+    if (!newBall.brand) {
       toast({
         title: "Validation Error",
-        description: firstError,
+        description: "Brand is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!newBall.name) {
+      toast({
+        title: "Validation Error",
+        description: "Ball name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!newBall.weight) {
+      toast({
+        title: "Validation Error",
+        description: "Weight is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newBall.hook_rating && (parseInt(newBall.hook_rating) < 0 || parseInt(newBall.hook_rating) > 10)) {
+      toast({
+        title: "Validation Error",
+        description: "Hook rating must be between 0 and 10",
         variant: "destructive",
       });
       return;
@@ -73,6 +103,8 @@ export const BowlingBallForm = ({
     }
   };
 
+  const weights = Array.from({ length: 9 }, (_, i) => (i + 8).toString());
+
   return (
     <div className="space-y-4 pt-4 border-t">
       <h4 className="font-medium">Add New Ball</h4>
@@ -91,13 +123,21 @@ export const BowlingBallForm = ({
           suggestions={nameSuggestions}
         />
 
-        <Input
-          type="number"
-          step="0.1"
-          placeholder="Weight (8-16 lbs)"
+        <Select
           value={newBall.weight}
-          onChange={(e) => setNewBall(prev => ({ ...prev, weight: e.target.value }))}
-        />
+          onValueChange={(value) => setNewBall(prev => ({ ...prev, weight: value }))}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select weight (lbs)" />
+          </SelectTrigger>
+          <SelectContent>
+            {weights.map((weight) => (
+              <SelectItem key={weight} value={weight}>
+                {weight} lbs
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         <Input
           type="number"
