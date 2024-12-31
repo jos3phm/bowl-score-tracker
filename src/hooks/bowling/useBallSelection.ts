@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export const useBallSelection = (gameId: string) => {
-  const { toast } = useToast();
   const [selectedBallId, setSelectedBallId] = useState<string | null>(null);
   const [defaultBallId, setDefaultBallId] = useState<string | null>(null);
   const [previousBallId, setPreviousBallId] = useState<string | null>(null);
@@ -30,44 +29,30 @@ export const useBallSelection = (gameId: string) => {
     }
 
     try {
-      // First verify ball ownership
-      const { data: ball, error: ballError } = await supabase
-        .from('bowling_balls')
-        .select('user_id, is_spare_ball')
-        .eq('id', selectedBallId)
-        .single();
-
-      if (ballError || !ball) {
-        toast({
-          title: "Error",
-          description: "Invalid ball selection",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      // Then record the ball usage
-      const { error: insertError } = await supabase
+      const { data, error } = await supabase
         .from('ball_usage')
         .insert({
           game_id: gameId,
           ball_id: selectedBallId,
           frame_number: frameNumber,
           shot_number: shotNumber,
-        });
+        })
+        .select('bowling_balls(is_spare_ball)')
+        .single();
 
-      if (insertError) {
-        console.error('Error recording ball usage:', insertError);
+      if (error) {
+        console.error('Error recording ball usage:', error);
         toast({
           title: "Error",
-          description: "Failed to record ball usage",
+          description: "Failed to record ball usage. Make sure you own this ball.",
           variant: "destructive",
         });
         return false;
       }
 
       // Handle ball switching logic
-      if (ball.is_spare_ball) {
+      const isSpare = data?.bowling_balls?.is_spare_ball;
+      if (isSpare) {
         setPreviousBallId(defaultBallId);
         setSelectedBallId(defaultBallId);
       } else {
