@@ -50,7 +50,7 @@ const Profile = () => {
       .from("profiles")
       .select()
       .eq("id", session.user.id)
-      .single();
+      .maybeSingle();
 
     if (error) {
       toast({
@@ -61,6 +61,7 @@ const Profile = () => {
       return;
     }
 
+    // If no profile exists, we'll use null which will show empty fields
     setProfile(data);
     setLoading(false);
   };
@@ -96,7 +97,10 @@ const Profile = () => {
 
     const { error } = await supabase
       .from("profiles")
-      .update({ [field]: value })
+      .upsert({ 
+        id: session.user.id,
+        [field]: value 
+      })
       .eq("id", session.user.id);
 
     if (error) {
@@ -108,7 +112,7 @@ const Profile = () => {
       return;
     }
 
-    setProfile(prev => prev ? { ...prev, [field]: value } : null);
+    setProfile(prev => prev ? { ...prev, [field]: value } : { [field]: value } as Profile);
     toast({
       title: "Profile updated",
       description: "Your profile has been updated successfully.",
