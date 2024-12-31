@@ -25,25 +25,36 @@ export const useBallSelection = (gameId: string) => {
     }
 
     try {
-      const { data, error } = await supabase
+      // First, insert the ball usage record
+      const { error: insertError } = await supabase
         .from('ball_usage')
         .insert({
           game_id: gameId,
           ball_id: selectedBallId,
           frame_number: frameNumber,
           shot_number: shotNumber,
-        })
-        .select('bowling_balls(is_spare_ball)')
-        .single();
+        });
 
-      if (error) {
-        console.error('Error recording ball usage:', error);
+      if (insertError) {
+        console.error('Error recording ball usage:', insertError);
         toast.error("Failed to record ball usage. Make sure you own this ball.");
         return false;
       }
 
+      // Then, get the ball details separately
+      const { data: ballData, error: ballError } = await supabase
+        .from('bowling_balls')
+        .select('is_spare_ball')
+        .eq('id', selectedBallId)
+        .single();
+
+      if (ballError) {
+        console.error('Error fetching ball details:', ballError);
+        return true; // Still return true as the usage was recorded
+      }
+
       // Handle ball switching logic
-      const isSpare = data?.bowling_balls?.is_spare_ball;
+      const isSpare = ballData?.is_spare_ball;
       if (isSpare) {
         setPreviousBallId(defaultBallId);
         setSelectedBallId(defaultBallId);
