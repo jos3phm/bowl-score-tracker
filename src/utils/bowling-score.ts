@@ -1,4 +1,4 @@
-import { Frame } from "@/types/game";
+import { Frame, Pin } from "@/types/game";
 
 export const calculateFrameScore = (frames: Frame[], frameIndex: number): number | null => {
   let score = 0;
@@ -52,12 +52,14 @@ export const calculateFrameScore = (frames: Frame[], frameIndex: number): number
         
         if (i < 8) {
           if (!followingFrame?.firstShot) return null;
-          score += followingFrame.isStrike ? 10 : followingFrame.firstShot.reduce((sum, pin) => sum + pin, 0);
-          console.log(`Second bonus: ${followingFrame.isStrike ? 'strike (10)' : followingFrame.firstShot.reduce((sum, pin) => sum + pin, 0)}`);
+          const followingFrameScore = followingFrame.isStrike ? 10 : followingFrame.firstShot.reduce((sum, pin) => sum + pin, 0);
+          score += followingFrameScore;
+          console.log(`Second bonus: ${followingFrame.isStrike ? 'strike (10)' : followingFrameScore}`);
         } else {
           if (!nextFrame.secondShot) return null;
-          score += nextFrame.secondShot.reduce((sum, pin) => sum + pin, 0);
-          console.log(`Second bonus: ${nextFrame.secondShot.reduce((sum, pin) => sum + pin, 0)}`);
+          const nextFrameSecondShot = nextFrame.secondShot.reduce((sum, pin) => sum + pin, 0);
+          score += nextFrameSecondShot;
+          console.log(`Second bonus: ${nextFrameSecondShot}`);
         }
       } else {
         if (!nextFrame.secondShot) return null;
