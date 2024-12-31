@@ -61,7 +61,6 @@ const Profile = () => {
       return;
     }
 
-    // If no profile exists, we'll use null which will show empty fields
     setProfile(data);
     setLoading(false);
   };
@@ -95,10 +94,22 @@ const Profile = () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
 
+    // First, get the user's email from the session
+    const userEmail = session.user.email;
+    if (!userEmail) {
+      toast({
+        title: "Error updating profile",
+        description: "User email not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const { error } = await supabase
       .from("profiles")
       .upsert({ 
         id: session.user.id,
+        email: userEmail, // Include the required email field
         [field]: value 
       })
       .eq("id", session.user.id);
