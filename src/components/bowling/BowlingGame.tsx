@@ -37,8 +37,7 @@ export const BowlingGame = () => {
     }
 
     const knockedDownPins = frame.firstShot;
-    const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    return allPins.filter(pin => !knockedDownPins.includes(pin));
+    return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(pin => !knockedDownPins.includes(pin));
   };
 
   const getHistoricalFrameData = () => {
@@ -55,10 +54,7 @@ export const BowlingGame = () => {
     };
   };
 
-  const historicalFrame = getHistoricalFrameData();
-
   const calculateTotalScore = () => {
-    // Get the last frame's score since it contains the cumulative total
     const lastFrame = frames[9];
     return lastFrame?.score || 0;
   };
@@ -90,7 +86,7 @@ export const BowlingGame = () => {
             isGameComplete={isGameComplete}
             isFirstShotStrike={isFirstShotStrike}
             remainingPins={getRemainingPins()}
-            historicalFrame={historicalFrame}
+            historicalFrame={getHistoricalFrameData()}
             isHistoricalView={selectedHistoricalFrame !== null}
             onPinSelect={handlePinSelect}
             onStrike={handleStrike}
