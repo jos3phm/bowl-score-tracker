@@ -5,7 +5,6 @@ import { ActionButtons } from "./controls/ActionButtons";
 interface GameControlsProps {
   onStrike: () => void;
   onSpare: () => void;
-  onClear: () => void;
   onRegularShot: () => void;
   onMiss: () => void;
   disabled?: boolean;
@@ -20,7 +19,6 @@ interface GameControlsProps {
 export const GameControls = ({
   onStrike,
   onSpare,
-  onClear,
   onRegularShot,
   onMiss,
   disabled,
@@ -43,7 +41,6 @@ export const GameControls = ({
         onSpare={onSpare}
         onRegularShot={onRegularShot}
         onMiss={onMiss}
-        onClear={onClear}
         disabled={disabled}
         currentFrame={currentFrame}
         currentShot={currentShot}

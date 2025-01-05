@@ -13,7 +13,6 @@ interface GameContentProps {
   handleStrike: () => void;
   handleSpare: () => void;
   handlePinClick: (pins: Pin[]) => void;
-  handleClear: () => void;
   handleMiss: () => void;
   isStrike: boolean;
   calculateTotalScore: () => number;
@@ -32,7 +31,6 @@ export const GameContent = ({
   handleStrike,
   handleSpare,
   handlePinClick,
-  handleClear,
   handleMiss,
   isStrike,
   calculateTotalScore,
@@ -74,7 +72,6 @@ export const GameContent = ({
         onSpare={handleSpare}
         onRegularShot={handleRegularShot}
         onMiss={handleMiss}
-        onClear={handleClear}
         disabled={currentFrame > 10}
         currentFrame={currentFrame}
         currentShot={currentShot}

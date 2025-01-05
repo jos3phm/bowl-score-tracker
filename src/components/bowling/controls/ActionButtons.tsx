@@ -6,7 +6,6 @@ interface ActionButtonsProps {
   onSpare: () => void;
   onRegularShot: () => void;
   onMiss: () => void;
-  onClear: () => void;
   disabled?: boolean;
   currentFrame: number;
   currentShot: 1 | 2 | 3;
@@ -19,7 +18,6 @@ export const ActionButtons = ({
   onSpare,
   onRegularShot,
   onMiss,
-  onClear,
   disabled,
   currentFrame,
   currentShot,
@@ -35,6 +33,14 @@ export const ActionButtons = ({
 
   const isRegularShotDisabled = disabled || 
     (currentShot === 1 && selectedPins.length === 10);
+
+  const handleRegularShot = () => {
+    if (selectedPins.length === 0) {
+      onMiss();
+    } else {
+      onRegularShot();
+    }
+  };
 
   return (
     <div className="flex gap-2 justify-center flex-wrap">
@@ -60,18 +66,11 @@ export const ActionButtons = ({
         Miss
       </Button>
       <Button
-        onClick={onRegularShot}
+        onClick={handleRegularShot}
         disabled={isRegularShotDisabled}
         variant="default"
       >
         Record Shot
-      </Button>
-      <Button
-        onClick={onClear}
-        disabled={disabled}
-        variant="outline"
-      >
-        Clear
       </Button>
     </div>
   );
