@@ -11,6 +11,14 @@ import {
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 
+const US_STATES = [
+  'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+  'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+  'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+  'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+  'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+];
+
 interface LocationFormProps {
   locations: Array<{ id: string; name: string }>;
   locationId: string;
@@ -76,11 +84,18 @@ export const LocationForm = ({
             onChange={(e) => setCity(e.target.value)}
             placeholder="City"
           />
-          <Input
-            value={state}
-            onChange={(e) => setState(e.target.value)}
-            placeholder="State"
-          />
+          <Select value={state} onValueChange={setState}>
+            <SelectTrigger className="bg-white">
+              <SelectValue placeholder="Select State" />
+            </SelectTrigger>
+            <SelectContent>
+              {US_STATES.map((stateCode) => (
+                <SelectItem key={stateCode} value={stateCode}>
+                  {stateCode}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="flex gap-2">
           <Button onClick={handleAddLocation} className="flex-1">
