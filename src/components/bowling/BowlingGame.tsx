@@ -50,7 +50,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
   useEffect(() => {
     const checkAndSetSpareBall = async () => {
       const remainingPins = getRemainingPins(currentFrame, currentShot);
-      if (currentShot === 2 && remainingPins && remainingPins.length > 0) {
+      if (currentShot === 2 && remainingPins && remainingPins.length === 1) {
         const preferredBallId = await checkSpareBallPreference(remainingPins);
         if (preferredBallId) {
           handleBallSelect(preferredBallId);
@@ -59,7 +59,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     };
 
     checkAndSetSpareBall();
-  }, [currentFrame, currentShot, getRemainingPins]);
+  }, [currentFrame, currentShot, getRemainingPins, checkSpareBallPreference, handleBallSelect]);
 
   const handleShotWithBall = async (
     shotHandler: () => void,
@@ -76,12 +76,11 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     shotHandler();
   };
 
-  // Handler for regular shots
+  // Handler for regular shots - converts standing pins to knocked down pins
   const handlePinShot = (standingPins: Pin[]) => {
-    console.log('Recording regular shot with pins:', standingPins);
-    // Convert standing pins to knocked down pins
     const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     const knockedDownPins = allPins.filter(pin => !standingPins.includes(pin));
+    console.log('Recording regular shot with knocked down pins:', knockedDownPins);
     
     handleShotWithBall(() => {
       handleRegularShot(knockedDownPins);
@@ -96,6 +95,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
   };
 
   const remainingPins = getRemainingPins(currentFrame, currentShot);
+  console.log('Remaining pins for frame', currentFrame, 'shot', currentShot, ':', remainingPins);
 
   return (
     <GameContainer>
