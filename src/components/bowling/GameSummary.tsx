@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Frame } from "@/types/game";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { ScoreCard } from "./ScoreCard";
 
 interface GameSummary {
   strikes: number;
@@ -49,7 +50,7 @@ export const GameSummary = ({ frames, gameId }: GameSummaryProps) => {
           `)
           .eq('game_id', gameId)
           .not('ball_id', 'is', null)
-          .not('bowling_balls.name', 'is', null); // Ensure we only get valid ball records
+          .not('bowling_balls.name', 'is', null);
 
         if (error) throw error;
 
@@ -70,7 +71,7 @@ export const GameSummary = ({ frames, gameId }: GameSummaryProps) => {
             name,
             shots,
           }))
-          .filter(ball => ball.shots > 0); // Only include balls that were actually used
+          .filter(ball => ball.shots > 0);
 
         setBallUsage(processedUsage);
       } catch (error) {
@@ -92,7 +93,6 @@ export const GameSummary = ({ frames, gameId }: GameSummaryProps) => {
       acc.currentStrikes++;
       acc.maxConsecutiveStrikes = Math.max(acc.maxConsecutiveStrikes, acc.currentStrikes);
       
-      // For 10th frame, count additional strikes
       if (index === 9) {
         if (frame.secondShot?.length === 10) {
           acc.strikes++;
@@ -127,25 +127,35 @@ export const GameSummary = ({ frames, gameId }: GameSummaryProps) => {
   });
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Game Summary</h3>
-      <div className="grid grid-cols-2 gap-2">
-        <div>Number of Strikes:</div>
-        <div>{summary.strikes}</div>
-        {summary.spares > 0 && (
-          <>
-            <div>Number of Spares:</div>
-            <div>{summary.spares}</div>
-          </>
-        )}
-        {summary.openFrames > 0 && (
-          <>
-            <div>Open Frames:</div>
-            <div>{summary.openFrames}</div>
-          </>
-        )}
-        <div>Most Consecutive Strikes:</div>
-        <div>{summary.maxConsecutiveStrikes}</div>
+    <div className="space-y-6">
+      <div className="mb-6">
+        <ScoreCard 
+          frames={frames} 
+          currentFrame={11} 
+          isInteractive={false}
+        />
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Game Summary</h3>
+        <div className="grid grid-cols-2 gap-2">
+          <div>Number of Strikes:</div>
+          <div>{summary.strikes}</div>
+          {summary.spares > 0 && (
+            <>
+              <div>Number of Spares:</div>
+              <div>{summary.spares}</div>
+            </>
+          )}
+          {summary.openFrames > 0 && (
+            <>
+              <div>Open Frames:</div>
+              <div>{summary.openFrames}</div>
+            </>
+          )}
+          <div>Most Consecutive Strikes:</div>
+          <div>{summary.maxConsecutiveStrikes}</div>
+        </div>
       </div>
 
       {ballUsage.length > 0 && (
@@ -153,8 +163,9 @@ export const GameSummary = ({ frames, gameId }: GameSummaryProps) => {
           <h4 className="font-semibold mb-2">Balls Used:</h4>
           <ul className="space-y-1">
             {ballUsage.map((ball) => (
-              <li key={ball.name}>
-                {ball.name} - {ball.shots} shots
+              <li key={ball.name} className="flex justify-between">
+                <span>{ball.name}</span>
+                <span>{ball.shots} shots</span>
               </li>
             ))}
           </ul>

@@ -4,69 +4,72 @@ import { cn } from "@/lib/utils";
 interface ScoreCardProps {
   frames: Frame[];
   currentFrame: number;
-  onFrameClick: (frameIndex: number) => void;
-  selectedFrame: number | null;
+  onFrameClick?: (frameIndex: number) => void;
+  selectedFrame?: number | null;
+  isInteractive?: boolean;
 }
 
-export const ScoreCard = ({ frames, currentFrame, onFrameClick, selectedFrame }: ScoreCardProps) => {
+export const ScoreCard = ({ 
+  frames, 
+  currentFrame, 
+  onFrameClick, 
+  selectedFrame,
+  isInteractive = true 
+}: ScoreCardProps) => {
   const renderFrame = (frame: Frame, index: number) => {
     const isActive = index === currentFrame - 1;
     const isSelected = index === selectedFrame;
     const isTenth = index === 9;
 
-    const renderShot = (shot: Pin[] | null, isSpare: boolean, isLastShot: boolean = false, isSplit: boolean = false) => {
+    const renderShot = (shot: Pin[] | null, isSpare: boolean, isLastShot: boolean = false) => {
       if (shot === null) return "";
-      if (shot.length === 10 && !isSpare) return <span className="text-primary font-bold">X</span>;
-      if (isSpare && !isLastShot) return <span className="text-secondary font-bold">/</span>;
-      const score = shot.length;
-      return isSplit ? (
-        <span className="inline-block rounded-full border-2 border-gray-400 w-6 h-6 text-center">
-          {score}
-        </span>
-      ) : score;
+      if (shot.length === 10 && !isSpare) return "X";
+      if (isSpare) return "/";
+      return shot.length.toString();
     };
 
     return (
       <div
         key={index}
         className={cn(
-          "border rounded-lg p-2 w-[90px] flex-shrink-0 cursor-pointer hover:border-primary/50",
-          "transition-all duration-300",
-          isActive && "border-primary shadow-lg",
-          isSelected && "border-secondary shadow-lg",
-          !isActive && !isSelected && "border-gray-200"
+          "relative border-r border-gray-300 last:border-r-0",
+          "min-w-[80px] h-[80px]",
+          isInteractive && "cursor-pointer hover:bg-gray-50",
+          isActive && "bg-primary/5",
+          isSelected && "bg-secondary/5"
         )}
-        onClick={() => index < currentFrame - 1 ? onFrameClick(index) : null}
+        onClick={() => isInteractive && index < currentFrame - 1 && onFrameClick?.(index)}
       >
-        <div className="text-xs text-gray-500 mb-1">Frame {index + 1}</div>
-        {isTenth ? (
-          <div className="mb-1">
-            <div className="flex justify-center gap-1">
-              {renderShot(frame.firstShot, false, false, frame.isSplit)}
-              {frame.isSpare ? (
-                <span className="text-secondary font-bold">/</span>
-              ) : (
-                renderShot(frame.secondShot, false)
-              )}
-              {(frame.isStrike || frame.isSpare) && renderShot(frame.thirdShot, false, true)}
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-1 mb-1">
-            <div className="text-center">
-              {renderShot(frame.firstShot, false, false, frame.isSplit)}
-            </div>
-            <div className="text-center">
-              {frame.isSpare ? (
-                <span className="text-secondary font-bold">/</span>
-              ) : (
-                frame.isStrike ? "" : renderShot(frame.secondShot, false)
-              )}
-            </div>
-          </div>
-        )}
+        {/* Frame Number */}
+        <div className="absolute top-0 left-0 w-full text-center text-xs text-gray-500 border-b border-gray-300 py-1">
+          {index + 1}
+        </div>
         
-        <div className="text-center font-semibold border-t pt-1">
+        {/* Shots Container */}
+        <div className="absolute top-[24px] left-0 w-full px-1">
+          <div className="flex justify-end">
+            {/* First Shot */}
+            <div className="w-8 h-8 border-b border-r border-gray-300 flex items-center justify-center">
+              {frame.isStrike ? "" : renderShot(frame.firstShot, false)}
+            </div>
+            {/* Second Shot / Strike */}
+            <div className={cn(
+              "w-8 h-8 border-b border-gray-300 flex items-center justify-center",
+              !isTenth && "border-l-0"
+            )}>
+              {frame.isStrike ? "X" : renderShot(frame.secondShot, frame.isSpare)}
+            </div>
+            {/* Third Shot (10th frame only) */}
+            {isTenth && (frame.isStrike || frame.isSpare) && (
+              <div className="w-8 h-8 border-b border-l border-gray-300 flex items-center justify-center">
+                {renderShot(frame.thirdShot, false, true)}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Frame Score */}
+        <div className="absolute bottom-0 left-0 w-full text-center py-2 font-semibold">
           {frame.score !== null ? frame.score : ""}
         </div>
       </div>
@@ -74,9 +77,9 @@ export const ScoreCard = ({ frames, currentFrame, onFrameClick, selectedFrame }:
   };
 
   return (
-    <div className="relative w-full">
-      <div className="overflow-x-auto pb-4">
-        <div className="flex gap-3 px-4" style={{ width: "max-content" }}>
+    <div className="w-full overflow-x-auto">
+      <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
+        <div className="flex min-w-fit">
           {frames.map((frame, index) => renderFrame(frame, index))}
         </div>
       </div>
