@@ -96,27 +96,33 @@ export type Database = {
       bowling_locations: {
         Row: {
           address: string | null
+          city: string | null
           created_at: string
           created_by: string | null
           id: string
           is_verified: boolean | null
           name: string
+          state: string | null
         }
         Insert: {
           address?: string | null
+          city?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
           is_verified?: boolean | null
           name: string
+          state?: string | null
         }
         Update: {
           address?: string | null
+          city?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
           is_verified?: boolean | null
           name?: string
+          state?: string | null
         }
         Relationships: []
       }
