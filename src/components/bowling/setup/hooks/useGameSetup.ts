@@ -41,7 +41,6 @@ export const useGameSetup = () => {
       return;
     }
 
-    // Only validate lane number for league and tournament games
     if ((gameType === 'league' || gameType === 'tournament') && !laneNumber) {
       toast({
         title: "Error",
@@ -75,10 +74,10 @@ export const useGameSetup = () => {
     };
 
     try {
-      const { data, error } = await supabase
+      const { data: newGame, error } = await supabase
         .from('games')
         .insert([gameData])
-        .select('*')
+        .select()
         .maybeSingle();
 
       if (error) {
@@ -91,7 +90,7 @@ export const useGameSetup = () => {
         return;
       }
 
-      if (!data?.id) {
+      if (!newGame?.id) {
         toast({
           title: "Error",
           description: "Failed to create game: No game ID returned",
@@ -100,8 +99,7 @@ export const useGameSetup = () => {
         return;
       }
 
-      // Only navigate if we have a valid game ID
-      navigate(`/new-game?gameId=${data.id}`);
+      navigate(`/new-game?gameId=${newGame.id}`);
     } catch (error) {
       console.error('Game creation error:', error);
       toast({
