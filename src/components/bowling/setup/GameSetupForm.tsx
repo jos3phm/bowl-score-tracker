@@ -49,7 +49,6 @@ export const GameSetupForm = () => {
             value={gameType} 
             onValueChange={(value: any) => {
               setGameType(value);
-              setLaneConfig(value === 'practice' ? 'single' : 'cross');
             }}
           >
             <SelectTrigger className="bg-white">
@@ -83,6 +82,19 @@ export const GameSetupForm = () => {
             locationId={locationId}
           />
         )}
+
+        <div className="space-y-2">
+          <Label>Lane Configuration</Label>
+          <Select value={laneConfig} onValueChange={setLaneConfig}>
+            <SelectTrigger className="bg-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectItem value="single">Single Lane</SelectItem>
+              <SelectItem value="cross">Cross Lane (alternating lanes)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
         <div className="space-y-2">
           <Label>
