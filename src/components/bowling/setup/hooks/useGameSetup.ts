@@ -74,23 +74,41 @@ export const useGameSetup = () => {
       game_start_time: new Date().toISOString(),
     };
 
-    const { data, error } = await supabase
-      .from('games')
-      .insert([gameData])
-      .select()
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('games')
+        .insert([gameData])
+        .select()
+        .single();
 
-    if (error) {
+      if (error) {
+        console.error('Game creation error:', error);
+        toast({
+          title: "Error",
+          description: "Failed to create game",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!data?.id) {
+        toast({
+          title: "Error",
+          description: "Failed to create game: No game ID returned",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      navigate(`/new-game?gameId=${data.id}`);
+    } catch (error) {
       console.error('Game creation error:', error);
       toast({
         title: "Error",
         description: "Failed to create game",
         variant: "destructive",
       });
-      return;
     }
-
-    navigate(`/new-game?gameId=${data.id}`);
   };
 
   return {
