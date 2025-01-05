@@ -84,7 +84,10 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     // Convert standing pins to knocked down pins
     const knockedDownPins = allPins.filter(pin => !pins.includes(pin));
-    handleShotWithBall(() => handlePinClick(knockedDownPins), 'regular');
+    handleShotWithBall(() => {
+      // Pass each knocked down pin individually to handlePinClick
+      knockedDownPins.forEach(pin => handlePinClick(pin));
+    }, 'regular');
   };
 
   return (
