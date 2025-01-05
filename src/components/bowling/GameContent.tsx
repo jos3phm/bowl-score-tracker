@@ -43,7 +43,11 @@ export const GameContent = ({
 
   const handleRegularShot = () => {
     if (selectedPins.length > 0) {
-      handlePinClick(selectedPins);
+      // For regular shots, we need to pass the remaining standing pins
+      // So if pin 10 is selected, we pass pins 1-9 as knocked down
+      const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+      const knockedDownPins = allPins.filter(pin => !selectedPins.includes(pin));
+      handlePinClick(knockedDownPins);
       setSelectedPins([]);
     }
   };
