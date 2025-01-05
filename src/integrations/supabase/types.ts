@@ -16,6 +16,7 @@ export type Database = {
           frame_number: number
           game_id: string
           id: string
+          remaining_pins: number[] | null
           shot_number: number
         }
         Insert: {
@@ -24,6 +25,7 @@ export type Database = {
           frame_number: number
           game_id: string
           id?: string
+          remaining_pins?: number[] | null
           shot_number: number
         }
         Update: {
@@ -32,6 +34,7 @@ export type Database = {
           frame_number?: number
           game_id?: string
           id?: string
+          remaining_pins?: number[] | null
           shot_number?: number
         }
         Relationships: [
