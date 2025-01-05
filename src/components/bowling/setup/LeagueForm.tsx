@@ -18,6 +18,7 @@ interface LeagueFormProps {
   showNewLeague: boolean;
   setShowNewLeague: (show: boolean) => void;
   onAddLeague: (name: string) => Promise<void>;
+  locationId: string;
 }
 
 export const LeagueForm = ({
@@ -27,15 +28,27 @@ export const LeagueForm = ({
   showNewLeague,
   setShowNewLeague,
   onAddLeague,
+  locationId,
 }: LeagueFormProps) => {
   const [newLeagueName, setNewLeagueName] = useState("");
 
   const handleAddLeague = async () => {
-    if (!newLeagueName.trim()) return;
+    if (!newLeagueName.trim() || !locationId) return;
     await onAddLeague(newLeagueName);
     setNewLeagueName("");
     setShowNewLeague(false);
   };
+
+  if (!locationId) {
+    return (
+      <div className="space-y-2">
+        <Label>League</Label>
+        <div className="text-sm text-muted-foreground">
+          Please select a location first
+        </div>
+      </div>
+    );
+  }
 
   if (showNewLeague) {
     return (

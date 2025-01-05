@@ -63,17 +63,6 @@ export const GameSetupForm = () => {
           </Select>
         </div>
 
-        {gameType === 'league' && (
-          <LeagueForm
-            leagues={leagues || []}
-            leagueId={leagueId}
-            setLeagueId={setLeagueId}
-            showNewLeague={showNewLeague}
-            setShowNewLeague={setShowNewLeague}
-            onAddLeague={handleAddLeague}
-          />
-        )}
-
         <LocationForm
           locations={locations || []}
           locationId={locationId}
@@ -82,6 +71,18 @@ export const GameSetupForm = () => {
           setShowNewLocation={setShowNewLocation}
           onAddLocation={handleAddLocation}
         />
+
+        {gameType === 'league' && (
+          <LeagueForm
+            leagues={leagues?.filter(league => league.location_id === locationId) || []}
+            leagueId={leagueId}
+            setLeagueId={setLeagueId}
+            showNewLeague={showNewLeague}
+            setShowNewLeague={setShowNewLeague}
+            onAddLeague={handleAddLeague}
+            locationId={locationId}
+          />
+        )}
 
         <div className="space-y-2">
           <Label>Lane Configuration</Label>
