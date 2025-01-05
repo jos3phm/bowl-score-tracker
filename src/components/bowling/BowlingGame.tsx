@@ -49,13 +49,11 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
   // Check for spare ball preference when remaining pins change
   useEffect(() => {
     const checkAndSetSpareBall = async () => {
-      if (currentShot === 2) {
-        const remainingPins = getRemainingPins(currentFrame, currentShot);
-        if (remainingPins && remainingPins.length > 0) {
-          const preferredBallId = await checkSpareBallPreference(remainingPins);
-          if (preferredBallId) {
-            handleBallSelect(preferredBallId);
-          }
+      const remainingPins = getRemainingPins(currentFrame, currentShot);
+      if (currentShot === 2 && remainingPins && remainingPins.length > 0) {
+        const preferredBallId = await checkSpareBallPreference(remainingPins);
+        if (preferredBallId) {
+          handleBallSelect(preferredBallId);
         }
       }
     };
