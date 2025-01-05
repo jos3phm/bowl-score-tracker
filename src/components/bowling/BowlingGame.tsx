@@ -78,15 +78,18 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     shotHandler();
   };
 
-  // Wrapper for handlePinClick to handle regular shots
-  const handleRegularShot = (pins: Pin[]) => {
-    console.log('Recording regular shot with pins:', pins);
-    const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  // Handler for regular shots
+  const handleRegularShot = (standingPins: Pin[]) => {
+    console.log('Recording regular shot with pins:', standingPins);
     // Convert standing pins to knocked down pins
-    const knockedDownPins = allPins.filter(pin => !pins.includes(pin));
+    const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const knockedDownPins = allPins.filter(pin => !standingPins.includes(pin));
+    
     handleShotWithBall(() => {
-      // Pass each knocked down pin individually to handlePinClick
-      knockedDownPins.forEach(pin => handlePinClick(pin));
+      // Record each knocked down pin
+      knockedDownPins.forEach(pin => {
+        handlePinClick(pin);
+      });
     }, 'regular');
   };
 
