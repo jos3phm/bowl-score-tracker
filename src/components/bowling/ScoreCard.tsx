@@ -33,7 +33,8 @@ export const ScoreCard = ({
         key={index}
         className={cn(
           "relative border-r border-gray-300 last:border-r-0",
-          "min-w-[80px] h-[80px]",
+          isTenth ? "min-w-[100px]" : "min-w-[80px]",
+          "h-[80px]",
           isInteractive && "cursor-pointer hover:bg-gray-50",
           isActive && "bg-primary/5",
           isSelected && "bg-secondary/5"
@@ -47,17 +48,20 @@ export const ScoreCard = ({
         
         {/* Shots Container */}
         <div className="absolute top-[24px] left-0 w-full px-1">
-          <div className="flex justify-end">
+          <div className={cn(
+            "flex justify-end",
+            isTenth && "space-x-0.5"
+          )}>
             {/* First Shot */}
             <div className="w-8 h-8 border-b border-r border-gray-300 flex items-center justify-center">
-              {frame.isStrike ? "" : renderShot(frame.firstShot, false)}
+              {frame.isStrike && !isTenth ? "" : renderShot(frame.firstShot, false)}
             </div>
             {/* Second Shot / Strike */}
             <div className={cn(
               "w-8 h-8 border-b border-gray-300 flex items-center justify-center",
               !isTenth && "border-l-0"
             )}>
-              {frame.isStrike ? "X" : renderShot(frame.secondShot, frame.isSpare)}
+              {!isTenth && frame.isStrike ? "X" : renderShot(frame.secondShot, frame.isSpare)}
             </div>
             {/* Third Shot (10th frame only) */}
             {isTenth && (frame.isStrike || frame.isSpare) && (
