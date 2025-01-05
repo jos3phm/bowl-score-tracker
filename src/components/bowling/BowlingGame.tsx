@@ -6,6 +6,7 @@ import { GameComplete } from "./GameComplete";
 import { useBallSelection } from "@/hooks/bowling/useBallSelection";
 import { useHistoricalFrame } from "@/hooks/bowling/useHistoricalFrame";
 import { useGameCompletion } from "@/hooks/bowling/useGameCompletion";
+import { useEffect } from "react";
 
 interface BowlingGameProps {
   gameId: string;
@@ -25,7 +26,13 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     handleClear,
   } = useBowlingGame();
 
-  const { selectedBallId, handleBallSelect, recordBallUsage } = useBallSelection(gameId);
+  const { 
+    selectedBallId, 
+    handleBallSelect, 
+    recordBallUsage,
+    checkSpareBallPreference 
+  } = useBallSelection(gameId);
+
   const {
     calculateTotalScore,
     handleNewGame,
@@ -36,6 +43,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     isSaving,
     handleSaveGame
   } = useGameCompletion(frames);
+
   const {
     selectedHistoricalFrame,
     setSelectedHistoricalFrame,
@@ -47,6 +55,23 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     ? frames[9]?.isStrike 
     : frames[currentFrame - 1]?.isStrike;
 
+  // Check for spare ball preference when remaining pins change
+  useEffect(() => {
+    const checkAndSetSpareBall = async () => {
+      if (currentShot === 2) {
+        const remainingPins = getRemainingPins(currentFrame, currentShot);
+        if (remainingPins && remainingPins.length > 0) {
+          const preferredBallId = await checkSpareBallPreference(remainingPins);
+          if (preferredBallId) {
+            handleBallSelect(preferredBallId);
+          }
+        }
+      }
+    };
+
+    checkAndSetSpareBall();
+  }, [currentFrame, currentShot, getRemainingPins]);
+
   const handleShotWithBall = async (
     shotHandler: () => void,
     shotType: 'strike' | 'spare' | 'regular'
@@ -55,7 +80,8 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     
     if (selectedBallId) {
       try {
-        await recordBallUsage(currentFrame, currentShot, shotType);
+        const remainingPins = getRemainingPins(currentFrame, currentShot);
+        await recordBallUsage(currentFrame, currentShot, shotType, remainingPins);
       } catch (error) {
         console.error('Failed to record ball usage:', error);
       }

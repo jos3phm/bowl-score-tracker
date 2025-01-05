@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Pin } from "@/types/game";
 
 export const useBallSelection = (gameId: string) => {
   const [selectedBallId, setSelectedBallId] = useState<string | null>(null);
@@ -14,10 +15,46 @@ export const useBallSelection = (gameId: string) => {
     }
   };
 
+  const getPinConfigurationKey = (remainingPins: Pin[]) => {
+    return remainingPins.sort((a, b) => a - b).join(',');
+  };
+
+  const checkSpareBallPreference = async (remainingPins: Pin[]) => {
+    if (!remainingPins || remainingPins.length === 0) return null;
+
+    const pinConfig = getPinConfigurationKey(remainingPins);
+    
+    try {
+      const { data, error } = await supabase
+        .from('ball_usage')
+        .select(`
+          ball_id,
+          bowling_balls!inner(is_spare_ball)
+        `)
+        .eq('shot_number', 2)
+        .contains('remaining_pins', remainingPins)
+        .eq('bowling_balls.is_spare_ball', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error checking spare ball preference:', error);
+        return null;
+      }
+
+      return data?.ball_id || null;
+    } catch (error) {
+      console.error('Error checking spare ball preference:', error);
+      return null;
+    }
+  };
+
   const recordBallUsage = async (
     frameNumber: number,
     shotNumber: 1 | 2 | 3,
-    shotType: 'strike' | 'spare' | 'regular'
+    shotType: 'strike' | 'spare' | 'regular',
+    remainingPins?: Pin[]
   ) => {
     if (!gameId || !selectedBallId) {
       toast.error("Please select a ball before making a shot");
@@ -40,11 +77,16 @@ export const useBallSelection = (gameId: string) => {
         return false;
       }
 
+      const usageData = {
+        ball_id: selectedBallId,
+        remaining_pins: remainingPins || [],
+      };
+
       // If a record exists, update it instead of creating a new one
       if (existingUsage) {
         const { error: updateError } = await supabase
           .from('ball_usage')
-          .update({ ball_id: selectedBallId })
+          .update(usageData)
           .eq('id', existingUsage.id);
 
         if (updateError) {
@@ -58,7 +100,7 @@ export const useBallSelection = (gameId: string) => {
           .from('ball_usage')
           .insert({
             game_id: gameId,
-            ball_id: selectedBallId,
+            ...usageData,
             frame_number: frameNumber,
             shot_number: shotNumber,
           });
@@ -98,5 +140,6 @@ export const useBallSelection = (gameId: string) => {
     selectedBallId,
     handleBallSelect,
     recordBallUsage,
+    checkSpareBallPreference,
   };
 };
