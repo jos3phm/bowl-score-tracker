@@ -5,7 +5,7 @@ import { useBallSelection } from "@/hooks/bowling/useBallSelection";
 import { useHistoricalFrame } from "@/hooks/bowling/useHistoricalFrame";
 import { useGameCompletion } from "@/hooks/bowling/useGameCompletion";
 import { useEffect } from "react";
-import { Pin } from "@/types/game";
+import { usePinHandling } from "@/hooks/bowling/usePinHandling";
 
 interface BowlingGameProps {
   gameId: string;
@@ -42,9 +42,33 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     setSelectedHistoricalFrame,
   } = useHistoricalFrame();
 
-  const isStrike = currentFrame === 10 
-    ? frames[9]?.isStrike 
-    : frames[currentFrame - 1]?.isStrike;
+  const handleShotWithBall = async (
+    shotHandler: () => void,
+    shotType: 'strike' | 'spare' | 'regular'
+  ) => {
+    if (selectedBallId) {
+      try {
+        const remainingPins = getRemainingPins(currentFrame, currentShot);
+        await recordBallUsage(currentFrame, currentShot, shotType, remainingPins);
+      } catch (error) {
+        console.error('Failed to record ball usage:', error);
+      }
+    }
+    shotHandler();
+  };
+
+  const {
+    handlePinShot,
+    handleMiss,
+    handleStrikeShot,
+    handleSpareShot,
+  } = usePinHandling(
+    handleShotWithBall,
+    handleRegularShot,
+    handleStrike,
+    handleSpare,
+    handleClear,
+  );
 
   // Check for spare ball preference when remaining pins change
   useEffect(() => {
@@ -61,36 +85,6 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     checkAndSetSpareBall();
   }, [currentFrame, currentShot, getRemainingPins, checkSpareBallPreference, handleBallSelect]);
 
-  const handleShotWithBall = async (
-    shotHandler: () => void,
-    shotType: 'strike' | 'spare' | 'regular'
-  ) => {
-    if (selectedBallId) {
-      try {
-        const remainingPins = getRemainingPins(currentFrame, currentShot);
-        await recordBallUsage(currentFrame, currentShot, shotType, remainingPins);
-      } catch (error) {
-        console.error('Failed to record ball usage:', error);
-      }
-    }
-    shotHandler();
-  };
-
-  // Handler for regular shots - these are the pins that were knocked down
-  const handlePinShot = (knockedDownPins: Pin[]) => {
-    console.log('Recording regular shot with knocked down pins:', knockedDownPins);
-    handleShotWithBall(() => {
-      handleRegularShot(knockedDownPins);
-    }, 'regular');
-  };
-
-  // Handler for miss (no pins knocked down)
-  const handleMiss = () => {
-    handleShotWithBall(() => {
-      handleRegularShot([]);
-    }, 'regular');
-  };
-
   const remainingPins = getRemainingPins(currentFrame, currentShot);
   console.log('Remaining pins for frame', currentFrame, 'shot', currentShot, ':', remainingPins);
 
@@ -100,12 +94,12 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
         frames={frames}
         currentFrame={currentFrame}
         currentShot={currentShot}
-        handleStrike={handleStrike}
-        handleSpare={handleSpare}
+        handleStrike={handleStrikeShot}
+        handleSpare={handleSpareShot}
         handlePinClick={handlePinShot}
         handleClear={handleClear}
         handleMiss={handleMiss}
-        isStrike={isStrike}
+        isStrike={currentFrame === 10 ? frames[9]?.isStrike : frames[currentFrame - 1]?.isStrike}
         calculateTotalScore={calculateTotalScore}
         handleNewGame={handleNewGame}
         handleSaveGame={handleSaveGame}
