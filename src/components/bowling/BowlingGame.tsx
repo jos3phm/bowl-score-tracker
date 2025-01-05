@@ -18,7 +18,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     currentShot,
     handleStrike,
     handleSpare,
-    handlePinClick: originalHandlePinClick,
+    handlePinClick,
     handleClear,
     getRemainingPins,
   } = useBowlingGame();
@@ -45,13 +45,6 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
   const isStrike = currentFrame === 10 
     ? frames[9]?.isStrike 
     : frames[currentFrame - 1]?.isStrike;
-
-  // Wrapper function to adapt single pin to array format
-  const handlePinClick = (pins: Pin[]) => {
-    if (pins.length === 1) {
-      originalHandlePinClick(pins[0]);
-    }
-  };
 
   // Check for spare ball preference when remaining pins change
   useEffect(() => {
@@ -85,6 +78,14 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     shotHandler();
   };
 
+  // Wrapper for handlePinClick to handle regular shots
+  const handleRegularShot = (pins: Pin[]) => {
+    console.log('Recording regular shot with pins:', pins);
+    if (pins.length > 0) {
+      handleShotWithBall(() => handlePinClick(pins), 'regular');
+    }
+  };
+
   return (
     <GameContainer>
       <GameContent
@@ -93,7 +94,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
         currentShot={currentShot}
         handleStrike={() => handleShotWithBall(handleStrike, 'strike')}
         handleSpare={() => handleShotWithBall(handleSpare, 'spare')}
-        handlePinClick={handlePinClick}
+        handlePinClick={handleRegularShot}
         handleClear={handleClear}
         isStrike={isStrike}
         calculateTotalScore={calculateTotalScore}
