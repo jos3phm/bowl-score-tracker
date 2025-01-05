@@ -5,6 +5,7 @@ import { useBallSelection } from "@/hooks/bowling/useBallSelection";
 import { useHistoricalFrame } from "@/hooks/bowling/useHistoricalFrame";
 import { useGameCompletion } from "@/hooks/bowling/useGameCompletion";
 import { useEffect } from "react";
+import { Pin } from "@/types/game";
 
 interface BowlingGameProps {
   gameId: string;
@@ -17,7 +18,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     currentShot,
     handleStrike,
     handleSpare,
-    handlePinClick,
+    handlePinClick: originalHandlePinClick,
     handleClear,
     getRemainingPins,
   } = useBowlingGame();
@@ -44,6 +45,13 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
   const isStrike = currentFrame === 10 
     ? frames[9]?.isStrike 
     : frames[currentFrame - 1]?.isStrike;
+
+  // Wrapper function to adapt single pin to array format
+  const handlePinClick = (pins: Pin[]) => {
+    if (pins.length === 1) {
+      originalHandlePinClick(pins[0]);
+    }
+  };
 
   // Check for spare ball preference when remaining pins change
   useEffect(() => {
