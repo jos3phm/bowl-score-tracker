@@ -25,6 +25,20 @@ export const useBallSelection = (gameId: string) => {
     }
 
     try {
+      // First, verify ball ownership and get ball details
+      const { data: ballData, error: ballError } = await supabase
+        .from('bowling_balls')
+        .select('is_spare_ball')
+        .eq('id', selectedBallId)
+        .single();
+
+      if (ballError) {
+        console.error('Error fetching ball details:', ballError);
+        toast.error("Failed to verify ball ownership");
+        return false;
+      }
+
+      // Then, record the ball usage
       const { error: insertError } = await supabase
         .from('ball_usage')
         .insert({
@@ -38,18 +52,6 @@ export const useBallSelection = (gameId: string) => {
         console.error('Error recording ball usage:', insertError);
         toast.error("Failed to record ball usage. Make sure you own this ball.");
         return false;
-      }
-
-      // Get ball details in a separate query
-      const { data: ballData, error: ballError } = await supabase
-        .from('bowling_balls')
-        .select('is_spare_ball')
-        .eq('id', selectedBallId)
-        .single();
-
-      if (ballError) {
-        console.error('Error fetching ball details:', ballError);
-        return true; // Still return true as the usage was recorded
       }
 
       // Handle ball switching logic
