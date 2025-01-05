@@ -74,14 +74,14 @@ export const recordRegularShot = (
     } else if (shot === 2) {
       // For second shot, we only consider the remaining pins
       const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
-      // If the only remaining pin is selected, it means it's still standing (not knocked down)
+      // If the remaining pin is selected, it means we're knocking it down
       if (selectedPins.length === remainingPins.length && 
           selectedPins.every(pin => remainingPins.includes(pin))) {
-        frame.secondShot = [];
-        frame.isSpare = false;
-      } else {
         frame.secondShot = remainingPins;
         frame.isSpare = true;
+      } else {
+        frame.secondShot = [];
+        frame.isSpare = false;
       }
       
       // If not a strike or spare in 10th frame, complete the frame after second shot
@@ -99,14 +99,14 @@ export const recordRegularShot = (
     } else {
       // For second shot, we only consider the remaining pins
       const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
-      // If the only remaining pin is selected, it means it's still standing (not knocked down)
+      // If the remaining pin is selected, it means we're knocking it down
       if (selectedPins.length === remainingPins.length && 
           selectedPins.every(pin => remainingPins.includes(pin))) {
-        frame.secondShot = [];
-        frame.isSpare = false;
-      } else {
         frame.secondShot = remainingPins;
         frame.isSpare = true;
+      } else {
+        frame.secondShot = [];
+        frame.isSpare = false;
       }
     }
   }
