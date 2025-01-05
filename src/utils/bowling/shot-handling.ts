@@ -72,10 +72,14 @@ export const recordRegularShot = (
       frame.isStrike = knockedDownPins.length === 10;
       frame.isSplit = !frame.isStrike && knockedDownPins.length > 1 && isSplit(knockedDownPins);
     } else if (shot === 2) {
-      frame.secondShot = knockedDownPins;
+      // For second shot, we only consider the remaining pins
+      const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
+      frame.secondShot = remainingPins.filter(pin => !selectedPins.includes(pin));
+      
       if (!frame.isStrike) {
-        frame.isSpare = (frame.firstShot?.length || 0) + knockedDownPins.length === 10;
+        frame.isSpare = frame.secondShot.length === remainingPins.length;
       }
+      
       // If not a strike or spare in 10th frame, complete the frame after second shot
       if (!frame.isStrike && !frame.isSpare) {
         frame.thirdShot = null; // Explicitly set third shot to null to indicate frame completion
@@ -89,9 +93,12 @@ export const recordRegularShot = (
       frame.isStrike = knockedDownPins.length === 10;
       frame.isSplit = !frame.isStrike && knockedDownPins.length > 1 && isSplit(knockedDownPins);
     } else {
-      frame.secondShot = knockedDownPins;
+      // For second shot, we only consider the remaining pins
+      const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
+      frame.secondShot = remainingPins.filter(pin => !selectedPins.includes(pin));
+      
       if (frame.firstShot) {
-        frame.isSpare = frame.firstShot.length + knockedDownPins.length === 10;
+        frame.isSpare = frame.secondShot.length === remainingPins.length;
       }
     }
   }
