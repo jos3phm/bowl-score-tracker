@@ -16,17 +16,17 @@ export const ScoreCard = ({
   selectedFrame,
   isInteractive = true 
 }: ScoreCardProps) => {
+  const renderShot = (shot: Pin[] | null, isSpare: boolean, isLastShot: boolean = false) => {
+    if (shot === null) return "";
+    if (shot.length === 10 && !isSpare) return "X";
+    if (isSpare) return "/";
+    return shot.length.toString();
+  };
+
   const renderFrame = (frame: Frame, index: number) => {
     const isActive = index === currentFrame - 1;
     const isSelected = index === selectedFrame;
     const isTenth = index === 9;
-
-    const renderShot = (shot: Pin[] | null, isSpare: boolean, isLastShot: boolean = false) => {
-      if (shot === null) return "";
-      if (shot.length === 10 && !isSpare) return "X";
-      if (isSpare) return "/";
-      return shot.length.toString();
-    };
 
     return (
       <div
@@ -54,14 +54,14 @@ export const ScoreCard = ({
           )}>
             {/* First Shot */}
             <div className="w-8 h-8 border-b border-r border-gray-300 flex items-center justify-center">
-              {frame.isStrike && !isTenth ? "" : renderShot(frame.firstShot, false)}
+              {!isTenth && frame.isStrike ? "X" : renderShot(frame.firstShot, false)}
             </div>
-            {/* Second Shot / Strike */}
+            {/* Second Shot */}
             <div className={cn(
               "w-8 h-8 border-b border-gray-300 flex items-center justify-center",
               !isTenth && "border-l-0"
             )}>
-              {!isTenth && frame.isStrike ? "X" : renderShot(frame.secondShot, frame.isSpare)}
+              {renderShot(frame.secondShot, frame.isSpare)}
             </div>
             {/* Third Shot (10th frame only) */}
             {isTenth && (frame.isStrike || frame.isSpare) && (
