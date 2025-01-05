@@ -10,7 +10,7 @@ interface GameContentProps {
   currentShot: 1 | 2 | 3;
   handleStrike: () => void;
   handleSpare: () => void;
-  handlePinClick: (pin: Pin) => void;
+  handlePinClick: (pins: Pin[]) => void;
   handleClear: () => void;
   isStrike: boolean;
   calculateTotalScore: () => number;
