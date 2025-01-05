@@ -34,12 +34,13 @@ export const useBowlingGame = () => {
     setSelectedPins,
   );
 
-  const handlePinSelect = (pinsOrUpdater: Pin[] | ((currentPins: Pin[]) => Pin[])) => {
-    if (typeof pinsOrUpdater === 'function') {
-      setSelectedPins(pinsOrUpdater);
-    } else {
-      setSelectedPins(pinsOrUpdater);
-    }
+  const handlePinClick = (pin: Pin) => {
+    setSelectedPins(currentPins => {
+      if (currentPins.includes(pin)) {
+        return currentPins.filter(p => p !== pin);
+      }
+      return [...currentPins, pin];
+    });
   };
 
   const handleStrike = () => {
@@ -67,17 +68,33 @@ export const useBowlingGame = () => {
     setSelectedPins([]);
   };
 
+  const getRemainingPins = (frame: number, shot: number): Pin[] => {
+    if (shot !== 2) return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    
+    const currentFrameData = frames[frame - 1];
+    if (!currentFrameData?.firstShot) return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+    if (frame === 10 && currentFrameData.isStrike) {
+      return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    }
+
+    return ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as Pin[]).filter(
+      pin => !currentFrameData.firstShot?.includes(pin)
+    );
+  };
+
   return {
     currentFrame,
     currentShot,
     selectedPins,
     frames,
     isGameComplete: isGameComplete(frames),
-    handlePinSelect,
+    handlePinClick,
     handleStrike,
     handleSpare,
     handleRegularShot,
     handleClear,
+    getRemainingPins,
     gameId,
   };
 };

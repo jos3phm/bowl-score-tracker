@@ -2,76 +2,62 @@ import { Pin } from "@/types/game";
 import { PinDiagram } from "./PinDiagram";
 import { GameControls } from "./GameControls";
 import { GameStatus } from "./GameStatus";
+import { Frame } from "@/types/game";
 
 interface GameContentProps {
+  frames: Frame[];
   currentFrame: number;
   currentShot: 1 | 2 | 3;
-  selectedPins: Pin[];
-  isGameComplete: boolean;
-  isFirstShotStrike: boolean;
-  remainingPins?: Pin[];
-  historicalFrame?: {
-    firstShot: Pin[];
-    secondShot: Pin[];
-    isSpare: boolean;
-    isStrike: boolean;
-  } | null;
-  isHistoricalView: boolean;
-  onPinSelect: (pins: Pin[] | ((currentPins: Pin[]) => Pin[])) => void;
-  onStrike: () => void;
-  onSpare: () => void;
-  onRegularShot: () => void;
-  onClear: () => void;
-  onBallSelect: (ballId: string | null) => void;
+  handleStrike: () => void;
+  handleSpare: () => void;
+  handlePinClick: (pin: Pin) => void;
+  handleClear: () => void;
+  isStrike: boolean;
+  calculateTotalScore: () => number;
+  handleNewGame: () => void;
+  handleSaveGame: () => Promise<void>;
+  isSaving: boolean;
   selectedBallId: string | null;
+  handleBallSelect: (ballId: string | null) => void;
 }
 
 export const GameContent = ({
+  frames,
   currentFrame,
   currentShot,
-  selectedPins,
-  isGameComplete,
-  isFirstShotStrike,
-  remainingPins,
-  historicalFrame,
-  isHistoricalView,
-  onPinSelect,
-  onStrike,
-  onSpare,
-  onRegularShot,
-  onClear,
-  onBallSelect,
+  handleStrike,
+  handleSpare,
+  handlePinClick,
+  handleClear,
+  isStrike,
+  calculateTotalScore,
+  handleNewGame,
+  handleSaveGame,
+  isSaving,
   selectedBallId,
+  handleBallSelect,
 }: GameContentProps) => {
-  const handleMiss = () => {
-    onPinSelect([]);
-    onRegularShot();
-  };
-
   return (
     <div className="space-y-6">
       <PinDiagram
-        onPinSelect={onPinSelect}
-        onRegularShot={onRegularShot}
-        selectedPins={selectedPins}
-        disabled={currentFrame > 10 || isGameComplete}
-        remainingPins={remainingPins}
-        historicalFrame={historicalFrame}
-        isHistoricalView={isHistoricalView}
+        onPinSelect={handlePinClick}
+        selectedPins={[]}
+        disabled={currentFrame > 10}
+        onRegularShot={() => {}}
       />
       
       <GameControls
-        onStrike={onStrike}
-        onSpare={onSpare}
-        onRegularShot={onRegularShot}
-        onMiss={handleMiss}
-        onClear={onClear}
-        disabled={currentFrame > 10 || isGameComplete}
+        onStrike={handleStrike}
+        onSpare={handleSpare}
+        onRegularShot={() => {}}
+        onMiss={() => {}}
+        onClear={handleClear}
+        disabled={currentFrame > 10}
         currentFrame={currentFrame}
         currentShot={currentShot}
-        isFirstShotStrike={isFirstShotStrike}
-        selectedPins={selectedPins}
-        onBallSelect={onBallSelect}
+        isFirstShotStrike={isStrike}
+        selectedPins={[]}
+        onBallSelect={handleBallSelect}
         selectedBallId={selectedBallId}
       />
       
