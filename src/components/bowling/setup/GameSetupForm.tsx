@@ -13,36 +13,20 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MapPin, Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { LocationForm } from "./LocationForm";
+import { LeagueForm } from "./LeagueForm";
 
 type GameType = 'practice' | 'league' | 'tournament';
 type LaneConfig = 'single' | 'cross';
-
-interface Location {
-  id: string;
-  name: string;
-}
-
-interface League {
-  id: string;
-  name: string;
-  location_id: string;
-}
-
-interface Tournament {
-  id: string;
-  name: string;
-  location_id: string;
-}
 
 export const GameSetupForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [gameType, setGameType] = useState<GameType>('practice');
   const [locationId, setLocationId] = useState<string>('');
-  const [newLocationName, setNewLocationName] = useState('');
   const [showNewLocation, setShowNewLocation] = useState(false);
+  const [showNewLeague, setShowNewLeague] = useState(false);
   const [laneNumber, setLaneNumber] = useState<number | ''>('');
   const [secondLaneNumber, setSecondLaneNumber] = useState<number | ''>('');
   const [laneConfig, setLaneConfig] = useState<LaneConfig>('single');
@@ -59,7 +43,7 @@ export const GameSetupForm = () => {
         .order('name');
       
       if (error) throw error;
-      return data as Location[];
+      return data;
     },
   });
 
@@ -73,7 +57,7 @@ export const GameSetupForm = () => {
         .eq('is_active', true);
       
       if (error) throw error;
-      return data as League[];
+      return data;
     },
     enabled: gameType === 'league',
   });
@@ -87,24 +71,20 @@ export const GameSetupForm = () => {
         .select('id, name, location_id');
       
       if (error) throw error;
-      return data as Tournament[];
+      return data;
     },
     enabled: gameType === 'tournament',
   });
 
-  const handleAddLocation = async () => {
-    if (!newLocationName.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a location name",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const handleAddLocation = async (locationData: {
+    name: string;
+    address?: string;
+    city?: string;
+    state?: string;
+  }) => {
     const { data, error } = await supabase
       .from('bowling_locations')
-      .insert([{ name: newLocationName }])
+      .insert([locationData])
       .select()
       .single();
 
@@ -118,16 +98,50 @@ export const GameSetupForm = () => {
     }
 
     setLocationId(data.id);
-    setShowNewLocation(false);
-    setNewLocationName('');
     toast({
       title: "Success",
       description: "Location added successfully",
     });
   };
 
+  const handleAddLeague = async (name: string) => {
+    if (!locationId) {
+      toast({
+        title: "Error",
+        description: "Please select a location first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('leagues')
+      .insert([{ 
+        name,
+        location_id: locationId,
+        is_active: true
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add league",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLeagueId(data.id);
+    toast({
+      title: "Success",
+      description: "League added successfully",
+    });
+  };
+
   const handleStartGame = async () => {
-    if (!locationId || !laneNumber) {
+    if (!locationId || !laneNumber || (laneConfig === 'cross' && !secondLaneNumber)) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -136,16 +150,18 @@ export const GameSetupForm = () => {
       return;
     }
 
-    if (laneConfig === 'cross' && !secondLaneNumber) {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) {
       toast({
         title: "Error",
-        description: "Please enter both lane numbers for cross-lane bowling",
+        description: "Please sign in to start a game",
         variant: "destructive",
       });
       return;
     }
 
     const gameData = {
+      user_id: userData.user.id,
       game_type: gameType,
       location_id: locationId,
       lane_number: laneNumber,
@@ -182,14 +198,17 @@ export const GameSetupForm = () => {
       <CardContent className="space-y-6">
         <div className="space-y-2">
           <Label>Game Type</Label>
-          <Select value={gameType} onValueChange={(value: GameType) => {
-            setGameType(value);
-            setLaneConfig(value === 'practice' ? 'single' : 'cross');
-          }}>
-            <SelectTrigger>
+          <Select 
+            value={gameType} 
+            onValueChange={(value: GameType) => {
+              setGameType(value);
+              setLaneConfig(value === 'practice' ? 'single' : 'cross');
+            }}
+          >
+            <SelectTrigger className="bg-white">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               <SelectItem value="practice">Practice</SelectItem>
               <SelectItem value="league">League</SelectItem>
               <SelectItem value="tournament">Tournament</SelectItem>
@@ -197,96 +216,33 @@ export const GameSetupForm = () => {
           </Select>
         </div>
 
-        {!showNewLocation ? (
-          <div className="space-y-2">
-            <Label>Location</Label>
-            <div className="flex gap-2">
-              <Select value={locationId} onValueChange={setLocationId}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Select a location" />
-                </SelectTrigger>
-                <SelectContent>
-                  {locations?.map((location) => (
-                    <SelectItem key={location.id} value={location.id}>
-                      {location.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setShowNewLocation(true)}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <Label>New Location Name</Label>
-            <div className="flex gap-2">
-              <Input
-                value={newLocationName}
-                onChange={(e) => setNewLocationName(e.target.value)}
-                placeholder="Enter location name"
-              />
-              <Button onClick={handleAddLocation}>
-                Add
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setShowNewLocation(false)}
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        )}
-
         {gameType === 'league' && (
-          <div className="space-y-2">
-            <Label>League</Label>
-            <Select value={leagueId} onValueChange={setLeagueId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a league" />
-              </SelectTrigger>
-              <SelectContent>
-                {leagues?.map((league) => (
-                  <SelectItem key={league.id} value={league.id}>
-                    {league.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <LeagueForm
+            leagues={leagues || []}
+            leagueId={leagueId}
+            setLeagueId={setLeagueId}
+            showNewLeague={showNewLeague}
+            setShowNewLeague={setShowNewLeague}
+            onAddLeague={handleAddLeague}
+          />
         )}
 
-        {gameType === 'tournament' && (
-          <div className="space-y-2">
-            <Label>Tournament</Label>
-            <Select value={tournamentId} onValueChange={setTournamentId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a tournament" />
-              </SelectTrigger>
-              <SelectContent>
-                {tournaments?.map((tournament) => (
-                  <SelectItem key={tournament.id} value={tournament.id}>
-                    {tournament.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+        <LocationForm
+          locations={locations || []}
+          locationId={locationId}
+          setLocationId={setLocationId}
+          showNewLocation={showNewLocation}
+          setShowNewLocation={setShowNewLocation}
+          onAddLocation={handleAddLocation}
+        />
 
         <div className="space-y-2">
           <Label>Lane Configuration</Label>
           <Select value={laneConfig} onValueChange={(value: LaneConfig) => setLaneConfig(value)}>
-            <SelectTrigger>
+            <SelectTrigger className="bg-white">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               <SelectItem value="single">Single Lane</SelectItem>
               <SelectItem value="cross">Cross Lane</SelectItem>
             </SelectContent>
@@ -298,8 +254,13 @@ export const GameSetupForm = () => {
             <Label>Lane Number</Label>
             <Input
               type="number"
+              min="1"
+              step="1"
               value={laneNumber}
-              onChange={(e) => setLaneNumber(parseInt(e.target.value) || '')}
+              onChange={(e) => {
+                const value = parseInt(e.target.value);
+                setLaneNumber(isNaN(value) ? '' : value);
+              }}
               placeholder="Enter lane number"
             />
           </div>
@@ -309,8 +270,13 @@ export const GameSetupForm = () => {
               <Label>Second Lane Number</Label>
               <Input
                 type="number"
+                min="1"
+                step="1"
                 value={secondLaneNumber}
-                onChange={(e) => setSecondLaneNumber(parseInt(e.target.value) || '')}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setSecondLaneNumber(isNaN(value) ? '' : value);
+                }}
                 placeholder="Enter second lane number"
               />
             </div>
