@@ -48,12 +48,15 @@ export const GameSummary = ({ frames, gameId }: GameSummaryProps) => {
             )
           `)
           .eq('game_id', gameId)
-          .not('ball_id', 'is', null);
+          .not('ball_id', 'is', null)
+          .not('bowling_balls.name', 'is', null); // Ensure we only get valid ball records
 
         if (error) throw error;
 
         // Process the ball usage data
         const usageMap = new Map<string, number>();
+        
+        // Only count balls that were actually used (have valid records)
         data.forEach((usage) => {
           if (usage.bowling_balls?.name) {
             const currentCount = usageMap.get(usage.bowling_balls.name) || 0;
@@ -61,10 +64,13 @@ export const GameSummary = ({ frames, gameId }: GameSummaryProps) => {
           }
         });
 
-        const processedUsage = Array.from(usageMap.entries()).map(([name, shots]) => ({
-          name,
-          shots,
-        }));
+        // Convert to array and filter out any balls with 0 shots
+        const processedUsage = Array.from(usageMap.entries())
+          .map(([name, shots]) => ({
+            name,
+            shots,
+          }))
+          .filter(ball => ball.shots > 0); // Only include balls that were actually used
 
         setBallUsage(processedUsage);
       } catch (error) {
