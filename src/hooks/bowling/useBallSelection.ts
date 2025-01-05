@@ -25,50 +25,61 @@ export const useBallSelection = (gameId: string) => {
     }
 
     try {
-      // First, verify game ownership
-      const { data: gameData, error: gameError } = await supabase
-        .from('games')
+      // First, check if a record already exists for this frame and shot
+      const { data: existingUsage, error: checkError } = await supabase
+        .from('ball_usage')
         .select('id')
-        .eq('id', gameId)
-        .single();
+        .eq('game_id', gameId)
+        .eq('frame_number', frameNumber)
+        .eq('shot_number', shotNumber)
+        .maybeSingle();
 
-      if (gameError || !gameData) {
-        console.error('Error verifying game ownership:', gameError);
-        toast.error("Failed to verify game ownership");
+      if (checkError) {
+        console.error('Error checking existing ball usage:', checkError);
+        toast.error("Failed to verify ball usage");
         return false;
       }
 
-      // Then, verify ball ownership and get ball details
+      // If a record exists, update it instead of creating a new one
+      if (existingUsage) {
+        const { error: updateError } = await supabase
+          .from('ball_usage')
+          .update({ ball_id: selectedBallId })
+          .eq('id', existingUsage.id);
+
+        if (updateError) {
+          console.error('Error updating ball usage:', updateError);
+          toast.error("Failed to update ball usage");
+          return false;
+        }
+      } else {
+        // If no record exists, create a new one
+        const { error: insertError } = await supabase
+          .from('ball_usage')
+          .insert({
+            game_id: gameId,
+            ball_id: selectedBallId,
+            frame_number: frameNumber,
+            shot_number: shotNumber,
+          });
+
+        if (insertError) {
+          console.error('Error recording ball usage:', insertError);
+          toast.error("Failed to record ball usage");
+          return false;
+        }
+      }
+
+      // Handle ball switching logic
       const { data: ballData, error: ballError } = await supabase
         .from('bowling_balls')
         .select('is_spare_ball')
         .eq('id', selectedBallId)
         .single();
 
-      if (ballError || !ballData) {
-        console.error('Error verifying ball ownership:', ballError);
-        toast.error("Failed to verify ball ownership");
-        return false;
-      }
-
-      // Finally, record the ball usage
-      const { error: insertError } = await supabase
-        .from('ball_usage')
-        .insert({
-          game_id: gameId,
-          ball_id: selectedBallId,
-          frame_number: frameNumber,
-          shot_number: shotNumber,
-        });
-
-      if (insertError) {
-        console.error('Error recording ball usage:', insertError);
-        toast.error("Failed to record ball usage");
-        return false;
-      }
-
-      // Handle ball switching logic
-      if (ballData.is_spare_ball) {
+      if (ballError) {
+        console.error('Error verifying ball details:', ballError);
+      } else if (ballData?.is_spare_ball) {
         setPreviousBallId(defaultBallId);
         setSelectedBallId(defaultBallId);
       } else {
