@@ -25,7 +25,6 @@ export const useBallSelection = (gameId: string) => {
     }
 
     try {
-      // First, insert the ball usage record
       const { error: insertError } = await supabase
         .from('ball_usage')
         .insert({
@@ -41,7 +40,7 @@ export const useBallSelection = (gameId: string) => {
         return false;
       }
 
-      // Then, get the ball details separately
+      // Get ball details in a separate query
       const { data: ballData, error: ballError } = await supabase
         .from('bowling_balls')
         .select('is_spare_ball')
@@ -54,8 +53,7 @@ export const useBallSelection = (gameId: string) => {
       }
 
       // Handle ball switching logic
-      const isSpare = ballData?.is_spare_ball;
-      if (isSpare) {
+      if (ballData?.is_spare_ball) {
         setPreviousBallId(defaultBallId);
         setSelectedBallId(defaultBallId);
       } else {
