@@ -75,12 +75,16 @@ export const GameControls = ({
           value={selectedBallId || undefined}
           onValueChange={(value) => onBallSelect(value)}
         >
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-[200px] bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <SelectValue placeholder="Select ball" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg">
             {bowlingBalls?.map((ball) => (
-              <SelectItem key={ball.id} value={ball.id}>
+              <SelectItem 
+                key={ball.id} 
+                value={ball.id}
+                className="hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
                 {ball.name} {ball.is_spare_ball ? "(Spare)" : ""}
               </SelectItem>
             ))}
