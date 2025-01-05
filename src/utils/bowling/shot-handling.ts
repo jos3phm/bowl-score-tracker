@@ -57,28 +57,32 @@ export const recordRegularShot = (
   selectedPins: Pin[]
 ): Frame => {
   console.log(`Recording regular shot for frame ${frameIndex + 1}, shot ${shot}`);
-  console.log('Selected pins (remaining):', selectedPins);
+  console.log('Selected pins (knocked down):', selectedPins);
   
   const frame = { ...frames[frameIndex] };
   const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
   if (frameIndex === 9) { // 10th frame
     if (shot === 1) {
-      frame.firstShot = selectedPins.length === 0 ? [] : allPins.filter(pin => !selectedPins.includes(pin));
-      frame.isStrike = selectedPins.length === 0 ? false : frame.firstShot.length === 10;
+      frame.firstShot = selectedPins;
+      frame.isStrike = selectedPins.length === 10;
       frame.isSplit = !frame.isStrike && selectedPins.length > 1 && isSplit(selectedPins);
     } else if (shot === 2) {
       frame.secondShot = selectedPins;
-      if (!frame.isStrike && frame.firstShot) {
-        frame.isSpare = frame.firstShot.length + selectedPins.length === 10;
+      if (!frame.isStrike) {
+        frame.isSpare = (frame.firstShot?.length || 0) + selectedPins.length === 10;
+      }
+      // If not a strike or spare in 10th frame, complete the frame after second shot
+      if (!frame.isStrike && !frame.isSpare) {
+        frame.thirdShot = null; // Explicitly set third shot to null to indicate frame completion
       }
     } else if (shot === 3) {
       frame.thirdShot = selectedPins;
     }
   } else {
     if (shot === 1) {
-      frame.firstShot = selectedPins.length === 0 ? [] : allPins.filter(pin => !selectedPins.includes(pin));
-      frame.isStrike = selectedPins.length === 0 ? false : frame.firstShot.length === 10;
+      frame.firstShot = selectedPins;
+      frame.isStrike = selectedPins.length === 10;
       frame.isSplit = !frame.isStrike && selectedPins.length > 1 && isSplit(selectedPins);
     } else {
       frame.secondShot = selectedPins;
