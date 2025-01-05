@@ -57,37 +57,41 @@ export const recordRegularShot = (
   selectedPins: Pin[]
 ): Frame => {
   console.log(`Recording regular shot for frame ${frameIndex + 1}, shot ${shot}`);
-  console.log('Selected pins (knocked down):', selectedPins);
+  console.log('Selected pins (standing):', selectedPins);
   
   const frame = { ...frames[frameIndex] };
   const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
+  // Convert selected pins (standing) to knocked down pins
+  const knockedDownPins = allPins.filter(pin => !selectedPins.includes(pin));
+  console.log('Knocked down pins:', knockedDownPins);
+  
   if (frameIndex === 9) { // 10th frame
     if (shot === 1) {
-      frame.firstShot = selectedPins;
-      frame.isStrike = selectedPins.length === 10;
-      frame.isSplit = !frame.isStrike && selectedPins.length > 1 && isSplit(selectedPins);
+      frame.firstShot = knockedDownPins;
+      frame.isStrike = knockedDownPins.length === 10;
+      frame.isSplit = !frame.isStrike && knockedDownPins.length > 1 && isSplit(knockedDownPins);
     } else if (shot === 2) {
-      frame.secondShot = selectedPins;
+      frame.secondShot = knockedDownPins;
       if (!frame.isStrike) {
-        frame.isSpare = (frame.firstShot?.length || 0) + selectedPins.length === 10;
+        frame.isSpare = (frame.firstShot?.length || 0) + knockedDownPins.length === 10;
       }
       // If not a strike or spare in 10th frame, complete the frame after second shot
       if (!frame.isStrike && !frame.isSpare) {
         frame.thirdShot = null; // Explicitly set third shot to null to indicate frame completion
       }
     } else if (shot === 3) {
-      frame.thirdShot = selectedPins;
+      frame.thirdShot = knockedDownPins;
     }
   } else {
     if (shot === 1) {
-      frame.firstShot = selectedPins;
-      frame.isStrike = selectedPins.length === 10;
-      frame.isSplit = !frame.isStrike && selectedPins.length > 1 && isSplit(selectedPins);
+      frame.firstShot = knockedDownPins;
+      frame.isStrike = knockedDownPins.length === 10;
+      frame.isSplit = !frame.isStrike && knockedDownPins.length > 1 && isSplit(knockedDownPins);
     } else {
-      frame.secondShot = selectedPins;
+      frame.secondShot = knockedDownPins;
       if (frame.firstShot) {
-        frame.isSpare = frame.firstShot.length + selectedPins.length === 10;
+        frame.isSpare = frame.firstShot.length + knockedDownPins.length === 10;
       }
     }
   }
