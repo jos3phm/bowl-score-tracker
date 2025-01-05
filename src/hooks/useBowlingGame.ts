@@ -43,6 +43,13 @@ export const useBowlingGame = () => {
     });
   };
 
+  const handleRegularShot = (knockedDownPins: Pin[]) => {
+    if (currentFrame > 10 || isGameComplete(frames)) return;
+    
+    const newFrame = recordRegularShot(frames, currentFrame - 1, currentShot, knockedDownPins);
+    updateFrameAndAdvance(newFrame);
+  };
+
   const handleStrike = () => {
     if (currentFrame > 10) return;
     const newFrame = recordStrike(frames, currentFrame - 1, currentShot);
@@ -54,13 +61,6 @@ export const useBowlingGame = () => {
     if (!canMakeSpare(frames[currentFrame - 1], currentShot)) return;
     
     const newFrame = recordSpare(frames, currentFrame - 1, currentShot);
-    updateFrameAndAdvance(newFrame);
-  };
-
-  const handleRegularShot = () => {
-    if (currentFrame > 10 || isGameComplete(frames)) return;
-    
-    const newFrame = recordRegularShot(frames, currentFrame - 1, currentShot, selectedPins);
     updateFrameAndAdvance(newFrame);
   };
 
