@@ -97,7 +97,6 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
         handleStrike={handleStrikeShot}
         handleSpare={handleSpareShot}
         handlePinClick={handlePinShot}
-        handleClear={handleClear}
         handleMiss={handleMiss}
         isStrike={currentFrame === 10 ? frames[9]?.isStrike : frames[currentFrame - 1]?.isStrike}
         calculateTotalScore={calculateTotalScore}
