@@ -2,6 +2,7 @@ import { Pin } from "@/types/game";
 import { PinDiagram } from "./PinDiagram";
 import { GameControls } from "./GameControls";
 import { GameStatus } from "./GameStatus";
+import { ScoreCard } from "./ScoreCard";
 import { Frame } from "@/types/game";
 
 interface GameContentProps {
@@ -39,6 +40,13 @@ export const GameContent = ({
 }: GameContentProps) => {
   return (
     <div className="space-y-6">
+      <ScoreCard
+        frames={frames}
+        currentFrame={currentFrame}
+        onFrameClick={() => {}}
+        selectedFrame={null}
+      />
+      
       <PinDiagram
         onPinSelect={handlePinClick}
         selectedPins={[]}
