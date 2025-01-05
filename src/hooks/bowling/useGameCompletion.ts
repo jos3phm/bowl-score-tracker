@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Frame } from "@/types/game";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export const useGameCompletion = (frames: Frame[]) => {
   const [notes, setNotes] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
 
   const calculateTotalScore = () => {
     const lastFrame = frames[9];
@@ -23,6 +25,17 @@ export const useGameCompletion = (frames: Frame[]) => {
   };
 
   const handleSaveGame = async () => {
+    const gameId = localStorage.getItem('currentGameId');
+    
+    if (!gameId) {
+      toast({
+        title: "Error",
+        description: "No game ID found. Unable to save game.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       let photoUrl = null;
@@ -44,8 +57,8 @@ export const useGameCompletion = (frames: Frame[]) => {
       }
 
       const totalScore = calculateTotalScore();
+      console.log('Saving game with ID:', gameId);
 
-      // Update game with notes and photo
       const { error: updateError } = await supabase
         .from('games')
         .update({
@@ -54,13 +67,26 @@ export const useGameCompletion = (frames: Frame[]) => {
           total_score: totalScore,
           game_end_time: new Date().toISOString()
         })
-        .eq('id', localStorage.getItem('currentGameId'));
+        .eq('id', gameId);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Error updating game:', updateError);
+        throw updateError;
+      }
+
+      toast({
+        title: "Success",
+        description: "Game saved successfully!",
+      });
 
       handleNewGame();
     } catch (error) {
       console.error('Error saving game:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save game. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSaving(false);
     }
