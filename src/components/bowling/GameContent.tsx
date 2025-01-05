@@ -38,6 +38,15 @@ export const GameContent = ({
   selectedBallId,
   handleBallSelect,
 }: GameContentProps) => {
+  const [selectedPins, setSelectedPins] = useState<Pin[]>([]);
+
+  const handleRegularShot = () => {
+    if (selectedPins.length > 0) {
+      handlePinClick(selectedPins);
+      setSelectedPins([]);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <ScoreCard
@@ -48,23 +57,23 @@ export const GameContent = ({
       />
       
       <PinDiagram
-        onPinSelect={handlePinClick}
-        selectedPins={[]}
+        onPinSelect={setSelectedPins}
+        selectedPins={selectedPins}
         disabled={currentFrame > 10}
-        onRegularShot={() => {}}
+        onRegularShot={handleRegularShot}
       />
       
       <GameControls
         onStrike={handleStrike}
         onSpare={handleSpare}
-        onRegularShot={() => {}}
-        onMiss={() => {}}
+        onRegularShot={handleRegularShot}
+        onMiss={() => handlePinClick([])}
         onClear={handleClear}
         disabled={currentFrame > 10}
         currentFrame={currentFrame}
         currentShot={currentShot}
         isFirstShotStrike={isStrike}
-        selectedPins={[]}
+        selectedPins={selectedPins}
         onBallSelect={handleBallSelect}
         selectedBallId={selectedBallId}
       />
