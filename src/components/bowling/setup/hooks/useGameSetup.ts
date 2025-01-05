@@ -16,12 +16,18 @@ export const useGameSetup = () => {
   const [showNewLocation, setShowNewLocation] = useState(false);
   const [showNewLeague, setShowNewLeague] = useState(false);
   const [laneNumber, setLaneNumber] = useState<number | ''>('');
-  const [secondLaneNumber, setSecondLaneNumber] = useState<number | ''>('');
   const [laneConfig, setLaneConfig] = useState<LaneConfig>('single');
   const [leagueId, setLeagueId] = useState<string>('');
 
+  const getSecondLaneNumber = (lane: number) => {
+    if (lane % 2 === 0) {
+      return lane - 1;
+    }
+    return lane + 1;
+  };
+
   // Fetch locations
-  const { data: locations, isLoading: isLoadingLocations } = useQuery({
+  const { data: locations } = useQuery({
     queryKey: ['locations'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -35,7 +41,7 @@ export const useGameSetup = () => {
   });
 
   // Fetch leagues
-  const { data: leagues, isLoading: isLoadingLeagues } = useQuery({
+  const { data: leagues } = useQuery({
     queryKey: ['leagues'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -93,7 +99,8 @@ export const useGameSetup = () => {
       .insert([{ 
         name,
         location_id: locationId,
-        is_active: true
+        is_active: true,
+        created_by: (await supabase.auth.getUser()).data.user?.id
       }])
       .select()
       .single();
@@ -116,7 +123,7 @@ export const useGameSetup = () => {
   };
 
   const handleStartGame = async () => {
-    if (!locationId || !laneNumber || (laneConfig === 'cross' && !secondLaneNumber)) {
+    if (!locationId || !laneNumber) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -135,12 +142,14 @@ export const useGameSetup = () => {
       return;
     }
 
+    const secondLaneNumber = laneConfig === 'cross' ? getSecondLaneNumber(Number(laneNumber)) : null;
+
     const gameData = {
       user_id: userData.user.id,
       game_type: gameType,
       location_id: locationId,
       lane_number: laneNumber,
-      second_lane_number: laneConfig === 'cross' ? Number(secondLaneNumber) : null,
+      second_lane_number: secondLaneNumber,
       lane_config: laneConfig,
       league_id: gameType === 'league' ? leagueId : null,
       game_start_time: new Date().toISOString(),
@@ -161,7 +170,6 @@ export const useGameSetup = () => {
       return;
     }
 
-    localStorage.setItem('currentGameId', data.id);
     navigate(`/new-game?gameId=${data.id}`);
   };
 
@@ -176,18 +184,15 @@ export const useGameSetup = () => {
     setShowNewLeague,
     laneNumber,
     setLaneNumber,
-    secondLaneNumber,
-    setSecondLaneNumber,
     laneConfig,
     setLaneConfig,
     leagueId,
     setLeagueId,
     locations,
     leagues,
-    isLoadingLocations,
-    isLoadingLeagues,
     handleAddLocation,
     handleAddLeague,
     handleStartGame,
+    getSecondLaneNumber,
   };
 };

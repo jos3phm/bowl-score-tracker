@@ -25,8 +25,6 @@ export const GameSetupForm = () => {
     setShowNewLeague,
     laneNumber,
     setLaneNumber,
-    secondLaneNumber,
-    setSecondLaneNumber,
     laneConfig,
     setLaneConfig,
     leagueId,
@@ -36,6 +34,7 @@ export const GameSetupForm = () => {
     handleAddLocation,
     handleAddLeague,
     handleStartGame,
+    getSecondLaneNumber,
   } = useGameSetup();
 
   return (
@@ -97,36 +96,22 @@ export const GameSetupForm = () => {
           </Select>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Lane Number</Label>
-            <Input
-              type="number"
-              min="1"
-              step="1"
-              value={laneNumber}
-              onChange={(e) => {
-                const value = parseInt(e.target.value);
-                setLaneNumber(isNaN(value) ? '' : value);
-              }}
-              placeholder="Enter lane number"
-            />
-          </div>
-
-          {laneConfig === 'cross' && (
-            <div className="space-y-2">
-              <Label>Second Lane Number</Label>
-              <Input
-                type="number"
-                min="1"
-                step="1"
-                value={secondLaneNumber}
-                onChange={(e) => {
-                  const value = parseInt(e.target.value);
-                  setSecondLaneNumber(isNaN(value) ? '' : value);
-                }}
-                placeholder="Enter second lane number"
-              />
+        <div className="space-y-2">
+          <Label>Starting Lane Number</Label>
+          <Input
+            type="number"
+            min="1"
+            step="1"
+            value={laneNumber}
+            onChange={(e) => {
+              const value = parseInt(e.target.value);
+              setLaneNumber(isNaN(value) ? '' : value);
+            }}
+            placeholder="Enter lane number"
+          />
+          {laneConfig === 'cross' && laneNumber && (
+            <div className="text-sm text-muted-foreground">
+              Paired with Lane {getSecondLaneNumber(laneNumber)}
             </div>
           )}
         </div>
