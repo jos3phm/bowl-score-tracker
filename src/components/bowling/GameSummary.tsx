@@ -25,7 +25,8 @@ export const GameSummary = ({ frames, gameId }: GameSummaryProps) => {
             name
           )
         `)
-        .eq('game_id', gameId);
+        .eq('game_id', gameId)
+        .not('ball_id', 'is', null); // Only include shots where a ball was actually used
 
       if (error) throw error;
 
@@ -50,6 +51,20 @@ export const GameSummary = ({ frames, gameId }: GameSummaryProps) => {
       acc.strikes++;
       acc.currentStrikes++;
       acc.maxConsecutiveStrikes = Math.max(acc.maxConsecutiveStrikes, acc.currentStrikes);
+      
+      // For 10th frame, count additional strikes
+      if (index === 9) {
+        if (frame.secondShot?.length === 10) {
+          acc.strikes++;
+          acc.currentStrikes++;
+          acc.maxConsecutiveStrikes = Math.max(acc.maxConsecutiveStrikes, acc.currentStrikes);
+        }
+        if (frame.thirdShot?.length === 10) {
+          acc.strikes++;
+          acc.currentStrikes++;
+          acc.maxConsecutiveStrikes = Math.max(acc.maxConsecutiveStrikes, acc.currentStrikes);
+        }
+      }
     } else {
       acc.currentStrikes = 0;
     }
