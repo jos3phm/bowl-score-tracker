@@ -34,14 +34,8 @@ export const ActionButtons = ({
   const isRegularShotDisabled = disabled || 
     (currentShot === 1 && selectedPins.length === 10);
 
-  const handleRegularShot = () => {
-    if (selectedPins.length === 0) {
-      onMiss();
-    } else {
-      onRegularShot();
-    }
-  };
-
+  // Remove the handleRegularShot wrapper since it was causing the issue
+  // by calling onMiss() when selectedPins was empty
   return (
     <div className="flex gap-2 justify-center flex-wrap">
       <Button
@@ -66,7 +60,7 @@ export const ActionButtons = ({
         Miss
       </Button>
       <Button
-        onClick={handleRegularShot}
+        onClick={onRegularShot}
         disabled={isRegularShotDisabled}
         variant="default"
       >
