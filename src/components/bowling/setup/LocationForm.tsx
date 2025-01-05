@@ -30,7 +30,7 @@ interface LocationFormProps {
     address?: string;
     city?: string;
     state?: string;
-  }) => Promise<void>;
+  }) => Promise<any>;
 }
 
 export const LocationForm = ({
@@ -49,12 +49,16 @@ export const LocationForm = ({
   const handleAddLocation = async () => {
     if (!newLocationName.trim()) return;
     
-    await onAddLocation({
+    const result = await onAddLocation({
       name: newLocationName,
       address: address.trim(),
       city: city.trim(),
       state: state.trim(),
     });
+    
+    if (result?.id) {
+      setLocationId(result.id);
+    }
     
     setNewLocationName("");
     setAddress("");

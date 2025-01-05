@@ -23,3 +23,6 @@ export type GameMetadata = {
   location: string;
   format: "Scratch" | "Handicap" | "9-Pin No Tap";
 };
+
+export type GameType = 'practice' | 'league' | 'tournament';
+export type LaneConfig = 'single' | 'cross';
