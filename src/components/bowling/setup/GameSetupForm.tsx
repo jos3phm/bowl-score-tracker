@@ -85,20 +85,9 @@ export const GameSetupForm = () => {
         )}
 
         <div className="space-y-2">
-          <Label>Lane Configuration</Label>
-          <Select value={laneConfig} onValueChange={(value: any) => setLaneConfig(value)}>
-            <SelectTrigger className="bg-white">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value="single">Single Lane</SelectItem>
-              <SelectItem value="cross">Cross Lane</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Starting Lane Number</Label>
+          <Label>
+            {laneConfig === 'single' ? 'Lane Number' : 'Starting Lane Number'}
+          </Label>
           <Input
             type="number"
             min="1"

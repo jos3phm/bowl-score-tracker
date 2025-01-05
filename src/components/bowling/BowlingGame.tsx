@@ -68,6 +68,8 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
         <GameComplete
           totalScore={calculateTotalScore()}
           onNewGame={handleNewGame}
+          frames={frames}
+          gameId={gameId}
         />
       ) : (
         <>
