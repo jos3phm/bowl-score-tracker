@@ -1,5 +1,6 @@
 import { GameContainer } from "./GameContainer";
 import { GameContent } from "./GameContent";
+import { GameComplete } from "./GameComplete";
 import { useBowlingGame } from "@/hooks/useBowlingGame";
 import { useBallSelection } from "@/hooks/bowling/useBallSelection";
 import { useHistoricalFrame } from "@/hooks/bowling/useHistoricalFrame";
@@ -21,6 +22,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     handleRegularShot,
     handleClear,
     getRemainingPins,
+    isGameComplete,
   } = useBowlingGame();
 
   const { 
@@ -87,6 +89,19 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
 
   const remainingPins = getRemainingPins(currentFrame, currentShot);
   console.log('Remaining pins for frame', currentFrame, 'shot', currentShot, ':', remainingPins);
+
+  if (isGameComplete) {
+    return (
+      <GameContainer>
+        <GameComplete
+          totalScore={calculateTotalScore()}
+          onNewGame={handleNewGame}
+          frames={frames}
+          gameId={gameId}
+        />
+      </GameContainer>
+    );
+  }
 
   return (
     <GameContainer>
