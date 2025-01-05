@@ -50,8 +50,8 @@ export const useGameSetup = () => {
       return;
     }
 
-    const { data: userData } = await supabase.auth.getUser();
-    if (!userData.user?.id) {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData.user?.id) {
       toast({
         title: "Error",
         description: "Please sign in to start a game",

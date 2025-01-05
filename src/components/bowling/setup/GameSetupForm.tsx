@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { LocationForm } from "./LocationForm";
 import { LeagueForm } from "./LeagueForm";
 import { useGameSetup } from "./hooks/useGameSetup";
+import { LaneConfig } from "@/types/game";
 
 export const GameSetupForm = () => {
   const {
@@ -85,7 +86,7 @@ export const GameSetupForm = () => {
 
         <div className="space-y-2">
           <Label>Lane Configuration</Label>
-          <Select value={laneConfig} onValueChange={setLaneConfig}>
+          <Select value={laneConfig} onValueChange={(value: LaneConfig) => setLaneConfig(value)}>
             <SelectTrigger className="bg-white">
               <SelectValue />
             </SelectTrigger>
