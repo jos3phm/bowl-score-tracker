@@ -81,9 +81,10 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
   // Wrapper for handlePinClick to handle regular shots
   const handleRegularShot = (pins: Pin[]) => {
     console.log('Recording regular shot with pins:', pins);
-    if (pins.length > 0) {
-      handleShotWithBall(() => handlePinClick(pins), 'regular');
-    }
+    const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    // Convert standing pins to knocked down pins
+    const knockedDownPins = allPins.filter(pin => !pins.includes(pin));
+    handleShotWithBall(() => handlePinClick(knockedDownPins), 'regular');
   };
 
   return (
