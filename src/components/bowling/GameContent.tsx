@@ -14,6 +14,7 @@ interface GameContentProps {
   handleSpare: () => void;
   handlePinClick: (pins: Pin[]) => void;
   handleClear: () => void;
+  handleMiss: () => void;
   isStrike: boolean;
   calculateTotalScore: () => number;
   handleNewGame: () => void;
@@ -21,6 +22,7 @@ interface GameContentProps {
   isSaving: boolean;
   selectedBallId: string | null;
   handleBallSelect: (ballId: string | null) => void;
+  remainingPins?: Pin[];
 }
 
 export const GameContent = ({
@@ -31,6 +33,7 @@ export const GameContent = ({
   handleSpare,
   handlePinClick,
   handleClear,
+  handleMiss,
   isStrike,
   calculateTotalScore,
   handleNewGame,
@@ -38,16 +41,13 @@ export const GameContent = ({
   isSaving,
   selectedBallId,
   handleBallSelect,
+  remainingPins = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
 }: GameContentProps) => {
   const [selectedPins, setSelectedPins] = useState<Pin[]>([]);
 
   const handleRegularShot = () => {
     if (selectedPins.length > 0) {
-      // For regular shots, we need to pass the remaining standing pins
-      // So if pin 10 is selected, we pass pins 1-9 as knocked down
-      const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-      const knockedDownPins = allPins.filter(pin => !selectedPins.includes(pin));
-      handlePinClick(knockedDownPins);
+      handlePinClick(selectedPins);
       setSelectedPins([]);
     }
   };
@@ -66,13 +66,14 @@ export const GameContent = ({
         selectedPins={selectedPins}
         disabled={currentFrame > 10}
         onRegularShot={handleRegularShot}
+        remainingPins={remainingPins}
       />
       
       <GameControls
         onStrike={handleStrike}
         onSpare={handleSpare}
         onRegularShot={handleRegularShot}
-        onMiss={() => handlePinClick([])}
+        onMiss={handleMiss}
         onClear={handleClear}
         disabled={currentFrame > 10}
         currentFrame={currentFrame}

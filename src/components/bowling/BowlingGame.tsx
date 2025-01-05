@@ -90,6 +90,15 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     }, 'regular');
   };
 
+  // Handler for miss (no pins knocked down)
+  const handleMiss = () => {
+    handleShotWithBall(() => {
+      handleRegularShot([]);
+    }, 'regular');
+  };
+
+  const remainingPins = getRemainingPins(currentFrame, currentShot);
+
   return (
     <GameContainer>
       <GameContent
@@ -100,6 +109,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
         handleSpare={() => handleShotWithBall(handleSpare, 'spare')}
         handlePinClick={handlePinShot}
         handleClear={handleClear}
+        handleMiss={handleMiss}
         isStrike={isStrike}
         calculateTotalScore={calculateTotalScore}
         handleNewGame={handleNewGame}
@@ -107,6 +117,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
         isSaving={isSaving}
         selectedBallId={selectedBallId}
         handleBallSelect={handleBallSelect}
+        remainingPins={remainingPins}
       />
     </GameContainer>
   );
