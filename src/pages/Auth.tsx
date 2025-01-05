@@ -24,11 +24,41 @@ const AuthPage = () => {
     checkUser();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event);
-      if (session) {
-        console.log("New session detected, redirecting to home");
-        navigate("/");
+      
+      if (event === 'SIGNED_IN') {
+        if (session) {
+          console.log("New session detected, redirecting to home");
+          // Ensure the profile exists before redirecting
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select()
+            .eq('id', session.user.id)
+            .single();
+
+          if (profileError || !profile) {
+            // Create profile if it doesn't exist
+            const { error: insertError } = await supabase
+              .from('profiles')
+              .insert({
+                id: session.user.id,
+                email: session.user.email,
+              });
+
+            if (insertError) {
+              console.error("Error creating profile:", insertError);
+              toast({
+                title: "Error",
+                description: "There was a problem setting up your profile.",
+                variant: "destructive",
+              });
+              return;
+            }
+          }
+          
+          navigate("/");
+        }
       }
 
       if (event === 'SIGNED_OUT') {
@@ -39,7 +69,9 @@ const AuthPage = () => {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate, toast]);
 
   return (
