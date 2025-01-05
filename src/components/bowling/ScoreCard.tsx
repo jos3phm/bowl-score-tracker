@@ -73,7 +73,7 @@ export const ScoreCard = ({
         </div>
 
         {/* Frame Score */}
-        <div className="absolute bottom-0 left-0 w-full text-center py-2 font-semibold">
+        <div className="absolute bottom-0 left-0 w-full text-center py-2.5 font-semibold">
           {frame.score !== null ? frame.score : ""}
         </div>
       </div>
