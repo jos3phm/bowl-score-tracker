@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +23,7 @@ type LaneConfig = 'single' | 'cross';
 export const GameSetupForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [gameType, setGameType] = useState<GameType>('practice');
   const [locationId, setLocationId] = useState<string>('');
   const [showNewLocation, setShowNewLocation] = useState(false);
@@ -98,6 +99,7 @@ export const GameSetupForm = () => {
     }
 
     setLocationId(data.id);
+    queryClient.invalidateQueries({ queryKey: ['locations'] });
     toast({
       title: "Success",
       description: "Location added successfully",
@@ -134,6 +136,7 @@ export const GameSetupForm = () => {
     }
 
     setLeagueId(data.id);
+    queryClient.invalidateQueries({ queryKey: ['leagues'] });
     toast({
       title: "Success",
       description: "League added successfully",
