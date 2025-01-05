@@ -76,12 +76,9 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     shotHandler();
   };
 
-  // Handler for regular shots - converts standing pins to knocked down pins
-  const handlePinShot = (standingPins: Pin[]) => {
-    const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    const knockedDownPins = allPins.filter(pin => !standingPins.includes(pin));
+  // Handler for regular shots - these are the pins that were knocked down
+  const handlePinShot = (knockedDownPins: Pin[]) => {
     console.log('Recording regular shot with knocked down pins:', knockedDownPins);
-    
     handleShotWithBall(() => {
       handleRegularShot(knockedDownPins);
     }, 'regular');
@@ -103,8 +100,8 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
         frames={frames}
         currentFrame={currentFrame}
         currentShot={currentShot}
-        handleStrike={() => handleShotWithBall(handleStrike, 'strike')}
-        handleSpare={() => handleShotWithBall(handleSpare, 'spare')}
+        handleStrike={handleStrike}
+        handleSpare={handleSpare}
         handlePinClick={handlePinShot}
         handleClear={handleClear}
         handleMiss={handleMiss}
