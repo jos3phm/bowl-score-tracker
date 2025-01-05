@@ -78,8 +78,8 @@ export const useGameSetup = () => {
       const { data, error } = await supabase
         .from('games')
         .insert([gameData])
-        .select()
-        .single();
+        .select('*')
+        .maybeSingle();
 
       if (error) {
         console.error('Game creation error:', error);
@@ -100,6 +100,7 @@ export const useGameSetup = () => {
         return;
       }
 
+      // Only navigate if we have a valid game ID
       navigate(`/new-game?gameId=${data.id}`);
     } catch (error) {
       console.error('Game creation error:', error);
