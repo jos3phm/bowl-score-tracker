@@ -93,35 +93,149 @@ export type Database = {
         }
         Relationships: []
       }
+      bowling_locations: {
+        Row: {
+          address: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_verified: boolean | null
+          name: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_verified?: boolean | null
+          name: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_verified?: boolean | null
+          name?: string
+        }
+        Relationships: []
+      }
       games: {
         Row: {
           created_at: string
+          game_end_time: string | null
+          game_start_time: string | null
+          game_type: Database["public"]["Enums"]["game_type"] | null
           id: string
+          lane_config: Database["public"]["Enums"]["lane_config"] | null
+          lane_number: number | null
+          league_id: string | null
+          location_id: string | null
           notes: string | null
           photo_url: string | null
+          second_lane_number: number | null
           total_score: number | null
+          tournament_id: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          game_end_time?: string | null
+          game_start_time?: string | null
+          game_type?: Database["public"]["Enums"]["game_type"] | null
           id?: string
+          lane_config?: Database["public"]["Enums"]["lane_config"] | null
+          lane_number?: number | null
+          league_id?: string | null
+          location_id?: string | null
           notes?: string | null
           photo_url?: string | null
+          second_lane_number?: number | null
           total_score?: number | null
+          tournament_id?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          game_end_time?: string | null
+          game_start_time?: string | null
+          game_type?: Database["public"]["Enums"]["game_type"] | null
           id?: string
+          lane_config?: Database["public"]["Enums"]["lane_config"] | null
+          lane_number?: number | null
+          league_id?: string | null
+          location_id?: string | null
           notes?: string | null
           photo_url?: string | null
+          second_lane_number?: number | null
           total_score?: number | null
+          tournament_id?: string | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "games_league_id_fkey"
+            columns: ["league_id"]
+            isOneToOne: false
+            referencedRelation: "leagues"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "games_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "bowling_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "games_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leagues: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          games_per_series: number
+          id: string
+          is_active: boolean | null
+          location_id: string | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          games_per_series?: number
+          id?: string
+          is_active?: boolean | null
+          location_id?: string | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          games_per_series?: number
+          id?: string
+          is_active?: boolean | null
+          location_id?: string | null
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leagues_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "bowling_locations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -165,6 +279,44 @@ export type Database = {
         }
         Relationships: []
       }
+      tournaments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          end_date: string | null
+          id: string
+          location_id: string | null
+          name: string
+          start_date: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          id?: string
+          location_id?: string | null
+          name: string
+          start_date?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          id?: string
+          location_id?: string | null
+          name?: string
+          start_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tournaments_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "bowling_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -173,7 +325,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      game_type: "practice" | "league" | "tournament"
+      lane_config: "single" | "cross"
     }
     CompositeTypes: {
       [_ in never]: never

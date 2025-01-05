@@ -7,7 +7,11 @@ import { useBallSelection } from "@/hooks/bowling/useBallSelection";
 import { useHistoricalFrame } from "@/hooks/bowling/useHistoricalFrame";
 import { useGameCompletion } from "@/hooks/bowling/useGameCompletion";
 
-export const BowlingGame = () => {
+interface BowlingGameProps {
+  gameId: string;
+}
+
+export const BowlingGame = ({ gameId }: BowlingGameProps) => {
   const {
     currentFrame,
     currentShot,
@@ -19,7 +23,6 @@ export const BowlingGame = () => {
     handleSpare,
     handleRegularShot,
     handleClear,
-    gameId,
   } = useBowlingGame();
 
   const { selectedBallId, handleBallSelect, recordBallUsage } = useBallSelection(gameId);

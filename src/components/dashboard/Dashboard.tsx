@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle, History, BarChart3, UserRound } from "lucide-react";
+import { History, BarChart3, UserRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { GameSetupForm } from "../bowling/setup/GameSetupForm";
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -10,25 +11,9 @@ export const Dashboard = () => {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Welcome to Bowl Score Haven</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <PlusCircle className="h-5 w-5 text-primary" />
-              New Game
-            </CardTitle>
-            <CardDescription>Start a new bowling game session</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              className="w-full"
-              onClick={() => navigate("/new-game")}
-            >
-              Start Game
-            </Button>
-          </CardContent>
-        </Card>
-
+      <GameSetupForm />
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
