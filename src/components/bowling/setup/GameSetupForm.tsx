@@ -165,7 +165,7 @@ export const GameSetupForm = () => {
       game_type: gameType,
       location_id: locationId,
       lane_number: laneNumber,
-      second_lane_number: laneConfig === 'cross' ? secondLaneNumber : null,
+      second_lane_number: laneConfig === 'cross' ? Number(secondLaneNumber) : null,
       lane_config: laneConfig,
       league_id: gameType === 'league' ? leagueId : null,
       tournament_id: gameType === 'tournament' ? tournamentId : null,
@@ -174,7 +174,7 @@ export const GameSetupForm = () => {
 
     const { data, error } = await supabase
       .from('games')
-      .insert([gameData])
+      .insert(gameData)
       .select()
       .single();
 
@@ -187,6 +187,7 @@ export const GameSetupForm = () => {
       return;
     }
 
+    localStorage.setItem('currentGameId', data.id);
     navigate(`/new-game?gameId=${data.id}`);
   };
 
