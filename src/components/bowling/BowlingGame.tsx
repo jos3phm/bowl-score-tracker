@@ -26,7 +26,16 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
   } = useBowlingGame();
 
   const { selectedBallId, handleBallSelect, recordBallUsage } = useBallSelection(gameId);
-  const { calculateTotalScore, handleNewGame } = useGameCompletion(frames);
+  const {
+    calculateTotalScore,
+    handleNewGame,
+    notes,
+    setNotes,
+    photo,
+    handlePhotoChange,
+    isSaving,
+    handleSaveGame
+  } = useGameCompletion(frames);
   const {
     selectedHistoricalFrame,
     setSelectedHistoricalFrame,

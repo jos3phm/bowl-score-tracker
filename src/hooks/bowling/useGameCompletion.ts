@@ -2,10 +2,19 @@ import { useState } from "react";
 import { Frame } from "@/types/game";
 import { supabase } from "@/integrations/supabase/client";
 
-export const useGameCompletion = (totalScore: number, onNewGame: () => void) => {
+export const useGameCompletion = (frames: Frame[]) => {
   const [notes, setNotes] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  const calculateTotalScore = () => {
+    const lastFrame = frames[9];
+    return lastFrame?.score || 0;
+  };
+
+  const handleNewGame = () => {
+    window.location.reload();
+  };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -34,6 +43,8 @@ export const useGameCompletion = (totalScore: number, onNewGame: () => void) => 
         photoUrl = publicUrl;
       }
 
+      const totalScore = calculateTotalScore();
+
       // Update game with notes and photo
       const { error: updateError } = await supabase
         .from('games')
@@ -47,7 +58,7 @@ export const useGameCompletion = (totalScore: number, onNewGame: () => void) => 
 
       if (updateError) throw updateError;
 
-      onNewGame();
+      handleNewGame();
     } catch (error) {
       console.error('Error saving game:', error);
     } finally {
@@ -62,5 +73,7 @@ export const useGameCompletion = (totalScore: number, onNewGame: () => void) => 
     handlePhotoChange,
     isSaving,
     handleSaveGame,
+    calculateTotalScore,
+    handleNewGame,
   };
 };

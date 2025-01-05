@@ -1,5 +1,6 @@
 import { useGameCompletion } from "@/hooks/bowling/useGameCompletion";
 import { GameCompleteForm } from "./GameCompleteForm";
+import { Frame } from "@/types/game";
 
 interface GameCompleteProps {
   totalScore: number;
@@ -14,7 +15,7 @@ export const GameComplete = ({ totalScore, onNewGame }: GameCompleteProps) => {
     handlePhotoChange,
     isSaving,
     handleSaveGame
-  } = useGameCompletion(totalScore, onNewGame);
+  } = useGameCompletion([]);  // Pass empty array as we already have the total score
 
   return (
     <div className="space-y-6 p-4 bg-white rounded-lg shadow">
