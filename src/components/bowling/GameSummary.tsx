@@ -126,10 +126,18 @@ export const GameSummary = ({ frames, gameId }: GameSummaryProps) => {
       <div className="grid grid-cols-2 gap-2">
         <div>Number of Strikes:</div>
         <div>{summary.strikes}</div>
-        <div>Number of Spares:</div>
-        <div>{summary.spares}</div>
-        <div>Open Frames:</div>
-        <div>{summary.openFrames}</div>
+        {summary.spares > 0 && (
+          <>
+            <div>Number of Spares:</div>
+            <div>{summary.spares}</div>
+          </>
+        )}
+        {summary.openFrames > 0 && (
+          <>
+            <div>Open Frames:</div>
+            <div>{summary.openFrames}</div>
+          </>
+        )}
         <div>Most Consecutive Strikes:</div>
         <div>{summary.maxConsecutiveStrikes}</div>
       </div>
