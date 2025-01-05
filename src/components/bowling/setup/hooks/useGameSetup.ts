@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { useLocations } from "./useLocations";
 import { useLeagues } from "./useLeagues";
@@ -33,10 +32,20 @@ export const useGameSetup = () => {
   };
 
   const handleStartGame = async () => {
-    if (!locationId || !laneNumber) {
+    if (!locationId) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields",
+        description: "Please select a location",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Only validate lane number for league and tournament games
+    if ((gameType === 'league' || gameType === 'tournament') && !laneNumber) {
+      toast({
+        title: "Error",
+        description: "Please enter a lane number for league or tournament games",
         variant: "destructive",
       });
       return;
@@ -52,13 +61,13 @@ export const useGameSetup = () => {
       return;
     }
 
-    const secondLaneNumber = laneConfig === 'cross' ? getSecondLaneNumber(Number(laneNumber)) : null;
+    const secondLaneNumber = laneNumber && laneConfig === 'cross' ? getSecondLaneNumber(Number(laneNumber)) : null;
 
     const gameData = {
       user_id: userData.user.id,
       game_type: gameType,
       location_id: locationId,
-      lane_number: laneNumber,
+      lane_number: laneNumber || null,
       second_lane_number: secondLaneNumber,
       lane_config: laneConfig,
       league_id: gameType === 'league' && leagueId ? leagueId : null,
