@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Pin } from "@/types/game";
 import { PinDiagram } from "./PinDiagram";
 import { GameControls } from "./GameControls";
