@@ -20,10 +20,8 @@ export const useGameSetup = () => {
   const [leagueId, setLeagueId] = useState<string>('');
 
   const getSecondLaneNumber = (lane: number) => {
-    if (lane % 2 === 0) {
-      return lane - 1;
-    }
-    return lane + 1;
+    // For odd numbers, add 1; for even numbers, subtract 1
+    return lane % 2 === 1 ? lane + 1 : lane - 1;
   };
 
   // Fetch locations
@@ -94,13 +92,23 @@ export const useGameSetup = () => {
       return;
     }
 
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user?.id) {
+      toast({
+        title: "Error",
+        description: "Please sign in to create a league",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const { data, error } = await supabase
       .from('leagues')
       .insert([{ 
         name,
         location_id: locationId,
         is_active: true,
-        created_by: (await supabase.auth.getUser()).data.user?.id
+        created_by: userData.user.id
       }])
       .select()
       .single();
@@ -133,7 +141,7 @@ export const useGameSetup = () => {
     }
 
     const { data: userData } = await supabase.auth.getUser();
-    if (!userData.user) {
+    if (!userData.user?.id) {
       toast({
         title: "Error",
         description: "Please sign in to start a game",
@@ -151,7 +159,7 @@ export const useGameSetup = () => {
       lane_number: laneNumber,
       second_lane_number: secondLaneNumber,
       lane_config: laneConfig,
-      league_id: gameType === 'league' ? leagueId : null,
+      league_id: gameType === 'league' && leagueId ? leagueId : null,
       game_start_time: new Date().toISOString(),
     };
 
@@ -162,6 +170,7 @@ export const useGameSetup = () => {
       .single();
 
     if (error) {
+      console.error('Game creation error:', error);
       toast({
         title: "Error",
         description: "Failed to create game",
