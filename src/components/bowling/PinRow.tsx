@@ -1,67 +1,56 @@
 import { Pin as PinType } from "@/types/game";
 import { Pin } from "./Pin";
-import { getHistoricalPinStyle } from "@/utils/bowling/pin-styles";
 
 interface PinRowProps {
   pins: PinType[];
-  position: string;
   selectedPins: PinType[];
-  availablePins: PinType[];
-  isHistoricalView: boolean;
-  historicalFrame?: {
-    firstShot: PinType[];
-    secondShot: PinType[];
-    isSpare: boolean;
-    isStrike: boolean;
-  } | null;
   disabled: boolean;
+  remainingPins?: PinType[];
   onPinClick: (pin: PinType) => void;
+  onPinMouseEnter: (pin: PinType) => void;
+  onPinMouseLeave: () => void;
   onPinMouseDown: (pin: PinType) => void;
   onPinMouseUp: () => void;
-  onPinMouseLeave: () => void;
-  onPinMouseEnter: (pin: PinType) => void;
   onDoubleTapPin: (pin: PinType) => void;
-  onRegularShot: () => void;
   hoveredPin: PinType | null;
+  className?: string;
 }
 
 export const PinRow = ({
   pins,
-  position,
   selectedPins,
-  availablePins,
-  isHistoricalView,
-  historicalFrame,
   disabled,
+  remainingPins,
   onPinClick,
+  onPinMouseEnter,
+  onPinMouseLeave,
   onPinMouseDown,
   onPinMouseUp,
-  onPinMouseLeave,
-  onPinMouseEnter,
   onDoubleTapPin,
-  onRegularShot,
   hoveredPin,
+  className,
 }: PinRowProps) => {
+  const isStandingPin = (pin: PinType) => {
+    if (remainingPins === undefined) return true;
+    return remainingPins.includes(pin);
+  };
+
   return (
-    <div className={`absolute ${position} flex justify-between`}>
+    <div className={className}>
       {pins.map((pin) => (
         <Pin
           key={pin}
-          pin={pin}
-          position=""
-          isSelected={selectedPins.includes(pin)}
-          isPinAvailable={availablePins.includes(pin)}
-          isHistoricalView={isHistoricalView}
-          historicalStyle={historicalFrame ? getHistoricalPinStyle(pin, historicalFrame) : ""}
-          onPinClick={onPinClick}
-          onPinMouseDown={onPinMouseDown}
-          onPinMouseUp={onPinMouseUp}
-          onPinMouseLeave={onPinMouseLeave}
-          onPinMouseEnter={onPinMouseEnter}
-          onRegularShot={onRegularShot}
-          onDoubleTapPin={onDoubleTapPin}
-          isHovered={hoveredPin === pin}
-          disabled={disabled || !availablePins.includes(pin)}
+          pinNumber={pin}
+          selected={selectedPins.includes(pin)}
+          hovered={hoveredPin === pin}
+          onMouseEnter={() => onPinMouseEnter(pin)}
+          onMouseLeave={onPinMouseLeave}
+          onClick={() => onPinClick(pin)}
+          onDoubleClick={() => onDoubleTapPin(pin)}
+          onMouseDown={() => onPinMouseDown(pin)}
+          onMouseUp={onPinMouseUp}
+          disabled={disabled || !isStandingPin(pin)}
+          isStanding={isStandingPin(pin)}
         />
       ))}
     </div>
