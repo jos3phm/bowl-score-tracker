@@ -23,9 +23,9 @@ export const ScoreCard = ({
     if (isSpare) return "/";
     const shotValue = shot.length.toString();
     return isSplitShot ? (
-      <div className="relative inline-flex items-center justify-center">
-        <span className="relative z-10">{shotValue}</span>
-        <span className="absolute inset-0 border-2 border-gray-600 rounded-full transform scale-[1.8]" />
+      <div className="relative inline-flex items-center justify-center w-6 h-6">
+        <span className="relative z-20 text-gray-900">{shotValue}</span>
+        <span className="absolute inset-0 z-10 border-[2.5px] border-gray-800 rounded-full transform scale-110" />
       </div>
     ) : shotValue;
   };
