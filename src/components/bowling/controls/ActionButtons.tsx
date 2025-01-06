@@ -24,8 +24,14 @@ export const ActionButtons = ({
   isFirstShotStrike = false,
   selectedPins = [],
 }: ActionButtonsProps) => {
-  const canStrike = currentShot === 1 || (currentFrame === 10 && currentShot === 2 && isFirstShotStrike);
-  const canSpare = currentShot === 2 || (currentFrame === 10 && currentShot === 3 && isFirstShotStrike);
+  // In 10th frame, if first shot was strike, second shot should still be strike
+  // Third shot can be either strike or spare depending on second shot
+  const canStrike = 
+    currentShot === 1 || 
+    (currentFrame === 10 && currentShot === 2 && isFirstShotStrike) ||
+    (currentFrame === 10 && currentShot === 3 && isFirstShotStrike);
+    
+  const canSpare = currentShot === 2 || (currentFrame === 10 && currentShot === 3 && !isFirstShotStrike);
   
   const handleStrikeSpare = () => {
     if (canStrike) {
