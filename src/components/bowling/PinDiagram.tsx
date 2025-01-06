@@ -1,6 +1,6 @@
 import { Pin } from "./Pin";
 import { Pin as PinType } from "@/types/game";
-import { usePinHandling } from "@/hooks/bowling/usePinHandling";
+import { useState, useCallback } from "react";
 
 interface PinDiagramProps {
   onPinSelect: (pins: PinType[]) => void;
@@ -19,21 +19,59 @@ export const PinDiagram = ({
   remainingPins,
   isHistoricalView = false,
 }: PinDiagramProps) => {
-  const {
-    hoveredPin,
-    setHoveredPin,
-    handlePinClick,
-    handleDoubleTapPin,
-    handlePinMouseDown,
-    handlePinMouseUp,
-    isLongPress,
-  } = usePinHandling(
-    onPinSelect,
-    onRegularShot,
-    disabled,
-    isHistoricalView,
-    remainingPins
-  );
+  const [hoveredPin, setHoveredPin] = useState<PinType | null>(null);
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [isLongPress, setIsLongPress] = useState(false);
+
+  const handlePinClick = useCallback((pin: PinType) => {
+    if (disabled || isLongPress || isHistoricalView) return;
+    if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
+
+    onPinSelect((currentPins) => {
+      const isSelected = currentPins.includes(pin);
+      if (isSelected) {
+        return currentPins.filter(p => p !== pin);
+      } else {
+        return [...currentPins, pin];
+      }
+    });
+  }, [disabled, isLongPress, isHistoricalView, remainingPins, onPinSelect]);
+
+  const handleDoubleTapPin = useCallback((pin: PinType) => {
+    if (disabled || isHistoricalView) return;
+    if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
+    
+    const availablePins = remainingPins || [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const knockedDownPins = availablePins.filter(p => p !== pin);
+    onPinSelect(knockedDownPins);
+    onRegularShot();
+  }, [disabled, isHistoricalView, remainingPins, onPinSelect, onRegularShot]);
+
+  const handlePinMouseDown = useCallback((pin: PinType) => {
+    if (disabled || isHistoricalView) return;
+    if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
+    
+    setIsLongPress(false);
+    
+    const timer = setTimeout(() => {
+      setIsLongPress(true);
+      const availablePins = remainingPins || [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+      const pinsToSelect = availablePins.filter(p => p !== pin);
+      onPinSelect(pinsToSelect);
+    }, 500);
+
+    setLongPressTimer(timer);
+  }, [disabled, isHistoricalView, remainingPins, onPinSelect]);
+
+  const handlePinMouseUp = useCallback(() => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+    setTimeout(() => {
+      setIsLongPress(false);
+    }, 50);
+  }, [longPressTimer]);
 
   const isStandingPin = (pin: PinType) => {
     if (remainingPins === undefined) return true;
@@ -44,7 +82,7 @@ export const PinDiagram = ({
     <div className="relative w-full max-w-[300px] mx-auto">
       <div className="flex justify-center mb-4">
         <Pin
-          number={7}
+          pinNumber={7}
           selected={selectedPins.includes(7)}
           hovered={hoveredPin === 7}
           onMouseEnter={() => setHoveredPin(7)}
@@ -59,7 +97,7 @@ export const PinDiagram = ({
       </div>
       <div className="flex justify-center gap-8 mb-4">
         <Pin
-          number={4}
+          pinNumber={4}
           selected={selectedPins.includes(4)}
           hovered={hoveredPin === 4}
           onMouseEnter={() => setHoveredPin(4)}
@@ -72,7 +110,7 @@ export const PinDiagram = ({
           isStanding={isStandingPin(4)}
         />
         <Pin
-          number={8}
+          pinNumber={8}
           selected={selectedPins.includes(8)}
           hovered={hoveredPin === 8}
           onMouseEnter={() => setHoveredPin(8)}
@@ -87,7 +125,7 @@ export const PinDiagram = ({
       </div>
       <div className="flex justify-center gap-8 mb-4">
         <Pin
-          number={2}
+          pinNumber={2}
           selected={selectedPins.includes(2)}
           hovered={hoveredPin === 2}
           onMouseEnter={() => setHoveredPin(2)}
@@ -100,7 +138,7 @@ export const PinDiagram = ({
           isStanding={isStandingPin(2)}
         />
         <Pin
-          number={5}
+          pinNumber={5}
           selected={selectedPins.includes(5)}
           hovered={hoveredPin === 5}
           onMouseEnter={() => setHoveredPin(5)}
@@ -113,7 +151,7 @@ export const PinDiagram = ({
           isStanding={isStandingPin(5)}
         />
         <Pin
-          number={9}
+          pinNumber={9}
           selected={selectedPins.includes(9)}
           hovered={hoveredPin === 9}
           onMouseEnter={() => setHoveredPin(9)}
@@ -128,7 +166,7 @@ export const PinDiagram = ({
       </div>
       <div className="flex justify-center gap-8">
         <Pin
-          number={1}
+          pinNumber={1}
           selected={selectedPins.includes(1)}
           hovered={hoveredPin === 1}
           onMouseEnter={() => setHoveredPin(1)}
@@ -141,7 +179,7 @@ export const PinDiagram = ({
           isStanding={isStandingPin(1)}
         />
         <Pin
-          number={3}
+          pinNumber={3}
           selected={selectedPins.includes(3)}
           hovered={hoveredPin === 3}
           onMouseEnter={() => setHoveredPin(3)}
@@ -154,7 +192,7 @@ export const PinDiagram = ({
           isStanding={isStandingPin(3)}
         />
         <Pin
-          number={6}
+          pinNumber={6}
           selected={selectedPins.includes(6)}
           hovered={hoveredPin === 6}
           onMouseEnter={() => setHoveredPin(6)}
@@ -167,7 +205,7 @@ export const PinDiagram = ({
           isStanding={isStandingPin(6)}
         />
         <Pin
-          number={10}
+          pinNumber={10}
           selected={selectedPins.includes(10)}
           hovered={hoveredPin === 10}
           onMouseEnter={() => setHoveredPin(10)}

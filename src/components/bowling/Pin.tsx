@@ -1,103 +1,54 @@
-import { Pin as PinType } from "@/types/game";
 import { cn } from "@/lib/utils";
-import { useRef } from "react";
+import { Pin as PinType } from "@/types/game";
 
-interface PinProps {
-  pin: PinType;
-  position: string;
-  isSelected: boolean;
-  isPinAvailable: boolean;
-  isHistoricalView: boolean;
-  historicalStyle: string;
-  onPinClick: (pin: PinType) => void;
-  onPinMouseDown: (pin: PinType) => void;
-  onPinMouseUp: () => void;
-  onPinMouseLeave: () => void;
-  onPinMouseEnter: (pin: PinType) => void;
-  onRegularShot: () => void;
-  onDoubleTapPin: (pin: PinType) => void;
-  isHovered: boolean;
+export interface PinProps {
+  pinNumber: PinType;
+  selected: boolean;
+  hovered: boolean;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  onClick: () => void;
+  onDoubleClick: () => void;
+  onMouseDown: () => void;
+  onMouseUp: () => void;
   disabled: boolean;
+  isStanding: boolean;
 }
 
 export const Pin = ({
-  pin,
-  position,
-  isSelected,
-  isPinAvailable,
-  isHistoricalView,
-  historicalStyle,
-  onPinClick,
-  onPinMouseDown,
-  onPinMouseUp,
-  onPinMouseLeave,
-  onPinMouseEnter,
-  onRegularShot,
-  onDoubleTapPin,
-  isHovered,
+  pinNumber,
+  selected,
+  hovered,
+  onMouseEnter,
+  onMouseLeave,
+  onClick,
+  onDoubleClick,
+  onMouseDown,
+  onMouseUp,
   disabled,
+  isStanding,
 }: PinProps) => {
-  const getPinStyle = () => {
-    if (!isHistoricalView) {
-      if (!isPinAvailable) {
-        return "bg-gray-200 text-gray-400";
-      }
-      return isSelected
-        ? "bg-primary text-white animate-pin-selected"
-        : "bg-white text-gray-800 border-2 border-gray-200";
-    }
-    return historicalStyle;
-  };
-
-  const lastTap = useRef<number>(0);
-  const DOUBLE_TAP_DELAY = 300; // milliseconds
-
-  const handleTap = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    const currentTime = new Date().getTime();
-    const tapLength = currentTime - lastTap.current;
-    
-    if (!disabled && !isHistoricalView) {
-      if (tapLength < DOUBLE_TAP_DELAY && tapLength > 0) {
-        // Double tap detected
-        onDoubleTapPin(pin);
-      } else {
-        // Single tap
-        onPinClick(pin);
-      }
-    }
-    
-    lastTap.current = currentTime;
-  };
-
   return (
     <button
       className={cn(
-        "w-10 h-10 rounded-full transition-all duration-300",
-        "flex items-center justify-center text-sm font-semibold",
-        "hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary",
-        position,
-        getPinStyle(),
-        isHovered && !disabled && !isHistoricalView && "shadow-lg",
-        (disabled || isHistoricalView) && "cursor-default"
+        "w-10 h-10 rounded-full border-2 transition-colors",
+        "flex items-center justify-center text-sm font-medium",
+        {
+          "border-gray-300 bg-white text-gray-700": !selected && !disabled && isStanding,
+          "border-blue-500 bg-blue-100 text-blue-700": selected && !disabled,
+          "border-gray-200 bg-gray-100 text-gray-400": disabled || !isStanding,
+          "border-blue-300 bg-blue-50": hovered && !disabled && isStanding,
+        }
       )}
-      onClick={handleTap}
-      onMouseDown={() => onPinMouseDown(pin)}
-      onMouseUp={onPinMouseUp}
-      onMouseLeave={onPinMouseLeave}
-      onMouseEnter={() => onPinMouseEnter(pin)}
-      onTouchStart={(e) => {
-        e.preventDefault();
-        onPinMouseDown(pin);
-      }}
-      onTouchEnd={(e) => {
-        e.preventDefault();
-        handleTap(e);
-        onPinMouseUp();
-      }}
-      disabled={disabled || isHistoricalView}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
+      disabled={disabled}
     >
-      {pin}
+      {pinNumber}
     </button>
   );
 };
