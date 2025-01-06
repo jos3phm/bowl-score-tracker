@@ -8,6 +8,37 @@ export const useBallSelection = (gameId: string) => {
   const [defaultBallId, setDefaultBallId] = useState<string | null>(null);
   const [previousBallId, setPreviousBallId] = useState<string | null>(null);
 
+  // Fetch last used ball from previous game in session
+  useEffect(() => {
+    const fetchLastUsedBall = async () => {
+      try {
+        const { data: gameData } = await supabase
+          .from('games')
+          .select('session_id')
+          .eq('id', gameId)
+          .single();
+
+        if (gameData?.session_id) {
+          const { data: lastBallUsage } = await supabase
+            .from('ball_usage')
+            .select('ball_id, games!inner(session_id)')
+            .eq('games.session_id', gameData.session_id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+          if (lastBallUsage?.ball_id) {
+            handleBallSelect(lastBallUsage.ball_id);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching last used ball:', error);
+      }
+    };
+
+    fetchLastUsedBall();
+  }, [gameId]);
+
   const handleBallSelect = (ballId: string | null) => {
     setSelectedBallId(ballId);
     if (!defaultBallId && ballId) {
