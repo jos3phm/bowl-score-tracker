@@ -2,10 +2,10 @@ import { useGameCompletion } from "@/hooks/bowling/useGameCompletion";
 import { GameCompleteForm } from "./GameCompleteForm";
 import { GameSummary } from "./GameSummary";
 import { Frame } from "@/types/game";
-import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { GameCompleteButtons } from "./GameCompleteButtons";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -170,21 +170,12 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
         photo={photo}
       />
 
-      <div className="flex flex-col gap-4">
-        {!isLastGameInSeries && (
-          <Button onClick={handleNextGame} variant="default">
-            Next Game
-          </Button>
-        )}
-        <Button onClick={() => setShowDiscardDialog(true)} variant="destructive">
-          Discard Game
-        </Button>
-        {(isLastGameInSeries || sessionGames.length > 0) && (
-          <Button onClick={handleEndSession} variant="secondary">
-            End Session
-          </Button>
-        )}
-      </div>
+      <GameCompleteButtons
+        isLastGameInSeries={isLastGameInSeries}
+        onNextGame={handleNextGame}
+        onDiscardGame={() => setShowDiscardDialog(true)}
+        onEndSession={handleEndSession}
+      />
 
       <AlertDialog open={showDiscardDialog} onOpenChange={setShowDiscardDialog}>
         <AlertDialogContent>

@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 
@@ -16,9 +15,6 @@ export const GameCompleteForm = ({
   notes,
   onNotesChange,
   onPhotoChange,
-  onSave,
-  onNewGame,
-  isSaving,
   photo
 }: GameCompleteFormProps) => {
   return (
@@ -51,22 +47,6 @@ export const GameCompleteForm = ({
             Selected: {photo.name}
           </p>
         )}
-      </div>
-
-      <div className="flex gap-4 justify-center">
-        <Button
-          onClick={onSave}
-          disabled={isSaving}
-          className="bg-primary"
-        >
-          {isSaving ? "Saving..." : "Save Game"}
-        </Button>
-        <Button
-          onClick={onNewGame}
-          variant="outline"
-        >
-          Start New Game
-        </Button>
       </div>
     </div>
   );
