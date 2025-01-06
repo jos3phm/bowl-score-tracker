@@ -14,19 +14,38 @@ const pinNeighbors: Record<Pin, Pin[]> = {
   10: [6, 9]
 };
 
+// Define common split patterns
+const commonSplits: [Pin, Pin][] = [
+  [3, 10], // 3-10 split
+  [2, 7],  // 2-7 split
+  [4, 6],  // 4-6 split (baby split)
+  [4, 7],  // 4-7 split
+  [4, 10], // 4-10 split
+  [6, 7],  // 6-7 split
+  [7, 10], // 7-10 split (bedposts)
+  [8, 10], // 8-10 split
+];
+
 export const isSplit = (remainingPins: Pin[]): boolean => {
   if (remainingPins.length < 2) return false;
   
-  // Check if any pair of remaining pins are not neighbors
+  // First, check if this is a common split pattern
+  for (const [pin1, pin2] of commonSplits) {
+    if (remainingPins.length === 2 && 
+        remainingPins.includes(pin1) && 
+        remainingPins.includes(pin2)) {
+      return true;
+    }
+  }
+  
+  // For other cases with 2 or more pins remaining
   for (let i = 0; i < remainingPins.length; i++) {
     for (let j = i + 1; j < remainingPins.length; j++) {
       const pin1 = remainingPins[i];
       const pin2 = remainingPins[j];
       
-      // If these pins aren't neighbors and there's a pin between them that was knocked down,
-      // it's a split
+      // If these pins aren't neighbors and there's no path of standing pins between them
       if (!pinNeighbors[pin1].includes(pin2)) {
-        // Check if there's a path of standing pins connecting these two
         const hasPathOfStandingPins = hasConnectingPath(pin1, pin2, remainingPins);
         if (!hasPathOfStandingPins) {
           return true;
