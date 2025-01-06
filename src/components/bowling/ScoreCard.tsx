@@ -1,5 +1,6 @@
 import { Frame, Pin } from "@/types/game";
 import { cn } from "@/lib/utils";
+import { isSplit } from "@/utils/bowling/split-detection";
 
 interface ScoreCardProps {
   frames: Frame[];
@@ -16,17 +17,24 @@ export const ScoreCard = ({
   selectedFrame,
   isInteractive = true 
 }: ScoreCardProps) => {
-  const renderShot = (shot: Pin[] | null, isSpare: boolean, isLastShot: boolean = false) => {
+  const renderShot = (shot: Pin[] | null, isSpare: boolean, isLastShot: boolean = false, isSplitShot: boolean = false) => {
     if (shot === null) return "";
     if (shot.length === 10 && !isSpare) return "X";
     if (isSpare) return "/";
-    return shot.length.toString();
+    const shotValue = shot.length.toString();
+    return isSplitShot ? (
+      <span className="relative inline-block">
+        {shotValue}
+        <span className="absolute inset-0 border border-gray-400 rounded-full transform scale-150" />
+      </span>
+    ) : shotValue;
   };
 
   const renderFrame = (frame: Frame, index: number) => {
     const isActive = index === currentFrame - 1;
     const isSelected = index === selectedFrame;
     const isTenth = index === 9;
+    const hasSplit = frame.firstShot && isSplit(frame.firstShot);
 
     return (
       <div
@@ -54,7 +62,7 @@ export const ScoreCard = ({
           )}>
             {/* First Shot */}
             <div className="w-8 h-8 border-b border-r border-gray-300 flex items-center justify-center">
-              {!isTenth && frame.isStrike ? "X" : renderShot(frame.firstShot, false)}
+              {!isTenth && frame.isStrike ? "X" : renderShot(frame.firstShot, false, false, hasSplit)}
             </div>
             {/* Second Shot */}
             <div className={cn(
