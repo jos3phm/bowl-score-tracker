@@ -72,7 +72,7 @@ export const ScoreCard = ({
           isActive && "bg-blue-50",
           isSelected && "bg-blue-100",
           isInteractive && "cursor-pointer hover:bg-gray-50",
-          index === 9 && "col-span-2"
+          index === 9 && "col-span-2 border-r-0"
         )}
         onClick={() => isInteractive && onFrameClick?.(index + 1)}
       >
@@ -109,7 +109,7 @@ export const ScoreCard = ({
 
   return (
     <div className="relative pt-8 border border-gray-300 rounded-lg overflow-hidden">
-      <div className="grid grid-cols-10 text-sm">
+      <div className="grid grid-cols-11 text-sm">
         {frames.map((frame, index) => renderFrame(frame, index))}
       </div>
     </div>
