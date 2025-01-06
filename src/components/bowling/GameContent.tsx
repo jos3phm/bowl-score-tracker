@@ -44,9 +44,6 @@ export const GameContent = ({
   const [selectedPins, setSelectedPins] = useState<Pin[]>([]);
 
   const handleRegularShot = () => {
-    // Always call handlePinClick with the current selectedPins
-    // This ensures that even when no pins are selected (a miss),
-    // we still record the shot
     handlePinClick(selectedPins);
     setSelectedPins([]);
   };
@@ -57,7 +54,7 @@ export const GameContent = ({
         frames={frames}
         currentFrame={currentFrame}
         onFrameClick={() => {}}
-        selectedFrame={null}
+        isInteractive={false}
       />
       
       <PinDiagram

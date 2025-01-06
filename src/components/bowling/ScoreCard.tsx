@@ -7,6 +7,7 @@ interface ScoreCardProps {
   currentFrame: number;
   isInteractive?: boolean;
   onFrameClick?: (frameNumber: number) => void;
+  selectedFrame?: number | null;
 }
 
 export const ScoreCard = ({
@@ -14,24 +15,26 @@ export const ScoreCard = ({
   currentFrame,
   isInteractive = true,
   onFrameClick,
+  selectedFrame = null,
 }: ScoreCardProps) => {
-  const renderShot = (shot: number[], isSpare: boolean, frameIndex: number, shotIndex: number) => {
+  const renderShot = (shot: number[], isSpare: boolean, frameIndex: number) => {
     if (!shot) return "";
     if (isSpare) return "/";
     
     const shotValue = shot.length.toString();
-    const isSplitShot = shotIndex === 1 && isSplit(frames[frameIndex].firstShot || [], shot);
+    const isSplitShot = frameIndex > 0 && isSplit(frames[frameIndex].firstShot || [], shot);
     
     return isSplitShot ? (
-      <div className="relative inline-block">
-        <span className="relative z-10">{shotValue}</span>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-7 h-7 border-2 border-gray-800 rounded-full" />
+      <div className="relative inline-block w-6 h-6">
+        <span className="relative z-10 text-gray-900">{shotValue}</span>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full border-2.5 border-gray-800 rounded-full scale-110" />
       </div>
     ) : shotValue;
   };
 
   const renderFrame = (frame: Frame, index: number) => {
     const isActive = currentFrame === index + 1;
+    const isSelected = selectedFrame === index + 1;
     const frameScore = frame.score?.toString() || "";
 
     return (
@@ -40,17 +43,18 @@ export const ScoreCard = ({
         className={cn(
           "border-r border-gray-300 text-center",
           isActive && "bg-blue-50",
+          isSelected && "bg-blue-100",
           isInteractive && "cursor-pointer hover:bg-gray-50",
           index === 9 && "col-span-2"
         )}
         onClick={() => isInteractive && onFrameClick?.(index + 1)}
       >
         <div className="grid grid-cols-2 gap-1 p-2 border-b border-gray-300">
-          {renderShot(frame.firstShot || [], false, index, 1)}
-          {renderShot(frame.secondShot || [], frame.isSpare, index, 2)}
+          {renderShot(frame.firstShot || [], false, index)}
+          {renderShot(frame.secondShot || [], frame.isSpare, index)}
           {index === 9 && frame.thirdShot && (
             <div className="col-span-1">
-              {renderShot(frame.thirdShot, false, index, 3)}
+              {renderShot(frame.thirdShot, false, index)}
             </div>
           )}
         </div>
