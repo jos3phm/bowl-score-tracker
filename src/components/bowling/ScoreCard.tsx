@@ -23,61 +23,25 @@ export const ScoreCard = ({
     
     // Handle strikes
     if (isStrike && frameIndex < 9 && shot === frames[frameIndex].firstShot) {
-      return (
-        <div className="flex flex-col items-center">
-          <span>X</span>
-          <FrameHistory frame={frames[frameIndex]} />
-        </div>
-      );
+      return "X";
     }
     
     // Handle spares
     if (isSpare && shot === frames[frameIndex].secondShot) {
-      return (
-        <div className="flex flex-col items-center">
-          <span>/</span>
-          <FrameHistory frame={frames[frameIndex]} />
-        </div>
-      );
+      return "/";
     }
 
     // Handle 10th frame special cases
     if (frameIndex === 9) {
-      if (shot.length === 10) {
-        return (
-          <div className="flex flex-col items-center">
-            <span>X</span>
-            <FrameHistory frame={frames[frameIndex]} />
-          </div>
-        );
-      }
-      if (isSpare && shot === frames[frameIndex].secondShot) {
-        return (
-          <div className="flex flex-col items-center">
-            <span>/</span>
-            <FrameHistory frame={frames[frameIndex]} />
-          </div>
-        );
-      }
+      if (shot.length === 10) return "X";
+      if (isSpare && shot === frames[frameIndex].secondShot) return "/";
       if (frames[9].thirdShot === shot) {
-        return (
-          <div className="flex flex-col items-center">
-            <span>{shot.length === 10 ? "X" : shot.length.toString()}</span>
-            <FrameHistory frame={frames[frameIndex]} />
-          </div>
-        );
+        return shot.length === 10 ? "X" : shot.length.toString();
       }
     }
     
     // Regular shot
-    const shotValue = shot.length.toString();
-    
-    return (
-      <div className="flex flex-col items-center">
-        <span>{shotValue}</span>
-        <FrameHistory frame={frames[frameIndex]} />
-      </div>
-    );
+    return shot.length.toString();
   };
 
   const renderFrame = (frame: Frame, index: number) => {
@@ -104,25 +68,26 @@ export const ScoreCard = ({
         
         {/* Shots Container */}
         <div className={cn(
-          "grid border-b border-gray-300 min-h-[2.5rem]",
+          "grid border-b border-gray-300",
           index === 9 ? "grid-cols-3" : "grid-cols-2"
         )}>
-          <div className="p-2 text-center border-r border-gray-300 min-h-[2.5rem] flex items-center justify-center">
+          <div className="p-2 text-center border-r border-gray-300">
             {renderShot(frame.firstShot, frame.isStrike, false, index)}
           </div>
-          <div className="p-2 text-center min-h-[2.5rem] flex items-center justify-center">
+          <div className="p-2 text-center">
             {renderShot(frame.secondShot, frame.isStrike, frame.isSpare, index)}
           </div>
           {index === 9 && (
-            <div className="p-2 text-center border-l border-gray-300 min-h-[2.5rem] flex items-center justify-center">
+            <div className="p-2 text-center border-l border-gray-300">
               {renderShot(frame.thirdShot, frame.isStrike, frame.isSpare, index)}
             </div>
           )}
         </div>
         
-        {/* Frame Score */}
-        <div className="p-2 text-center min-h-[2.5rem] flex items-center justify-center">
-          {frameScore}
+        {/* Frame Score and History */}
+        <div className="p-2 text-center min-h-[4rem] flex flex-col items-center justify-between">
+          <span>{frameScore}</span>
+          <FrameHistory frame={frame} />
         </div>
       </div>
     );

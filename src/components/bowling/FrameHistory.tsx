@@ -29,13 +29,23 @@ const PinDisplay = ({
 };
 
 const PinLayout = ({ 
-  knockedPins,
+  firstShot,
+  secondShot,
   size = "sm"
 }: { 
-  knockedPins: Pin[];
+  firstShot: Pin[];
+  secondShot: Pin[] | null;
   size?: "sm" | "md";
 }) => {
-  const isKnockedDown = (pin: Pin) => knockedPins.includes(pin);
+  const isKnockedDown = (pin: Pin) => {
+    if (secondShot) {
+      // If we have a second shot, show final state after both shots
+      return firstShot.includes(pin) || secondShot.includes(pin);
+    }
+    // Otherwise just show first shot state
+    return firstShot.includes(pin);
+  };
+
   const rowClassName = size === "sm" ? "gap-1" : "gap-1.5";
 
   return (
@@ -82,17 +92,16 @@ const PinLayout = ({
 };
 
 export const FrameHistory = ({ frame, size = "sm" }: FrameHistoryProps) => {
-  if (!frame.firstShot) return null;
+  // Only show history if frame is complete (has strike or second shot)
+  if (!frame.firstShot || (!frame.isStrike && !frame.secondShot)) return null;
 
   return (
-    <div className="space-y-1">
-      <PinLayout knockedPins={frame.firstShot} size={size} />
-      {frame.secondShot && !frame.isStrike && (
-        <PinLayout 
-          knockedPins={[...frame.firstShot, ...frame.secondShot]} 
-          size={size}
-        />
-      )}
+    <div className="h-12 flex items-center justify-center">
+      <PinLayout 
+        firstShot={frame.firstShot} 
+        secondShot={frame.secondShot}
+        size={size}
+      />
     </div>
   );
 };
