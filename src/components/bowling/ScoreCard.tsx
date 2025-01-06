@@ -53,8 +53,8 @@ export const ScoreCard = ({
     
     return isSplitShot ? (
       <div className="relative inline-block w-6 h-6">
-        <span className="relative z-10 text-gray-900">{shotValue}</span>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full border-2.5 border-gray-800 rounded-full scale-110" />
+        <span className="relative z-10">{shotValue}</span>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full border-2 border-gray-800 rounded-full" />
       </div>
     ) : shotValue;
   };
@@ -68,7 +68,7 @@ export const ScoreCard = ({
       <div
         key={index}
         className={cn(
-          "border-r border-gray-300 text-center",
+          "border-r border-gray-300 relative",
           isActive && "bg-blue-50",
           isSelected && "bg-blue-100",
           isInteractive && "cursor-pointer hover:bg-gray-50",
@@ -76,22 +76,39 @@ export const ScoreCard = ({
         )}
         onClick={() => isInteractive && onFrameClick?.(index + 1)}
       >
-        <div className="grid grid-cols-2 gap-1 p-2 border-b border-gray-300">
-          {renderShot(frame.firstShot, frame.isStrike, false, index)}
-          {renderShot(frame.secondShot, frame.isStrike, frame.isSpare, index)}
-          {index === 9 && frame.thirdShot && (
-            <div className="col-span-1">
+        {/* Frame Number */}
+        <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-sm font-medium text-gray-600">
+          {index + 1}
+        </div>
+        
+        {/* Shots Container */}
+        <div className={cn(
+          "grid border-b border-gray-300",
+          index === 9 ? "grid-cols-3" : "grid-cols-2"
+        )}>
+          <div className="p-2 text-center border-r border-gray-300">
+            {renderShot(frame.firstShot, frame.isStrike, false, index)}
+          </div>
+          <div className="p-2 text-center">
+            {renderShot(frame.secondShot, frame.isStrike, frame.isSpare, index)}
+          </div>
+          {index === 9 && (
+            <div className="p-2 text-center border-l border-gray-300">
               {renderShot(frame.thirdShot, frame.isStrike, frame.isSpare, index)}
             </div>
           )}
         </div>
-        <div className="p-2">{frameScore}</div>
+        
+        {/* Frame Score */}
+        <div className="p-2 text-center">
+          {frameScore}
+        </div>
       </div>
     );
   };
 
   return (
-    <div className="border border-gray-300 rounded-lg overflow-hidden">
+    <div className="relative pt-8 border border-gray-300 rounded-lg overflow-hidden">
       <div className="grid grid-cols-10 text-sm">
         {frames.map((frame, index) => renderFrame(frame, index))}
       </div>
