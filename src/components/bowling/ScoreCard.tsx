@@ -1,4 +1,4 @@
-import { Frame } from "@/types/game";
+import { Frame, Pin } from "@/types/game";
 import { cn } from "@/lib/utils";
 import { isSplit } from "@/utils/bowling/split-detection";
 
@@ -17,7 +17,7 @@ export const ScoreCard = ({
   onFrameClick,
   selectedFrame = null,
 }: ScoreCardProps) => {
-  const renderShot = (shot: number[], isSpare: boolean, frameIndex: number) => {
+  const renderShot = (shot: Pin[] | null, isSpare: boolean, frameIndex: number) => {
     if (!shot) return "";
     if (isSpare) return "/";
     
@@ -25,7 +25,7 @@ export const ScoreCard = ({
     // Only check for splits on the second shot of a frame
     const isSplitShot = frameIndex > 0 && shot.length > 0 && frames[frameIndex].firstShot 
       ? isSplit({
-          firstShot: frames[frameIndex].firstShot || [],
+          firstShot: frames[frameIndex].firstShot as Pin[],
           secondShot: shot
         })
       : false;
@@ -56,8 +56,8 @@ export const ScoreCard = ({
         onClick={() => isInteractive && onFrameClick?.(index + 1)}
       >
         <div className="grid grid-cols-2 gap-1 p-2 border-b border-gray-300">
-          {renderShot(frame.firstShot || [], false, index)}
-          {renderShot(frame.secondShot || [], frame.isSpare, index)}
+          {renderShot(frame.firstShot, false, index)}
+          {renderShot(frame.secondShot, frame.isSpare, index)}
           {index === 9 && frame.thirdShot && (
             <div className="col-span-1">
               {renderShot(frame.thirdShot, false, index)}
