@@ -22,7 +22,13 @@ export const ScoreCard = ({
     if (isSpare) return "/";
     
     const shotValue = shot.length.toString();
-    const isSplitShot = frameIndex > 0 && isSplit(frames[frameIndex].firstShot || [], shot);
+    // Only check for splits on the second shot of a frame
+    const isSplitShot = frameIndex > 0 && shot.length > 0 && frames[frameIndex].firstShot 
+      ? isSplit({
+          firstShot: frames[frameIndex].firstShot || [],
+          secondShot: shot
+        })
+      : false;
     
     return isSplitShot ? (
       <div className="relative inline-block w-6 h-6">
