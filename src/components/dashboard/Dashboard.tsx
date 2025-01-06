@@ -38,6 +38,8 @@ export const Dashboard = () => {
       const { data, error } = await supabase
         .from('games')
         .select('*')
+        .gte('total_score', 0)
+        .lte('total_score', 300)
         .order('created_at', { ascending: false })
         .limit(5);
 
