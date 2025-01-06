@@ -82,8 +82,10 @@ export const useBallSelection = (gameId: string) => {
         remaining_pins: remainingPins || [],
       };
 
-      // If a record exists, update it instead of creating a new one
+      let success = false;
+
       if (existingUsage) {
+        // Update existing record
         const { error: updateError } = await supabase
           .from('ball_usage')
           .update(usageData)
@@ -94,8 +96,9 @@ export const useBallSelection = (gameId: string) => {
           toast.error("Failed to update ball usage");
           return false;
         }
+        success = true;
       } else {
-        // If no record exists, create a new one
+        // Create new record
         const { error: insertError } = await supabase
           .from('ball_usage')
           .insert({
@@ -110,25 +113,28 @@ export const useBallSelection = (gameId: string) => {
           toast.error("Failed to record ball usage");
           return false;
         }
+        success = true;
       }
 
-      // Handle ball switching logic
-      const { data: ballData, error: ballError } = await supabase
-        .from('bowling_balls')
-        .select('is_spare_ball')
-        .eq('id', selectedBallId)
-        .single();
+      if (success) {
+        // Handle ball switching logic
+        const { data: ballData, error: ballError } = await supabase
+          .from('bowling_balls')
+          .select('is_spare_ball')
+          .eq('id', selectedBallId)
+          .single();
 
-      if (ballError) {
-        console.error('Error verifying ball details:', ballError);
-      } else if (ballData?.is_spare_ball) {
-        setPreviousBallId(defaultBallId);
-        setSelectedBallId(defaultBallId);
-      } else {
-        setDefaultBallId(selectedBallId);
+        if (ballError) {
+          console.error('Error verifying ball details:', ballError);
+        } else if (ballData?.is_spare_ball) {
+          setPreviousBallId(defaultBallId);
+          setSelectedBallId(defaultBallId);
+        } else {
+          setDefaultBallId(selectedBallId);
+        }
       }
 
-      return true;
+      return success;
     } catch (error) {
       console.error('Error recording ball usage:', error);
       toast.error("Failed to record ball usage");
