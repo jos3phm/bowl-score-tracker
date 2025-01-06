@@ -62,8 +62,8 @@ export const recordRegularShot = (
   const frame = { ...frames[frameIndex] };
   const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
-  // Convert selected pins (standing) to knocked down pins
-  const knockedDownPins = allPins.filter(pin => !selectedPins.includes(pin));
+  // For a miss (empty selectedPins array), we record no pins knocked down
+  const knockedDownPins = selectedPins.length === 0 ? [] : allPins.filter(pin => !selectedPins.includes(pin));
   console.log('Knocked down pins:', knockedDownPins);
   
   if (frameIndex === 9) { // 10th frame
@@ -72,22 +72,9 @@ export const recordRegularShot = (
       frame.isStrike = knockedDownPins.length === 10;
       frame.isSplit = !frame.isStrike && knockedDownPins.length > 1 && isSplit(knockedDownPins);
     } else if (shot === 2) {
-      // For second shot, we only consider the remaining pins
-      const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
-      // If the remaining pin is selected, it means we're knocking it down
-      if (selectedPins.length === remainingPins.length && 
-          selectedPins.every(pin => remainingPins.includes(pin))) {
-        frame.secondShot = remainingPins;
-        frame.isSpare = true;
-      } else {
-        frame.secondShot = [];
-        frame.isSpare = false;
-      }
-      
-      // If not a strike or spare in 10th frame, complete the frame after second shot
-      if (!frame.isStrike && !frame.isSpare) {
-        frame.thirdShot = null; // Explicitly set third shot to null to indicate frame completion
-      }
+      frame.secondShot = knockedDownPins;
+      frame.isSpare = frame.firstShot && 
+        (frame.firstShot.length + knockedDownPins.length === 10);
     } else if (shot === 3) {
       frame.thirdShot = knockedDownPins;
     }
@@ -97,17 +84,9 @@ export const recordRegularShot = (
       frame.isStrike = knockedDownPins.length === 10;
       frame.isSplit = !frame.isStrike && knockedDownPins.length > 1 && isSplit(knockedDownPins);
     } else {
-      // For second shot, we only consider the remaining pins
-      const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
-      // If the remaining pin is selected, it means we're knocking it down
-      if (selectedPins.length === remainingPins.length && 
-          selectedPins.every(pin => remainingPins.includes(pin))) {
-        frame.secondShot = remainingPins;
-        frame.isSpare = true;
-      } else {
-        frame.secondShot = [];
-        frame.isSpare = false;
-      }
+      frame.secondShot = knockedDownPins;
+      frame.isSpare = frame.firstShot && 
+        (frame.firstShot.length + knockedDownPins.length === 10);
     }
   }
 
