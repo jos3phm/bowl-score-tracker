@@ -22,7 +22,7 @@ export const Dashboard = () => {
           games (id)
         `)
         .is('ended_at', null)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching active session:', error);
