@@ -46,7 +46,9 @@ export const GameContent = ({
   const [selectedPins, setSelectedPins] = useState<Pin[]>([]);
 
   const handleRegularShot = () => {
-    handlePinClick(selectedPins);
+    // Calculate knocked down pins as those that are NOT selected (since selected pins are standing)
+    const knockedDownPins = remainingPins.filter(pin => !selectedPins.includes(pin));
+    handlePinClick(knockedDownPins);
     setSelectedPins([]);
   };
 
