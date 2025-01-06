@@ -23,47 +23,56 @@ export const GameStatus = ({ currentFrame, currentShot, gameId }: GameStatusProp
     const fetchGameInfo = async () => {
       if (!gameId) return;
 
-      const { data: gameData } = await supabase
-        .from('games')
-        .select(`
-          game_type,
-          session_id,
-          league_id,
-          tournament_id,
-          lane_number,
-          second_lane_number,
-          lane_config,
-          leagues (name),
-          tournaments (name)
-        `)
-        .eq('id', gameId)
-        .single();
+      try {
+        const { data: gameData, error: gameError } = await supabase
+          .from('games')
+          .select(`
+            game_type,
+            session_id,
+            league_id,
+            tournament_id,
+            lane_number,
+            second_lane_number,
+            lane_config,
+            leagues (name),
+            tournaments (name)
+          `)
+          .eq('id', gameId)
+          .single();
 
-      if (gameData) {
-        // If we have a session ID, get the game number within the session
-        let gameNumber;
-        if (gameData.session_id) {
-          const { data: sessionGames } = await supabase
-            .from('games')
-            .select('id')
-            .eq('session_id', gameData.session_id)
-            .order('created_at', { ascending: true });
+        if (gameError) throw gameError;
 
-          if (sessionGames) {
-            gameNumber = sessionGames.findIndex(game => game.id === gameId) + 1;
+        if (gameData) {
+          // If we have a session ID, get the game number within the session
+          let gameNumber;
+          if (gameData.session_id) {
+            const { data: sessionGames, error: sessionError } = await supabase
+              .from('games')
+              .select('id, created_at')
+              .eq('session_id', gameData.session_id)
+              .order('created_at', { ascending: true });
+
+            if (sessionError) throw sessionError;
+
+            if (sessionGames) {
+              gameNumber = sessionGames.findIndex(game => game.id === gameId) + 1;
+              console.log('Game number in session:', gameNumber);
+            }
           }
-        }
 
-        setGameInfo({
-          gameNumber,
-          gameType: gameData.game_type,
-          leagueName: gameData.leagues?.name,
-          tournamentName: gameData.tournaments?.name,
-          sessionId: gameData.session_id,
-          laneNumber: gameData.lane_number,
-          secondLaneNumber: gameData.second_lane_number,
-          laneConfig: gameData.lane_config,
-        });
+          setGameInfo({
+            gameNumber,
+            gameType: gameData.game_type,
+            leagueName: gameData.leagues?.name,
+            tournamentName: gameData.tournaments?.name,
+            sessionId: gameData.session_id,
+            laneNumber: gameData.lane_number,
+            secondLaneNumber: gameData.second_lane_number,
+            laneConfig: gameData.lane_config,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching game info:', error);
       }
     };
 
@@ -103,7 +112,7 @@ export const GameStatus = ({ currentFrame, currentShot, gameId }: GameStatusProp
   return (
     <div className="text-center space-y-1 text-gray-600">
       {gameInfo.gameNumber && gameInfo.sessionId && (
-        <p className="text-sm">Game {gameInfo.gameNumber}</p>
+        <p className="text-sm font-medium">Game {gameInfo.gameNumber} of Session</p>
       )}
       <p className="font-medium">Frame {displayFrame}</p>
       <p className="text-sm">{getShotText(currentShot)}</p>

@@ -61,8 +61,13 @@ export const ScoreCard = ({
         )}
         onClick={() => isInteractive && onFrameClick?.(index + 1)}
       >
+        {/* Frame History */}
+        <div className="h-12 flex items-center justify-center">
+          <FrameHistory frame={frame} size="sm" />
+        </div>
+        
         {/* Frame Number */}
-        <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-sm font-medium text-gray-600">
+        <div className="text-sm font-medium text-gray-600 border-t border-b border-gray-300 py-1 text-center">
           {index + 1}
         </div>
         
@@ -84,17 +89,16 @@ export const ScoreCard = ({
           )}
         </div>
         
-        {/* Frame Score and History */}
-        <div className="p-2 text-center min-h-[4rem] flex flex-col items-center justify-between">
+        {/* Frame Score */}
+        <div className="p-2 text-center">
           <span>{frameScore}</span>
-          <FrameHistory frame={frame} />
         </div>
       </div>
     );
   };
 
   return (
-    <div className="relative pt-8 border border-gray-300 rounded-lg overflow-hidden">
+    <div className="relative border border-gray-300 rounded-lg overflow-hidden">
       <div className="grid grid-cols-11 text-sm">
         {frames.map((frame, index) => renderFrame(frame, index))}
       </div>
