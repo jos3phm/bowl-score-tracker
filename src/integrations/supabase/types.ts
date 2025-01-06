@@ -129,6 +129,58 @@ export type Database = {
         }
         Relationships: []
       }
+      game_sessions: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          id: string
+          league_id: string | null
+          location_id: string | null
+          tournament_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          league_id?: string | null
+          location_id?: string | null
+          tournament_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          league_id?: string | null
+          location_id?: string | null
+          tournament_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_sessions_league_id_fkey"
+            columns: ["league_id"]
+            isOneToOne: false
+            referencedRelation: "leagues"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_sessions_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "bowling_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_sessions_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       games: {
         Row: {
           created_at: string
@@ -136,6 +188,7 @@ export type Database = {
           game_start_time: string | null
           game_type: Database["public"]["Enums"]["game_type"] | null
           id: string
+          is_clean: boolean | null
           lane_config: Database["public"]["Enums"]["lane_config"] | null
           lane_number: number | null
           league_id: string | null
@@ -143,6 +196,8 @@ export type Database = {
           notes: string | null
           photo_url: string | null
           second_lane_number: number | null
+          session_id: string | null
+          splits: number | null
           total_score: number | null
           tournament_id: string | null
           updated_at: string
@@ -154,6 +209,7 @@ export type Database = {
           game_start_time?: string | null
           game_type?: Database["public"]["Enums"]["game_type"] | null
           id?: string
+          is_clean?: boolean | null
           lane_config?: Database["public"]["Enums"]["lane_config"] | null
           lane_number?: number | null
           league_id?: string | null
@@ -161,6 +217,8 @@ export type Database = {
           notes?: string | null
           photo_url?: string | null
           second_lane_number?: number | null
+          session_id?: string | null
+          splits?: number | null
           total_score?: number | null
           tournament_id?: string | null
           updated_at?: string
@@ -172,6 +230,7 @@ export type Database = {
           game_start_time?: string | null
           game_type?: Database["public"]["Enums"]["game_type"] | null
           id?: string
+          is_clean?: boolean | null
           lane_config?: Database["public"]["Enums"]["lane_config"] | null
           lane_number?: number | null
           league_id?: string | null
@@ -179,6 +238,8 @@ export type Database = {
           notes?: string | null
           photo_url?: string | null
           second_lane_number?: number | null
+          session_id?: string | null
+          splits?: number | null
           total_score?: number | null
           tournament_id?: string | null
           updated_at?: string
@@ -197,6 +258,13 @@ export type Database = {
             columns: ["location_id"]
             isOneToOne: false
             referencedRelation: "bowling_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "games_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
             referencedColumns: ["id"]
           },
           {
