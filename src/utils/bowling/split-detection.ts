@@ -14,6 +14,11 @@ const pinNeighbors: Record<Pin, Pin[]> = {
   10: [6, 9]
 };
 
+interface SplitParams {
+  firstShot: Pin[];
+  secondShot: Pin[];
+}
+
 // Define common split patterns
 const commonSplits: [Pin, Pin][] = [
   [3, 10], // 3-10 split
@@ -30,11 +35,11 @@ const commonSplits: [Pin, Pin][] = [
   [5, 7],  // 5-7 split
 ];
 
-export const isSplit = (remainingPins: Pin[]): boolean => {
+export const isSplit = ({ firstShot, secondShot }: SplitParams): boolean => {
   // If there aren't exactly 2 pins remaining, it's not a split
-  if (remainingPins.length !== 2) return false;
+  if (secondShot.length !== 2) return false;
   
-  const [pin1, pin2] = remainingPins.sort((a, b) => a - b);
+  const [pin1, pin2] = secondShot.sort((a, b) => a - b);
   
   // First, check if this is a common split pattern
   for (const [splitPin1, splitPin2] of commonSplits) {
