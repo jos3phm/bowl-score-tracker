@@ -5,6 +5,17 @@ import { Frame } from "@/types/game";
 import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface GameCompleteProps {
   totalScore: number;
@@ -22,6 +33,8 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
   const [sessionGames, setSessionGames] = useState<SeriesGame[]>([]);
   const [isLastGameInSeries, setIsLastGameInSeries] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+  const navigate = useNavigate();
 
   const {
     notes,
@@ -34,7 +47,6 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
 
   useEffect(() => {
     const fetchSessionData = async () => {
-      // First get the session ID for this game
       const { data: gameData } = await supabase
         .from('games')
         .select('session_id')
@@ -44,7 +56,6 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
       if (gameData?.session_id) {
         setSessionId(gameData.session_id);
         
-        // Then get all games in this session
         const { data: sessionGames } = await supabase
           .from('games')
           .select('id, total_score')
@@ -54,7 +65,6 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
         if (sessionGames) {
           setSessionGames(sessionGames);
           
-          // Get session details to check if we've reached the games limit
           const { data: sessionData } = await supabase
             .from('game_sessions')
             .select('leagues(games_per_series)')
@@ -73,12 +83,46 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
   const handleEndSession = async () => {
     if (!sessionId) return;
 
+    await handleSaveGame();
     await supabase
       .from('game_sessions')
       .update({ ended_at: new Date().toISOString() })
       .eq('id', sessionId);
 
-    window.location.href = '/';
+    navigate('/');
+  };
+
+  const handleNextGame = async () => {
+    await handleSaveGame();
+    onNewGame();
+  };
+
+  const handleDiscardGame = async () => {
+    if (!sessionId) {
+      navigate('/');
+      return;
+    }
+
+    const { data: sessionGames } = await supabase
+      .from('games')
+      .select('id')
+      .eq('session_id', sessionId);
+
+    // If this is the only game in the session, end the session
+    if (sessionGames && sessionGames.length <= 1) {
+      await supabase
+        .from('game_sessions')
+        .update({ ended_at: new Date().toISOString() })
+        .eq('id', sessionId);
+    }
+
+    // Delete the current game
+    await supabase
+      .from('games')
+      .delete()
+      .eq('id', gameId);
+
+    navigate('/');
   };
 
   const calculateSeriesAverage = () => {
@@ -126,18 +170,38 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
         photo={photo}
       />
 
-      <div className="flex justify-center gap-4">
+      <div className="flex flex-col gap-4">
         {!isLastGameInSeries && (
-          <Button onClick={onNewGame} variant="default">
+          <Button onClick={handleNextGame} variant="default">
             Next Game
           </Button>
         )}
+        <Button onClick={() => setShowDiscardDialog(true)} variant="destructive">
+          Discard Game
+        </Button>
         {(isLastGameInSeries || sessionGames.length > 0) && (
           <Button onClick={handleEndSession} variant="secondary">
             End Session
           </Button>
         )}
       </div>
+
+      <AlertDialog open={showDiscardDialog} onOpenChange={setShowDiscardDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your game and all its data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDiscardGame} className="bg-destructive text-destructive-foreground">
+              Yes, discard game
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

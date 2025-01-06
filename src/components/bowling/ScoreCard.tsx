@@ -1,101 +1,68 @@
-import { Frame, Pin } from "@/types/game";
+import { Frame } from "@/types/game";
 import { cn } from "@/lib/utils";
 import { isSplit } from "@/utils/bowling/split-detection";
 
 interface ScoreCardProps {
   frames: Frame[];
   currentFrame: number;
-  onFrameClick?: (frameIndex: number) => void;
-  selectedFrame?: number | null;
   isInteractive?: boolean;
+  onFrameClick?: (frameNumber: number) => void;
 }
 
-export const ScoreCard = ({ 
-  frames, 
-  currentFrame, 
-  onFrameClick, 
-  selectedFrame,
-  isInteractive = true 
+export const ScoreCard = ({
+  frames,
+  currentFrame,
+  isInteractive = true,
+  onFrameClick,
 }: ScoreCardProps) => {
-  const renderShot = (shot: Pin[] | null, isSpare: boolean, isLastShot: boolean = false, isSplitShot: boolean = false) => {
-    if (shot === null) return "";
-    if (shot.length === 10 && !isSpare) return "X";
+  const renderShot = (shot: number[], isSpare: boolean, frameIndex: number, shotIndex: number) => {
+    if (!shot) return "";
     if (isSpare) return "/";
+    
     const shotValue = shot.length.toString();
+    const isSplitShot = shotIndex === 1 && isSplit(frames[frameIndex].firstShot || [], shot);
+    
     return isSplitShot ? (
-      <div className="relative inline-flex items-center justify-center w-6 h-6">
-        <span className="relative z-20 text-gray-900">{shotValue}</span>
-        <span className="absolute inset-0 z-10 border-[2.5px] border-gray-800 rounded-full transform scale-110" />
+      <div className="relative inline-block">
+        <span className="relative z-10">{shotValue}</span>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-7 h-7 border-2 border-gray-800 rounded-full" />
       </div>
     ) : shotValue;
   };
 
   const renderFrame = (frame: Frame, index: number) => {
-    const isActive = index === currentFrame - 1;
-    const isSelected = index === selectedFrame;
-    const isTenth = index === 9;
-    const hasSplit = frame.firstShot && isSplit(frame.firstShot);
+    const isActive = currentFrame === index + 1;
+    const frameScore = frame.score?.toString() || "";
 
     return (
       <div
         key={index}
         className={cn(
-          "relative border-r border-gray-300 last:border-r-0",
-          isTenth ? "min-w-[100px]" : "min-w-[80px]",
-          "h-[80px]",
+          "border-r border-gray-300 text-center",
+          isActive && "bg-blue-50",
           isInteractive && "cursor-pointer hover:bg-gray-50",
-          isActive && "bg-primary/5",
-          isSelected && "bg-secondary/5"
+          index === 9 && "col-span-2"
         )}
-        onClick={() => isInteractive && index < currentFrame - 1 && onFrameClick?.(index)}
+        onClick={() => isInteractive && onFrameClick?.(index + 1)}
       >
-        {/* Frame Number */}
-        <div className="absolute top-0 left-0 w-full text-center text-xs text-gray-500 border-b border-gray-300 py-1">
-          {index + 1}
-        </div>
-        
-        {/* Shots Container */}
-        <div className="absolute top-[24px] left-0 w-full px-1">
-          <div className={cn(
-            "flex justify-end",
-            isTenth && "space-x-0.5"
-          )}>
-            {/* First Shot */}
-            <div className="w-8 h-8 border-b border-r border-gray-300 flex items-center justify-center">
-              {!isTenth && frame.isStrike ? "X" : renderShot(frame.firstShot, false, false, hasSplit)}
+        <div className="grid grid-cols-2 gap-1 p-2 border-b border-gray-300">
+          {renderShot(frame.firstShot || [], false, index, 1)}
+          {renderShot(frame.secondShot || [], frame.isSpare, index, 2)}
+          {index === 9 && frame.thirdShot && (
+            <div className="col-span-1">
+              {renderShot(frame.thirdShot, false, index, 3)}
             </div>
-            {/* Second Shot */}
-            <div className={cn(
-              "w-8 h-8 border-b border-gray-300 flex items-center justify-center",
-              !isTenth && "border-l-0"
-            )}>
-              {renderShot(frame.secondShot, frame.isSpare)}
-            </div>
-            {/* Third Shot (10th frame only) */}
-            {isTenth && (frame.isStrike || frame.isSpare) && (
-              <div className="w-8 h-8 border-b border-l border-gray-300 flex items-center justify-center">
-                {renderShot(frame.thirdShot, false, true)}
-              </div>
-            )}
-          </div>
+          )}
         </div>
-
-        {/* Frame Score */}
-        <div className="absolute bottom-1 left-0 w-full">
-          <div className="text-center font-semibold px-2">
-            {frame.score !== null ? frame.score : ""}
-          </div>
-        </div>
+        <div className="p-2">{frameScore}</div>
       </div>
     );
   };
 
   return (
-    <div className="w-full overflow-x-auto">
-      <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
-        <div className="flex min-w-fit">
-          {frames.map((frame, index) => renderFrame(frame, index))}
-        </div>
+    <div className="border border-gray-300 rounded-lg overflow-hidden">
+      <div className="grid grid-cols-10 text-sm">
+        {frames.map((frame, index) => renderFrame(frame, index))}
       </div>
     </div>
   );
