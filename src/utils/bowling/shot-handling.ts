@@ -77,10 +77,16 @@ export const recordRegularShot = (
       frame.isStrike = knockedDownPins.length === 10;
       frame.isSplit = !frame.isStrike && knockedDownPins.length > 1 && isSplit(knockedDownPins);
     } else if (shot === 2) {
-      frame.secondShot = knockedDownPins;
-      // Check if this completes a spare
-      const totalPinsDown = (frame.firstShot?.length || 0) + knockedDownPins.length;
-      frame.isSpare = !frame.isStrike && totalPinsDown === 10;
+      // Check if this should be a spare
+      const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
+      const isSpare = selectedPins.length === 1 && remainingPins.includes(selectedPins[0]);
+      
+      if (isSpare) {
+        frame.secondShot = remainingPins;
+        frame.isSpare = true;
+      } else {
+        frame.secondShot = knockedDownPins;
+      }
     } else if (shot === 3) {
       frame.thirdShot = knockedDownPins;
     }
@@ -90,10 +96,16 @@ export const recordRegularShot = (
       frame.isStrike = knockedDownPins.length === 10;
       frame.isSplit = !frame.isStrike && knockedDownPins.length > 1 && isSplit(knockedDownPins);
     } else {
-      frame.secondShot = knockedDownPins;
-      // Check if this completes a spare
-      const totalPinsDown = (frame.firstShot?.length || 0) + knockedDownPins.length;
-      frame.isSpare = !frame.isStrike && totalPinsDown === 10;
+      // Check if this should be a spare
+      const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
+      const isSpare = selectedPins.length === 1 && remainingPins.includes(selectedPins[0]);
+      
+      if (isSpare) {
+        frame.secondShot = remainingPins;
+        frame.isSpare = true;
+      } else {
+        frame.secondShot = knockedDownPins;
+      }
     }
   }
 
