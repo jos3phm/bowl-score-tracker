@@ -24,34 +24,28 @@ export const ActionButtons = ({
   isFirstShotStrike = false,
   selectedPins = [],
 }: ActionButtonsProps) => {
-  const isStrikeDisabled = disabled || 
-    (currentShot === 2 && (currentFrame !== 10 || !isFirstShotStrike));
+  const canStrike = currentShot === 1 || (currentFrame === 10 && currentShot === 2 && isFirstShotStrike);
+  const canSpare = currentShot === 2 || (currentFrame === 10 && currentShot === 3 && isFirstShotStrike);
+  
+  const handleStrikeSpare = () => {
+    if (canStrike) {
+      onStrike();
+    } else if (canSpare) {
+      onSpare();
+    }
+  };
 
-  const isSpareDisabled = disabled || 
-    currentShot === 1 || 
-    (currentFrame === 10 && currentShot === 3 && isFirstShotStrike);
-
-  const isRegularShotDisabled = disabled || 
-    (currentShot === 1 && selectedPins.length === 10);
-
-  // Remove the handleRegularShot wrapper since it was causing the issue
-  // by calling onMiss() when selectedPins was empty
   return (
     <div className="flex gap-2 justify-center flex-wrap">
+      {/* Combined Strike/Spare button */}
       <Button
-        onClick={onStrike}
-        disabled={isStrikeDisabled}
+        onClick={handleStrikeSpare}
+        disabled={disabled || (!canStrike && !canSpare)}
         className="bg-primary hover:bg-primary/90"
       >
-        Strike
+        {canStrike ? "Strike" : "Spare"}
       </Button>
-      <Button
-        onClick={onSpare}
-        disabled={isSpareDisabled}
-        className="bg-secondary hover:bg-secondary/90"
-      >
-        Spare
-      </Button>
+
       <Button
         onClick={onMiss}
         disabled={disabled}
@@ -59,9 +53,10 @@ export const ActionButtons = ({
       >
         Miss
       </Button>
+
       <Button
         onClick={onRegularShot}
-        disabled={isRegularShotDisabled}
+        disabled={disabled || selectedPins.length === 10}
         variant="default"
       >
         Record Shot

@@ -44,10 +44,11 @@ export const GameContent = ({
   const [selectedPins, setSelectedPins] = useState<Pin[]>([]);
 
   const handleRegularShot = () => {
-    if (selectedPins.length > 0) {
-      handlePinClick(selectedPins);
-      setSelectedPins([]);
-    }
+    // Always call handlePinClick with the current selectedPins
+    // This ensures that even when no pins are selected (a miss),
+    // we still record the shot
+    handlePinClick(selectedPins);
+    setSelectedPins([]);
   };
 
   return (
@@ -71,7 +72,7 @@ export const GameContent = ({
         onStrike={handleStrike}
         onSpare={handleSpare}
         onRegularShot={handleRegularShot}
-        onMiss={handleMiss}  // Pass handleMiss directly
+        onMiss={handleMiss}
         disabled={currentFrame > 10}
         currentFrame={currentFrame}
         currentShot={currentShot}
