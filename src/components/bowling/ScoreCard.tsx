@@ -83,24 +83,24 @@ export const ScoreCard = ({
         
         {/* Shots Container */}
         <div className={cn(
-          "grid border-b border-gray-300",
+          "grid border-b border-gray-300 min-h-[2.5rem]",
           index === 9 ? "grid-cols-3" : "grid-cols-2"
         )}>
-          <div className="p-2 text-center border-r border-gray-300">
+          <div className="p-2 text-center border-r border-gray-300 min-h-[2.5rem] flex items-center justify-center">
             {renderShot(frame.firstShot, frame.isStrike, false, index)}
           </div>
-          <div className="p-2 text-center">
+          <div className="p-2 text-center min-h-[2.5rem] flex items-center justify-center">
             {renderShot(frame.secondShot, frame.isStrike, frame.isSpare, index)}
           </div>
           {index === 9 && (
-            <div className="p-2 text-center border-l border-gray-300">
+            <div className="p-2 text-center border-l border-gray-300 min-h-[2.5rem] flex items-center justify-center">
               {renderShot(frame.thirdShot, frame.isStrike, frame.isSpare, index)}
             </div>
           )}
         </div>
         
         {/* Frame Score */}
-        <div className="p-2 text-center">
+        <div className="p-2 text-center min-h-[2.5rem] flex items-center justify-center">
           {frameScore}
         </div>
       </div>
