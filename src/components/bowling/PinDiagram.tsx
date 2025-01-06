@@ -27,15 +27,12 @@ export const PinDiagram = ({
     if (disabled || isLongPress || isHistoricalView) return;
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
 
-    onPinSelect((currentPins) => {
-      const isSelected = currentPins.includes(pin);
-      if (isSelected) {
-        return currentPins.filter(p => p !== pin);
-      } else {
-        return [...currentPins, pin];
-      }
-    });
-  }, [disabled, isLongPress, isHistoricalView, remainingPins, onPinSelect]);
+    const newSelectedPins = selectedPins.includes(pin)
+      ? selectedPins.filter(p => p !== pin)
+      : [...selectedPins, pin];
+    
+    onPinSelect(newSelectedPins);
+  }, [disabled, isLongPress, isHistoricalView, remainingPins, selectedPins, onPinSelect]);
 
   const handleDoubleTapPin = useCallback((pin: PinType) => {
     if (disabled || isHistoricalView) return;
