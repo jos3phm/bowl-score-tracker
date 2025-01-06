@@ -22,6 +22,7 @@ interface GameContentProps {
   selectedBallId: string | null;
   handleBallSelect: (ballId: string | null) => void;
   remainingPins?: Pin[];
+  gameId: string;
 }
 
 export const GameContent = ({
@@ -40,6 +41,7 @@ export const GameContent = ({
   selectedBallId,
   handleBallSelect,
   remainingPins = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  gameId,
 }: GameContentProps) => {
   const [selectedPins, setSelectedPins] = useState<Pin[]>([]);
 
@@ -82,6 +84,7 @@ export const GameContent = ({
       <GameStatus
         currentFrame={currentFrame}
         currentShot={currentShot}
+        gameId={gameId}
       />
     </div>
   );
