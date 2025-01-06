@@ -1,6 +1,7 @@
 import { Frame, Pin } from "@/types/game";
 import { cn } from "@/lib/utils";
 import { isSplit } from "@/utils/bowling/split-detection";
+import { FrameHistory } from "./FrameHistory";
 
 interface ScoreCardProps {
   frames: Frame[];
@@ -22,41 +23,61 @@ export const ScoreCard = ({
     
     // Handle strikes
     if (isStrike && frameIndex < 9 && shot === frames[frameIndex].firstShot) {
-      return "X";
+      return (
+        <div className="flex flex-col items-center">
+          <span>X</span>
+          <FrameHistory frame={frames[frameIndex]} />
+        </div>
+      );
     }
     
     // Handle spares
     if (isSpare && shot === frames[frameIndex].secondShot) {
-      return "/";
+      return (
+        <div className="flex flex-col items-center">
+          <span>/</span>
+          <FrameHistory frame={frames[frameIndex]} />
+        </div>
+      );
     }
 
     // Handle 10th frame special cases
     if (frameIndex === 9) {
-      if (shot.length === 10) return "X";
-      if (isSpare && shot === frames[frameIndex].secondShot) return "/";
+      if (shot.length === 10) {
+        return (
+          <div className="flex flex-col items-center">
+            <span>X</span>
+            <FrameHistory frame={frames[frameIndex]} />
+          </div>
+        );
+      }
+      if (isSpare && shot === frames[frameIndex].secondShot) {
+        return (
+          <div className="flex flex-col items-center">
+            <span>/</span>
+            <FrameHistory frame={frames[frameIndex]} />
+          </div>
+        );
+      }
       if (frames[9].thirdShot === shot) {
-        return shot.length === 10 ? "X" : shot.length.toString();
+        return (
+          <div className="flex flex-col items-center">
+            <span>{shot.length === 10 ? "X" : shot.length.toString()}</span>
+            <FrameHistory frame={frames[frameIndex]} />
+          </div>
+        );
       }
     }
     
     // Regular shot
     const shotValue = shot.length.toString();
     
-    // Check for splits on the second shot of a frame
-    const isSplitShot = frameIndex > 0 && 
-      shot === frames[frameIndex].secondShot && 
-      frames[frameIndex].firstShot && 
-      isSplit({
-        firstShot: frames[frameIndex].firstShot,
-        secondShot: shot
-      });
-    
-    return isSplitShot ? (
-      <div className="relative inline-block w-6 h-6">
-        <span className="relative z-10">{shotValue}</span>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full border-2 border-gray-800 rounded-full" />
+    return (
+      <div className="flex flex-col items-center">
+        <span>{shotValue}</span>
+        <FrameHistory frame={frames[frameIndex]} />
       </div>
-    ) : shotValue;
+    );
   };
 
   const renderFrame = (frame: Frame, index: number) => {
