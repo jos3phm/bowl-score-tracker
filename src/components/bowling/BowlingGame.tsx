@@ -121,6 +121,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
         selectedBallId={selectedBallId}
         handleBallSelect={handleBallSelect}
         remainingPins={remainingPins}
+        gameId={gameId}
       />
     </GameContainer>
   );
