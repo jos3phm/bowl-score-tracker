@@ -24,34 +24,31 @@ const commonSplits: [Pin, Pin][] = [
   [6, 7],  // 6-7 split
   [7, 10], // 7-10 split (bedposts)
   [8, 10], // 8-10 split
+  [4, 9],  // 4-9 split
+  [3, 7],  // 3-7 split
+  [2, 10], // 2-10 split
+  [5, 7],  // 5-7 split
 ];
 
 export const isSplit = (remainingPins: Pin[]): boolean => {
-  if (remainingPins.length < 2) return false;
+  // If there aren't exactly 2 pins remaining, it's not a split
+  if (remainingPins.length !== 2) return false;
+  
+  const [pin1, pin2] = remainingPins.sort((a, b) => a - b);
   
   // First, check if this is a common split pattern
-  for (const [pin1, pin2] of commonSplits) {
-    if (remainingPins.length === 2 && 
-        remainingPins.includes(pin1) && 
-        remainingPins.includes(pin2)) {
+  for (const [splitPin1, splitPin2] of commonSplits) {
+    if (pin1 === splitPin1 && pin2 === splitPin2) {
       return true;
     }
   }
   
-  // For other cases with 2 or more pins remaining
-  for (let i = 0; i < remainingPins.length; i++) {
-    for (let j = i + 1; j < remainingPins.length; j++) {
-      const pin1 = remainingPins[i];
-      const pin2 = remainingPins[j];
-      
-      // If these pins aren't neighbors and there's no path of standing pins between them
-      if (!pinNeighbors[pin1].includes(pin2)) {
-        const hasPathOfStandingPins = hasConnectingPath(pin1, pin2, remainingPins);
-        if (!hasPathOfStandingPins) {
-          return true;
-        }
-      }
-    }
+  // If not a common split, check if the pins are non-adjacent
+  // and there's no path between them through knocked down pins
+  if (!pinNeighbors[pin1].includes(pin2)) {
+    // For two non-adjacent pins, we consider it a split if they're
+    // separated by at least one pin position
+    return Math.abs(pin1 - pin2) > 2;
   }
   
   return false;
