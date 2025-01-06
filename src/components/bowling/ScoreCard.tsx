@@ -17,18 +17,39 @@ export const ScoreCard = ({
   onFrameClick,
   selectedFrame = null,
 }: ScoreCardProps) => {
-  const renderShot = (shot: Pin[] | null, isSpare: boolean, frameIndex: number) => {
+  const renderShot = (shot: Pin[] | null, isStrike: boolean, isSpare: boolean, frameIndex: number) => {
     if (!shot) return "";
-    if (isSpare) return "/";
     
+    // Handle strikes
+    if (isStrike && frameIndex < 9 && shot === frames[frameIndex].firstShot) {
+      return "X";
+    }
+    
+    // Handle spares
+    if (isSpare && shot === frames[frameIndex].secondShot) {
+      return "/";
+    }
+
+    // Handle 10th frame special cases
+    if (frameIndex === 9) {
+      if (shot.length === 10) return "X";
+      if (isSpare && shot === frames[frameIndex].secondShot) return "/";
+      if (frames[9].thirdShot === shot) {
+        return shot.length === 10 ? "X" : shot.length.toString();
+      }
+    }
+    
+    // Regular shot
     const shotValue = shot.length.toString();
-    // Only check for splits on the second shot of a frame
-    const isSplitShot = frameIndex > 0 && shot.length > 0 && frames[frameIndex].firstShot 
-      ? isSplit({
-          firstShot: frames[frameIndex].firstShot as Pin[],
-          secondShot: shot
-        })
-      : false;
+    
+    // Check for splits on the second shot of a frame
+    const isSplitShot = frameIndex > 0 && 
+      shot === frames[frameIndex].secondShot && 
+      frames[frameIndex].firstShot && 
+      isSplit({
+        firstShot: frames[frameIndex].firstShot,
+        secondShot: shot
+      });
     
     return isSplitShot ? (
       <div className="relative inline-block w-6 h-6">
@@ -56,11 +77,11 @@ export const ScoreCard = ({
         onClick={() => isInteractive && onFrameClick?.(index + 1)}
       >
         <div className="grid grid-cols-2 gap-1 p-2 border-b border-gray-300">
-          {renderShot(frame.firstShot, false, index)}
-          {renderShot(frame.secondShot, frame.isSpare, index)}
+          {renderShot(frame.firstShot, frame.isStrike, false, index)}
+          {renderShot(frame.secondShot, frame.isStrike, frame.isSpare, index)}
           {index === 9 && frame.thirdShot && (
             <div className="col-span-1">
-              {renderShot(frame.thirdShot, false, index)}
+              {renderShot(frame.thirdShot, frame.isStrike, frame.isSpare, index)}
             </div>
           )}
         </div>
