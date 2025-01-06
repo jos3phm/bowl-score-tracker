@@ -38,6 +38,13 @@ export const GameSetupForm = () => {
     getSecondLaneNumber,
   } = useGameSetup();
 
+  // Set lane config to cross when game type changes to league
+  useEffect(() => {
+    if (gameType === 'league') {
+      setLaneConfig('cross');
+    }
+  }, [gameType, setLaneConfig]);
+
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>

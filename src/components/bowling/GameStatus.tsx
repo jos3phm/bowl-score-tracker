@@ -14,6 +14,9 @@ export const GameStatus = ({ currentFrame, currentShot, gameId }: GameStatusProp
     leagueName?: string;
     tournamentName?: string;
     sessionId?: string;
+    laneNumber?: number;
+    secondLaneNumber?: number;
+    laneConfig?: 'single' | 'cross';
   }>({});
 
   useEffect(() => {
@@ -27,6 +30,9 @@ export const GameStatus = ({ currentFrame, currentShot, gameId }: GameStatusProp
           session_id,
           league_id,
           tournament_id,
+          lane_number,
+          second_lane_number,
+          lane_config,
           leagues (name),
           tournaments (name)
         `)
@@ -54,6 +60,9 @@ export const GameStatus = ({ currentFrame, currentShot, gameId }: GameStatusProp
           leagueName: gameData.leagues?.name,
           tournamentName: gameData.tournaments?.name,
           sessionId: gameData.session_id,
+          laneNumber: gameData.lane_number,
+          secondLaneNumber: gameData.second_lane_number,
+          laneConfig: gameData.lane_config,
         });
       }
     };
@@ -78,6 +87,19 @@ export const GameStatus = ({ currentFrame, currentShot, gameId }: GameStatusProp
     return "Practice Session";
   };
 
+  const getCurrentLane = () => {
+    if (!gameInfo.laneNumber) return null;
+    if (gameInfo.laneConfig !== 'cross') return gameInfo.laneNumber;
+    
+    // Don't alternate lanes in 10th frame
+    if (currentFrame === 10) return gameInfo.laneNumber;
+    
+    // For cross lane bowling, alternate between lanes based on frame number
+    return currentFrame % 2 === 1 ? gameInfo.laneNumber : gameInfo.secondLaneNumber;
+  };
+
+  const laneNumber = getCurrentLane();
+
   return (
     <div className="text-center space-y-1 text-gray-600">
       {gameInfo.gameNumber && gameInfo.sessionId && (
@@ -86,6 +108,9 @@ export const GameStatus = ({ currentFrame, currentShot, gameId }: GameStatusProp
       <p className="font-medium">Frame {displayFrame}</p>
       <p className="text-sm">{getShotText(currentShot)}</p>
       <p className="text-sm italic">{getSessionText()}</p>
+      {laneNumber && (
+        <p className="text-sm font-medium">Lane {laneNumber}</p>
+      )}
     </div>
   );
 };

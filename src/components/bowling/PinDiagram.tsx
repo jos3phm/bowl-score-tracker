@@ -86,22 +86,22 @@ export const PinDiagram = ({
   return (
     <div className="relative w-full max-w-[300px] mx-auto">
       <PinRow
-        pins={[7]}
+        pins={[1]}
         {...commonProps}
         className="flex justify-center mb-4"
       />
       <PinRow
-        pins={[4, 8]}
+        pins={[2, 3]}
         {...commonProps}
         className="flex justify-center gap-8 mb-4"
       />
       <PinRow
-        pins={[2, 5, 9]}
+        pins={[4, 5, 6]}
         {...commonProps}
         className="flex justify-center gap-8 mb-4"
       />
       <PinRow
-        pins={[1, 3, 6, 10]}
+        pins={[7, 8, 9, 10]}
         {...commonProps}
         className="flex justify-center gap-8"
       />
