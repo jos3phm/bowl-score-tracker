@@ -33,16 +33,21 @@ export const recordSpare = (
   shot: 1 | 2 | 3
 ): Frame => {
   const frame = { ...frames[frameIndex] };
-  const remainingPins = getRemainingPins(frame, shot);
-
+  const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  
+  // For a spare, we need to knock down all remaining pins
   if (frameIndex === 9) { // 10th frame
     if (shot === 2) {
+      // Get remaining pins after first shot
+      const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
       frame.secondShot = remainingPins;
       frame.isSpare = true;
     } else if (shot === 3) {
-      frame.thirdShot = remainingPins;
+      frame.thirdShot = allPins;
     }
   } else {
+    // For regular frames, second shot should knock down all remaining pins
+    const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
     frame.secondShot = remainingPins;
     frame.isSpare = true;
   }
@@ -73,8 +78,9 @@ export const recordRegularShot = (
       frame.isSplit = !frame.isStrike && knockedDownPins.length > 1 && isSplit(knockedDownPins);
     } else if (shot === 2) {
       frame.secondShot = knockedDownPins;
-      frame.isSpare = frame.firstShot && 
-        (frame.firstShot.length + knockedDownPins.length === 10);
+      // Check if this completes a spare
+      const totalPinsDown = (frame.firstShot?.length || 0) + knockedDownPins.length;
+      frame.isSpare = !frame.isStrike && totalPinsDown === 10;
     } else if (shot === 3) {
       frame.thirdShot = knockedDownPins;
     }
@@ -85,8 +91,9 @@ export const recordRegularShot = (
       frame.isSplit = !frame.isStrike && knockedDownPins.length > 1 && isSplit(knockedDownPins);
     } else {
       frame.secondShot = knockedDownPins;
-      frame.isSpare = frame.firstShot && 
-        (frame.firstShot.length + knockedDownPins.length === 10);
+      // Check if this completes a spare
+      const totalPinsDown = (frame.firstShot?.length || 0) + knockedDownPins.length;
+      frame.isSpare = !frame.isStrike && totalPinsDown === 10;
     }
   }
 
