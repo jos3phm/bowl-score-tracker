@@ -67,8 +67,8 @@ export const recordRegularShot = (
   const frame = { ...frames[frameIndex] };
   const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
-  // For a miss (empty selectedPins array), we record no pins knocked down
-  const knockedDownPins = selectedPins.length === 0 ? [] : allPins.filter(pin => !selectedPins.includes(pin));
+  // Convert selected pins (standing) to knocked down pins
+  const knockedDownPins = allPins.filter(pin => !selectedPins.includes(pin));
   console.log('Knocked down pins:', knockedDownPins);
   
   if (frameIndex === 9) { // 10th frame
@@ -80,9 +80,9 @@ export const recordRegularShot = (
       }
     } else if (shot === 2) {
       frame.secondShot = knockedDownPins;
-      // Check if this completes a spare
-      const totalPinsDown = (frame.firstShot?.length || 0) + knockedDownPins.length;
-      frame.isSpare = totalPinsDown === 10 && !frame.isStrike;
+      // For second shot, we need to check if all remaining pins were knocked down
+      const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
+      frame.isSpare = knockedDownPins.length === remainingPins.length && !frame.isStrike;
     } else if (shot === 3) {
       frame.thirdShot = knockedDownPins;
     }
@@ -95,9 +95,9 @@ export const recordRegularShot = (
       }
     } else {
       frame.secondShot = knockedDownPins;
-      // Check if this completes a spare
-      const totalPinsDown = (frame.firstShot?.length || 0) + knockedDownPins.length;
-      frame.isSpare = totalPinsDown === 10 && !frame.isStrike;
+      // For second shot, we need to check if all remaining pins were knocked down
+      const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
+      frame.isSpare = knockedDownPins.length === remainingPins.length && !frame.isStrike;
     }
   }
 
