@@ -12,7 +12,11 @@ export const getKnockedDownPins = (
     return []; // Miss - no pins knocked down
   }
   
-  return shot === 1
-    ? allPins.filter(pin => !selectedPins.includes(pin)) // First shot - unselected pins are knocked down
-    : selectedPins; // Second shot - selected pins are knocked down
+  if (shot === 1) {
+    // First shot - selected pins are standing, so unselected pins are knocked down
+    return allPins.filter(pin => !selectedPins.includes(pin));
+  } else {
+    // Second or third shot - selected pins are the ones knocked down
+    return selectedPins;
+  }
 };
