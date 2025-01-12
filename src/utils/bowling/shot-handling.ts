@@ -79,9 +79,10 @@ export const recordRegularShot = (
         frame.isSplit = isSplit({ firstShot: [], secondShot: knockedDownPins });
       }
     } else if (shot === 2) {
-      const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
       frame.secondShot = knockedDownPins;
-      frame.isSpare = knockedDownPins.length === remainingPins.length;
+      // Check if this completes a spare
+      const totalPinsDown = (frame.firstShot?.length || 0) + knockedDownPins.length;
+      frame.isSpare = totalPinsDown === 10 && !frame.isStrike;
     } else if (shot === 3) {
       frame.thirdShot = knockedDownPins;
     }
@@ -93,9 +94,10 @@ export const recordRegularShot = (
         frame.isSplit = isSplit({ firstShot: [], secondShot: knockedDownPins });
       }
     } else {
-      const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
       frame.secondShot = knockedDownPins;
-      frame.isSpare = knockedDownPins.length === remainingPins.length;
+      // Check if this completes a spare
+      const totalPinsDown = (frame.firstShot?.length || 0) + knockedDownPins.length;
+      frame.isSpare = totalPinsDown === 10 && !frame.isStrike;
     }
   }
 
