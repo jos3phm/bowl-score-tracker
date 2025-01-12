@@ -93,79 +93,45 @@ export const useBallSelection = (gameId: string) => {
     }
 
     try {
-      // First, check if a record already exists for this frame and shot
-      const { data: existingUsage, error: checkError } = await supabase
-        .from('ball_usage')
-        .select('id')
-        .eq('game_id', gameId)
-        .eq('frame_number', frameNumber)
-        .eq('shot_number', shotNumber)
-        .maybeSingle();
-
-      if (checkError) {
-        console.error('Error checking existing ball usage:', checkError);
-        toast.error("Failed to verify ball usage");
-        return false;
-      }
-
       const usageData = {
+        game_id: gameId,
         ball_id: selectedBallId,
+        frame_number: frameNumber,
+        shot_number: shotNumber,
         remaining_pins: remainingPins || [],
       };
 
-      let success = false;
+      // Use upsert instead of insert to handle both new records and updates
+      const { error } = await supabase
+        .from('ball_usage')
+        .upsert(usageData, {
+          onConflict: 'game_id,frame_number,shot_number',
+          ignoreDuplicates: false
+        });
 
-      if (existingUsage) {
-        // Update existing record
-        const { error: updateError } = await supabase
-          .from('ball_usage')
-          .update(usageData)
-          .eq('id', existingUsage.id);
+      if (error) {
+        console.error('Error recording ball usage:', error);
+        toast.error("Failed to record ball usage");
+        return false;
+      }
 
-        if (updateError) {
-          console.error('Error updating ball usage:', updateError);
-          toast.error("Failed to update ball usage");
-          return false;
-        }
-        success = true;
+      // Handle ball switching logic
+      const { data: ballData, error: ballError } = await supabase
+        .from('bowling_balls')
+        .select('is_spare_ball')
+        .eq('id', selectedBallId)
+        .single();
+
+      if (ballError) {
+        console.error('Error verifying ball details:', ballError);
+      } else if (ballData?.is_spare_ball) {
+        setPreviousBallId(defaultBallId);
+        setSelectedBallId(defaultBallId);
       } else {
-        // Create new record
-        const { error: insertError } = await supabase
-          .from('ball_usage')
-          .insert({
-            game_id: gameId,
-            ...usageData,
-            frame_number: frameNumber,
-            shot_number: shotNumber,
-          });
-
-        if (insertError) {
-          console.error('Error recording ball usage:', insertError);
-          toast.error("Failed to record ball usage");
-          return false;
-        }
-        success = true;
+        setDefaultBallId(selectedBallId);
       }
 
-      if (success) {
-        // Handle ball switching logic
-        const { data: ballData, error: ballError } = await supabase
-          .from('bowling_balls')
-          .select('is_spare_ball')
-          .eq('id', selectedBallId)
-          .single();
-
-        if (ballError) {
-          console.error('Error verifying ball details:', ballError);
-        } else if (ballData?.is_spare_ball) {
-          setPreviousBallId(defaultBallId);
-          setSelectedBallId(defaultBallId);
-        } else {
-          setDefaultBallId(selectedBallId);
-        }
-      }
-
-      return success;
+      return true;
     } catch (error) {
       console.error('Error recording ball usage:', error);
       toast.error("Failed to record ball usage");
