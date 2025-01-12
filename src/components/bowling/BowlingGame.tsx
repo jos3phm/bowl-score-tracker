@@ -87,20 +87,22 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
 
   // For 10th frame, determine if we should show spare button
   const showSpareButton = currentFrame === 10 && (
-    (currentShot === 2 && !frames[9]?.isStrike && remainingPins?.length < 10) ||
-    (currentShot === 3 && frames[9]?.secondShot && frames[9]?.secondShot.length < 10 && !frames[9]?.isStrike) ||
-    (currentShot === 3 && frames[9]?.secondShot && 
-      frames[9]?.secondShot.length + (remainingPins?.length || 0) === 10)
+    // Second shot after non-strike
+    (currentShot === 2 && !frames[9]?.isStrike) ||
+    // Third shot after strike + non-strike
+    (currentShot === 3 && frames[9]?.isStrike && frames[9]?.secondShot && frames[9]?.secondShot.length < 10) ||
+    // Third shot when second shot wasn't a strike
+    (currentShot === 3 && !frames[9]?.isStrike && frames[9]?.secondShot && frames[9]?.secondShot.length < 10)
   );
 
-  // Determine available pins for 10th frame third shot
+  // Determine available pins for 10th frame
   const availablePins = currentFrame === 10 && currentShot === 3
     ? frames[9]?.isStrike
       ? frames[9].secondShot?.length === 10
         ? remainingPins // If second shot was strike, all pins available
         : ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as Pin[]).filter(pin => 
             !frames[9].secondShot?.includes(pin)
-          ) // Only the pins that were NOT knocked down in second shot are available
+          ) // Only pins that were NOT knocked down in second shot
       : remainingPins
     : remainingPins;
 

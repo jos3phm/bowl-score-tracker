@@ -33,7 +33,7 @@ export const ActionButtons = ({
   const canStrike = 
     currentShot === 1 || 
     (currentFrame === 10 && currentShot === 2 && isFirstShotStrike) ||
-    (currentFrame === 10 && currentShot === 3 && isFirstShotStrike && showSpareButton === false);
+    (currentFrame === 10 && currentShot === 3 && !showSpareButton);
     
   const canSpare = 
     (currentShot === 2 && currentFrame !== 10) || 
