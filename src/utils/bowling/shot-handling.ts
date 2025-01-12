@@ -66,9 +66,14 @@ export const recordRegularShot = (
   const frame = { ...frames[frameIndex] };
   const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
-  // For first shot, if no pins are knocked down (miss), record empty array
+  // For first shot, selected pins are standing (unselected are knocked down)
   // For second shot, selected pins are knocked down
-  const knockedDownPins = selectedPins;
+  // However, if selectedPins is empty, it means it's a miss (no pins knocked down)
+  const knockedDownPins = selectedPins.length === 0 
+    ? [] // Miss - no pins knocked down
+    : (shot === 1 
+      ? allPins.filter(pin => !selectedPins.includes(pin)) // First shot - unselected pins are knocked down
+      : selectedPins); // Second shot - selected pins are knocked down
   
   console.log('Knocked down pins:', knockedDownPins);
   
@@ -90,8 +95,7 @@ export const recordRegularShot = (
   } else {
     if (shot === 1) {
       frame.firstShot = knockedDownPins;
-      // Only mark as strike if explicitly using all pins
-      frame.isStrike = knockedDownPins.length === 10 && knockedDownPins.every(pin => allPins.includes(pin));
+      frame.isStrike = knockedDownPins.length === 10;
       if (!frame.isStrike && knockedDownPins.length > 1) {
         frame.isSplit = isSplit({ firstShot: [], secondShot: knockedDownPins });
       }
