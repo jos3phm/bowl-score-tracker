@@ -89,7 +89,8 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
   const showSpareButton = currentFrame === 10 && (
     (currentShot === 2 && !frames[9]?.isStrike && remainingPins?.length < 10) ||
     (currentShot === 3 && frames[9]?.secondShot && frames[9]?.secondShot.length < 10) ||
-    (currentShot === 3 && frames[9]?.isStrike && frames[9]?.secondShot && frames[9]?.secondShot.length < 10)
+    (currentShot === 3 && !frames[9]?.isStrike && frames[9]?.secondShot && 
+      frames[9]?.secondShot.length + (remainingPins?.length || 0) === 10)
   );
 
   // Determine available pins for 10th frame third shot
