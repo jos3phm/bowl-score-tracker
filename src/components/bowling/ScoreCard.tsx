@@ -34,10 +34,16 @@ export const ScoreCard = ({
     // Handle 10th frame special cases
     if (frameIndex === 9) {
       if (shot.length === 10) return "X";
-      if (isSpare && shot === frames[frameIndex].secondShot) return "/";
-      if (frames[9].thirdShot === shot) {
-        return shot.length === 10 ? "X" : shot.length.toString();
+      if (isSpare && (shot === frames[frameIndex].secondShot || shot === frames[frameIndex].thirdShot)) return "/";
+      
+      // Special handling for third shot spare
+      if (shotNumber === 3 && frames[9].secondShot && 
+          shot.length + frames[9].secondShot.length === 10 && 
+          !frames[9].isStrike) {
+        return "/";
       }
+      
+      return shot.length.toString();
     }
     
     // Regular shot
