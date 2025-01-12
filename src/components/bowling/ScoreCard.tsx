@@ -19,7 +19,7 @@ export const ScoreCard = ({
   selectedFrame = null,
 }: ScoreCardProps) => {
   const renderShot = (shot: Pin[] | null, isStrike: boolean, isSpare: boolean, frameIndex: number, shotNumber: 1 | 2 | 3) => {
-    if (!shot) return "";
+    if (!shot) return "\u00A0"; // Use non-breaking space to maintain height
     
     // Handle strikes
     if (isStrike && frameIndex < 9 && shot === frames[frameIndex].firstShot) {
@@ -55,7 +55,7 @@ export const ScoreCard = ({
 
     if (isSplitShot) {
       return (
-        <span className="inline-block rounded-full border-2 border-black px-2">
+        <span className="inline-block rounded-full border-2 border-black w-8">
           {score}
         </span>
       );
@@ -67,7 +67,7 @@ export const ScoreCard = ({
   const renderFrame = (frame: Frame, index: number) => {
     const isActive = currentFrame === index + 1;
     const isSelected = selectedFrame === index + 1;
-    const frameScore = frame.score?.toString() || "";
+    const frameScore = frame.score?.toString() || "\u00A0"; // Use non-breaking space to maintain height
 
     return (
       <div
@@ -96,21 +96,21 @@ export const ScoreCard = ({
           "grid border-b border-gray-300",
           index === 9 ? "grid-cols-3" : "grid-cols-2"
         )}>
-          <div className="p-2 text-center border-r border-gray-300">
+          <div className="p-2 text-center border-r border-gray-300 min-w-[2.5rem]">
             {renderShot(frame.firstShot, frame.isStrike, false, index, 1)}
           </div>
-          <div className="p-2 text-center">
+          <div className="p-2 text-center min-w-[2.5rem]">
             {renderShot(frame.secondShot, frame.isStrike, frame.isSpare, index, 2)}
           </div>
           {index === 9 && (
-            <div className="p-2 text-center border-l border-gray-300">
+            <div className="p-2 text-center border-l border-gray-300 min-w-[2.5rem]">
               {renderShot(frame.thirdShot, frame.isStrike, frame.isSpare, index, 3)}
             </div>
           )}
         </div>
         
         {/* Frame Score */}
-        <div className="p-2 text-center">
+        <div className="p-2 text-center min-h-[2.5rem] flex items-center justify-center">
           <span>{frameScore}</span>
         </div>
       </div>
