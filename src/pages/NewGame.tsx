@@ -2,14 +2,77 @@ import { BowlingGame } from "@/components/bowling/BowlingGame";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 const NewGame = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const gameId = searchParams.get('gameId');
 
-  if (!gameId) {
-    navigate('/');
+  const { data: activeGame, isLoading } = useQuery({
+    queryKey: ['activeGame', gameId],
+    queryFn: async () => {
+      if (!gameId) return null;
+
+      const { data, error } = await supabase
+        .from('games')
+        .select('*')
+        .eq('id', gameId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching game:', error);
+        return null;
+      }
+
+      return data;
+    },
+    enabled: !!gameId
+  });
+
+  useEffect(() => {
+    const checkAndCreateGame = async () => {
+      if (!gameId && !isLoading) {
+        // Get active session
+        const { data: session } = await supabase
+          .from('game_sessions')
+          .select('id')
+          .is('ended_at', null)
+          .maybeSingle();
+
+        if (!session) {
+          navigate('/');
+          return;
+        }
+
+        // Create new game in the session
+        const { data: newGame, error } = await supabase
+          .from('games')
+          .insert([{
+            session_id: session.id,
+            game_type: 'practice',
+            game_start_time: new Date().toISOString()
+          }])
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Error creating game:', error);
+          navigate('/');
+          return;
+        }
+
+        // Update URL with new game ID
+        navigate(`/new-game?gameId=${newGame.id}`, { replace: true });
+      }
+    };
+
+    checkAndCreateGame();
+  }, [gameId, isLoading, navigate]);
+
+  if (!gameId || isLoading) {
     return null;
   }
 
