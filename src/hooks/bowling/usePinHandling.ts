@@ -22,8 +22,9 @@ export const usePinHandling = (
   const handleMiss = () => {
     console.log('Recording miss (no pins knocked down)');
     handleShotWithBall(() => {
-      // Always pass an empty array to indicate no pins knocked down
-      // This ensures a score of 0 regardless of shot number
+      // For a miss, we want to indicate that NO pins were knocked down
+      // By passing an empty array, we ensure a score of 0
+      // We use regular shot type to avoid any special scoring logic
       handleRegularShot([]);
     }, 'regular');
   };
