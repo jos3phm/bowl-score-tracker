@@ -104,7 +104,6 @@ export const useBallSelection = (gameId: string) => {
 
       if (fetchError) {
         console.error('Error checking existing ball usage:', fetchError);
-        toast.error("Failed to check ball usage");
         return false;
       }
 
@@ -120,7 +119,6 @@ export const useBallSelection = (gameId: string) => {
 
         if (updateError) {
           console.error('Error updating ball usage:', updateError);
-          toast.error("Failed to update ball usage");
           return false;
         }
       } else {
@@ -136,9 +134,26 @@ export const useBallSelection = (gameId: string) => {
           });
 
         if (insertError) {
-          console.error('Error recording ball usage:', insertError);
-          toast.error("Failed to record ball usage");
-          return false;
+          if (insertError.code === '23505') {
+            // If we get a duplicate error, try updating instead
+            const { error: retryError } = await supabase
+              .from('ball_usage')
+              .update({
+                ball_id: selectedBallId,
+                remaining_pins: remainingPins || [],
+              })
+              .eq('game_id', gameId)
+              .eq('frame_number', frameNumber)
+              .eq('shot_number', shotNumber);
+
+            if (retryError) {
+              console.error('Error in retry update of ball usage:', retryError);
+              return false;
+            }
+          } else {
+            console.error('Error recording ball usage:', insertError);
+            return false;
+          }
         }
       }
 
@@ -161,7 +176,6 @@ export const useBallSelection = (gameId: string) => {
       return true;
     } catch (error) {
       console.error('Error recording ball usage:', error);
-      toast.error("Failed to record ball usage");
       return false;
     }
   };
