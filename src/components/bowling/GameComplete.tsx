@@ -34,6 +34,7 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
   const [sessionGames, setSessionGames] = useState<SeriesGame[]>([]);
   const [isLastGameInSeries, setIsLastGameInSeries] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -61,6 +62,8 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
           console.error('No session ID found for game:', gameId);
           return;
         }
+        
+        setCurrentSessionId(gameData.session_id);
         
         const { data: sessionGames, error: sessionError } = await supabase
           .from('games')
@@ -98,29 +101,22 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
   }, [gameId, toast]);
 
   const handleEndSession = async () => {
+    if (!currentSessionId) {
+      toast({
+        title: "Error",
+        description: "No session found for this game.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       await handleSaveGame();
-
-      const { data: gameData, error: gameError } = await supabase
-        .from('games')
-        .select('session_id')
-        .eq('id', gameId)
-        .maybeSingle();
-
-      if (gameError) throw gameError;
-      if (!gameData?.session_id) {
-        toast({
-          title: "Error",
-          description: "No session found for this game.",
-          variant: "destructive",
-        });
-        return;
-      }
 
       const { error: sessionError } = await supabase
         .from('game_sessions')
         .update({ ended_at: new Date().toISOString() })
-        .eq('id', gameData.session_id);
+        .eq('id', currentSessionId);
 
       if (sessionError) throw sessionError;
 
@@ -141,29 +137,22 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
   };
 
   const handleNextGame = async () => {
+    if (!currentSessionId) {
+      toast({
+        title: "Error",
+        description: "No session found for this game.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       await handleSaveGame();
-
-      const { data: gameData, error: gameError } = await supabase
-        .from('games')
-        .select('session_id')
-        .eq('id', gameId)
-        .maybeSingle();
-
-      if (gameError) throw gameError;
-      if (!gameData?.session_id) {
-        toast({
-          title: "Error",
-          description: "No session found for this game.",
-          variant: "destructive",
-        });
-        return;
-      }
 
       const { data: newGame, error } = await supabase
         .from('games')
         .insert([{
-          session_id: gameData.session_id,
+          session_id: currentSessionId,
           game_type: 'practice',
           user_id: (await supabase.auth.getUser()).data.user?.id
         }])
@@ -185,7 +174,7 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
   };
 
   const handleDiscardGame = async () => {
-    if (!sessionId) {
+    if (!currentSessionId) {
       navigate('/');
       return;
     }
@@ -194,14 +183,14 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
       const { data: sessionGames } = await supabase
         .from('games')
         .select('id')
-        .eq('session_id', sessionId);
+        .eq('session_id', currentSessionId);
 
       // If this is the only game in the session, end the session
       if (sessionGames && sessionGames.length <= 1) {
         await supabase
           .from('game_sessions')
           .update({ ended_at: new Date().toISOString() })
-          .eq('id', sessionId);
+          .eq('id', currentSessionId);
       }
 
       // Delete the current game
