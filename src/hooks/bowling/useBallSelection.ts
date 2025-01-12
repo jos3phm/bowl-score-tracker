@@ -16,16 +16,19 @@ export const useBallSelection = (gameId: string) => {
           .from('games')
           .select('session_id')
           .eq('id', gameId)
-          .single();
+          .maybeSingle();
 
         if (gameData?.session_id) {
           const { data: lastBallUsage } = await supabase
             .from('ball_usage')
-            .select('ball_id, games!inner(session_id)')
+            .select(`
+              ball_id,
+              games!inner(session_id)
+            `)
             .eq('games.session_id', gameData.session_id)
             .order('created_at', { ascending: false })
             .limit(1)
-            .single();
+            .maybeSingle();
 
           if (lastBallUsage?.ball_id) {
             handleBallSelect(lastBallUsage.ball_id);
