@@ -103,6 +103,7 @@ export const GameSetupForm = () => {
           <BallSelector
             onBallSelect={setSelectedBallId}
             selectedBallId={selectedBallId}
+            isOptional={true}
           />
         </div>
 
