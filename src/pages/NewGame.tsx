@@ -35,6 +35,13 @@ const NewGame = () => {
   useEffect(() => {
     const checkAndCreateGame = async () => {
       if (!gameId && !isLoading) {
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          navigate('/');
+          return;
+        }
+
         // Get active session
         const { data: session } = await supabase
           .from('game_sessions')
@@ -53,7 +60,8 @@ const NewGame = () => {
           .insert([{
             session_id: session.id,
             game_type: 'practice',
-            game_start_time: new Date().toISOString()
+            game_start_time: new Date().toISOString(),
+            user_id: user.id // Add the user_id field
           }])
           .select()
           .single();
