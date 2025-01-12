@@ -43,7 +43,7 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
     handlePhotoChange,
     isSaving,
     handleSaveGame
-  } = useGameCompletion(frames);
+  } = useGameCompletion(frames, gameId); // Pass gameId to useGameCompletion
 
   useEffect(() => {
     const fetchSessionData = async () => {

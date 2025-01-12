@@ -3,7 +3,7 @@ import { Frame } from "@/types/game";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-export const useGameCompletion = (frames: Frame[]) => {
+export const useGameCompletion = (frames: Frame[], gameId: string) => {
   const [notes, setNotes] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -25,8 +25,6 @@ export const useGameCompletion = (frames: Frame[]) => {
   };
 
   const handleSaveGame = async () => {
-    const gameId = localStorage.getItem('currentGameId');
-    
     if (!gameId) {
       toast({
         title: "Error",
@@ -79,7 +77,6 @@ export const useGameCompletion = (frames: Frame[]) => {
         description: "Game saved successfully!",
       });
 
-      handleNewGame();
     } catch (error) {
       console.error('Error saving game:', error);
       toast({
