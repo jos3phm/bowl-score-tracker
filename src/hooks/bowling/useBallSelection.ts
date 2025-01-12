@@ -93,26 +93,47 @@ export const useBallSelection = (gameId: string) => {
     }
 
     try {
-      const usageData = {
-        game_id: gameId,
-        ball_id: selectedBallId,
-        frame_number: frameNumber,
-        shot_number: shotNumber,
-        remaining_pins: remainingPins || [],
-      };
-
-      // Use upsert instead of insert to handle both new records and updates
-      const { error } = await supabase
+      // First, check if a record already exists
+      const { data: existingRecord } = await supabase
         .from('ball_usage')
-        .upsert(usageData, {
-          onConflict: 'game_id,frame_number,shot_number',
-          ignoreDuplicates: false
-        });
+        .select('id')
+        .eq('game_id', gameId)
+        .eq('frame_number', frameNumber)
+        .eq('shot_number', shotNumber)
+        .maybeSingle();
 
-      if (error) {
-        console.error('Error recording ball usage:', error);
-        toast.error("Failed to record ball usage");
-        return false;
+      if (existingRecord) {
+        // Update existing record
+        const { error: updateError } = await supabase
+          .from('ball_usage')
+          .update({
+            ball_id: selectedBallId,
+            remaining_pins: remainingPins || [],
+          })
+          .eq('id', existingRecord.id);
+
+        if (updateError) {
+          console.error('Error updating ball usage:', updateError);
+          toast.error("Failed to update ball usage");
+          return false;
+        }
+      } else {
+        // Insert new record
+        const { error: insertError } = await supabase
+          .from('ball_usage')
+          .insert({
+            game_id: gameId,
+            ball_id: selectedBallId,
+            frame_number: frameNumber,
+            shot_number: shotNumber,
+            remaining_pins: remainingPins || [],
+          });
+
+        if (insertError) {
+          console.error('Error recording ball usage:', insertError);
+          toast.error("Failed to record ball usage");
+          return false;
+        }
       }
 
       // Handle ball switching logic
