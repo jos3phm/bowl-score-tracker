@@ -86,7 +86,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
   console.log('Remaining pins for frame', currentFrame, 'shot', currentShot, ':', remainingPins);
 
   // Determine if we can make a spare in the 10th frame
-  const canMakeSpare = currentFrame === 10 && currentShot === 2 && frames[9]?.isStrike;
+  const canMakeSpare = currentFrame === 10 && currentShot === 2;
 
   if (isGameComplete) {
     return (
@@ -118,7 +118,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
         isSaving={isSaving}
         selectedBallId={selectedBallId}
         handleBallSelect={handleBallSelect}
-        remainingPins={canMakeSpare ? remainingPins : undefined}
+        remainingPins={remainingPins}
         gameId={gameId}
       />
     </GameContainer>

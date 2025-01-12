@@ -76,8 +76,14 @@ export const recordRegularShot = (
       }
     } else if (shot === 2) {
       frame.secondShot = knockedDownPins;
-      const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
-      frame.isSpare = knockedDownPins.length === remainingPins.length && !frame.isStrike;
+      if (frame.isStrike) {
+        // After a strike, check if this shot is a strike
+        frame.isSpare = false;
+      } else {
+        // Regular second shot logic
+        const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
+        frame.isSpare = knockedDownPins.length === remainingPins.length;
+      }
     } else if (shot === 3) {
       frame.thirdShot = knockedDownPins;
     }
