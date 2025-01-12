@@ -55,7 +55,7 @@ export const ScoreCard = ({
 
     if (isSplitShot) {
       return (
-        <span className="inline-block rounded-full border-2 border-black w-8">
+        <span className="inline-block rounded-full border-2 border-black w-8 h-8 leading-7">
           {score}
         </span>
       );
@@ -96,14 +96,14 @@ export const ScoreCard = ({
           "grid border-b border-gray-300",
           index === 9 ? "grid-cols-3" : "grid-cols-2"
         )}>
-          <div className="p-2 text-center border-r border-gray-300 min-w-[2.5rem]">
+          <div className="p-2 text-center border-r border-gray-300 min-w-[2.5rem] h-10 flex items-center justify-center">
             {renderShot(frame.firstShot, frame.isStrike, false, index, 1)}
           </div>
-          <div className="p-2 text-center min-w-[2.5rem]">
+          <div className="p-2 text-center min-w-[2.5rem] h-10 flex items-center justify-center">
             {renderShot(frame.secondShot, frame.isStrike, frame.isSpare, index, 2)}
           </div>
           {index === 9 && (
-            <div className="p-2 text-center border-l border-gray-300 min-w-[2.5rem]">
+            <div className="p-2 text-center border-l border-gray-300 min-w-[2.5rem] h-10 flex items-center justify-center">
               {renderShot(frame.thirdShot, frame.isStrike, frame.isSpare, index, 3)}
             </div>
           )}
