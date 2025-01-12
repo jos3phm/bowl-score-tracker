@@ -94,13 +94,19 @@ export const useBallSelection = (gameId: string) => {
 
     try {
       // First, check if a record already exists
-      const { data: existingRecord } = await supabase
+      const { data: existingRecord, error: fetchError } = await supabase
         .from('ball_usage')
         .select('id')
         .eq('game_id', gameId)
         .eq('frame_number', frameNumber)
         .eq('shot_number', shotNumber)
         .maybeSingle();
+
+      if (fetchError) {
+        console.error('Error checking existing ball usage:', fetchError);
+        toast.error("Failed to check ball usage");
+        return false;
+      }
 
       if (existingRecord) {
         // Update existing record
