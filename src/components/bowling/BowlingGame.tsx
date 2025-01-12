@@ -87,7 +87,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
   // For 10th frame, determine if we should show spare button
   const showSpareButton = currentFrame === 10 && (
     (currentShot === 2 && !frames[9]?.isStrike && remainingPins?.length < 10) ||
-    (currentShot === 3 && frames[9]?.secondShot && frames[9]?.secondShot.length < 10)
+    (currentShot === 3 && frames[9]?.secondShot && frames[9]?.secondShot.length < 10 && !frames[9]?.isStrike)
   );
 
   if (isGameComplete) {
