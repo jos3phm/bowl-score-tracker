@@ -47,12 +47,12 @@ export const getRemainingPins = (frame: Frame, currentShot: 1 | 2 | 3): Pin[] =>
   // For third shot in 10th frame
   if (currentShot === 3) {
     // After a strike + strike
-    if (frame.secondShot?.length === 10) {
+    if (frame.isStrike && frame.secondShot?.length === 10) {
       return allPins;
     }
     
     // After a strike + partial hit
-    if (frame.isStrike && frame.secondShot) {
+    if (frame.isStrike) {
       return allPins.filter(pin => !frame.secondShot?.includes(pin));
     }
     

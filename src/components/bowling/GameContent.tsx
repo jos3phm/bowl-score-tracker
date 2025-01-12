@@ -23,6 +23,7 @@ interface GameContentProps {
   handleBallSelect: (ballId: string | null) => void;
   remainingPins?: Pin[];
   gameId: string;
+  showSpareButton?: boolean;
 }
 
 export const GameContent = ({
@@ -42,11 +43,11 @@ export const GameContent = ({
   handleBallSelect,
   remainingPins = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
   gameId,
+  showSpareButton = false,
 }: GameContentProps) => {
   const [selectedPins, setSelectedPins] = useState<Pin[]>([]);
 
   const handleRegularShot = () => {
-    // For regular shots, the selected pins are those that were knocked down
     handlePinClick(selectedPins);
     setSelectedPins([]);
   };
@@ -80,6 +81,7 @@ export const GameContent = ({
         selectedPins={selectedPins}
         onBallSelect={handleBallSelect}
         selectedBallId={selectedBallId}
+        showSpareButton={showSpareButton}
       />
       
       <GameStatus
