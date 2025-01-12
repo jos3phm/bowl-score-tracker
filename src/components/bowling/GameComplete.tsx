@@ -98,16 +98,22 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
   }, [gameId, toast]);
 
   const handleEndSession = async () => {
-    if (!sessionId) {
-      toast({
-        title: "Error",
-        description: "No session ID found. Unable to end session.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
+      if (!sessionId) {
+        const { data: gameData, error: gameError } = await supabase
+          .from('games')
+          .select('session_id')
+          .eq('id', gameId)
+          .single();
+
+        if (gameError) throw gameError;
+        if (!gameData?.session_id) {
+          throw new Error('No session ID found');
+        }
+
+        setSessionId(gameData.session_id);
+      }
+
       // First save the current game
       await handleSaveGame();
 
@@ -137,16 +143,22 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
   };
 
   const handleNextGame = async () => {
-    if (!sessionId) {
-      toast({
-        title: "Error",
-        description: "No session ID found. Unable to create new game.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
+      if (!sessionId) {
+        const { data: gameData, error: gameError } = await supabase
+          .from('games')
+          .select('session_id')
+          .eq('id', gameId)
+          .single();
+
+        if (gameError) throw gameError;
+        if (!gameData?.session_id) {
+          throw new Error('No session ID found');
+        }
+
+        setSessionId(gameData.session_id);
+      }
+
       // Save the current game first
       await handleSaveGame();
 
