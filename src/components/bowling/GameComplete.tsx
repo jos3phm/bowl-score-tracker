@@ -48,44 +48,67 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
   } = useGameCompletion(frames, gameId);
 
   // Fetch session data immediately when component mounts
+
   useEffect(() => {
     const fetchSessionData = async () => {
       try {
         const { data: gameData, error: gameError } = await supabase
           .from('games')
-          .select('session_id')
+          .select('session_id, user_id')
           .eq('id', gameId)
           .maybeSingle();
 
         if (gameError) throw gameError;
+        
+        // If no session_id, create a new session
         if (!gameData?.session_id) {
-          console.error('No session ID found for game:', gameId);
-          return;
-        }
-        
-        setCurrentSessionId(gameData.session_id);
-        
-        const { data: sessionGames, error: sessionError } = await supabase
-          .from('games')
-          .select('id, total_score')
-          .eq('session_id', gameData.session_id)
-          .order('created_at', { ascending: true });
-
-        if (sessionError) throw sessionError;
-
-        if (sessionGames) {
-          setSessionGames(sessionGames);
-          
-          const { data: sessionData, error: sessionDataError } = await supabase
+          const { data: newSession, error: sessionError } = await supabase
             .from('game_sessions')
-            .select('leagues(games_per_series)')
-            .eq('id', gameData.session_id)
+            .insert([{
+              user_id: gameData?.user_id || (await supabase.auth.getUser()).data.user?.id
+            }])
+            .select()
             .single();
 
-          if (sessionDataError) throw sessionDataError;
+          if (sessionError) throw sessionError;
 
-          const gamesPerSeries = sessionData?.leagues?.games_per_series || 3;
-          setIsLastGameInSeries(sessionGames.length >= gamesPerSeries);
+          // Update game with new session_id
+          const { error: updateError } = await supabase
+            .from('games')
+            .update({ session_id: newSession.id })
+            .eq('id', gameId);
+
+          if (updateError) throw updateError;
+
+          setCurrentSessionId(newSession.id);
+        } else {
+          setCurrentSessionId(gameData.session_id);
+        }
+        
+        // Fetch session games if we have a session_id
+        if (currentSessionId) {
+          const { data: sessionGames, error: sessionError } = await supabase
+            .from('games')
+            .select('id, total_score')
+            .eq('session_id', currentSessionId)
+            .order('created_at', { ascending: true });
+
+          if (sessionError) throw sessionError;
+
+          if (sessionGames) {
+            setSessionGames(sessionGames);
+            
+            const { data: sessionData, error: sessionDataError } = await supabase
+              .from('game_sessions')
+              .select('leagues(games_per_series)')
+              .eq('id', currentSessionId)
+              .single();
+
+            if (sessionDataError) throw sessionDataError;
+
+            const gamesPerSeries = sessionData?.leagues?.games_per_series || 3;
+            setIsLastGameInSeries(sessionGames.length >= gamesPerSeries);
+          }
         }
       } catch (error) {
         console.error('Error fetching session data:', error);
@@ -98,7 +121,7 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
     };
 
     fetchSessionData();
-  }, [gameId, toast]);
+  }, [gameId, currentSessionId, toast]);
 
   const handleEndSession = async () => {
     if (!currentSessionId) {

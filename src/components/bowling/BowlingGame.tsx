@@ -87,8 +87,16 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
   // For 10th frame, determine if we should show spare button
   const showSpareButton = currentFrame === 10 && (
     (currentShot === 2 && !frames[9]?.isStrike && remainingPins?.length < 10) ||
-    (currentShot === 3 && frames[9]?.secondShot && frames[9]?.secondShot.length < 10 && !frames[9]?.isStrike)
+    (currentShot === 3 && frames[9]?.secondShot && frames[9]?.secondShot.length < 10) ||
+    (currentShot === 3 && frames[9]?.isStrike && frames[9]?.secondShot && frames[9]?.secondShot.length < 10)
   );
+
+  // Determine available pins for 10th frame third shot
+  const availablePins = currentFrame === 10 && currentShot === 3 && frames[9]?.isStrike && frames[9]?.secondShot
+    ? frames[9].secondShot.length === 10 
+      ? remainingPins 
+      : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(pin => frames[9].secondShot?.includes(pin))
+    : remainingPins;
 
   if (isGameComplete) {
     return (
@@ -120,7 +128,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
         isSaving={isSaving}
         selectedBallId={selectedBallId}
         handleBallSelect={handleBallSelect}
-        remainingPins={remainingPins}
+        remainingPins={availablePins}
         gameId={gameId}
         showSpareButton={showSpareButton}
       />
