@@ -49,38 +49,53 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
 
   useEffect(() => {
     const fetchSessionData = async () => {
-      const { data: gameData } = await supabase
-        .from('games')
-        .select('session_id')
-        .eq('id', gameId)
-        .single();
-
-      if (gameData?.session_id) {
-        setSessionId(gameData.session_id);
-        
-        const { data: sessionGames } = await supabase
+      try {
+        const { data: gameData, error: gameError } = await supabase
           .from('games')
-          .select('id, total_score')
-          .eq('session_id', gameData.session_id)
-          .order('created_at', { ascending: true });
+          .select('session_id')
+          .eq('id', gameId)
+          .single();
 
-        if (sessionGames) {
-          setSessionGames(sessionGames);
+        if (gameError) throw gameError;
+
+        if (gameData?.session_id) {
+          setSessionId(gameData.session_id);
           
-          const { data: sessionData } = await supabase
-            .from('game_sessions')
-            .select('leagues(games_per_series)')
-            .eq('id', gameData.session_id)
-            .single();
+          const { data: sessionGames, error: sessionError } = await supabase
+            .from('games')
+            .select('id, total_score')
+            .eq('session_id', gameData.session_id)
+            .order('created_at', { ascending: true });
 
-          const gamesPerSeries = sessionData?.leagues?.games_per_series || 3;
-          setIsLastGameInSeries(sessionGames.length >= gamesPerSeries);
+          if (sessionError) throw sessionError;
+
+          if (sessionGames) {
+            setSessionGames(sessionGames);
+            
+            const { data: sessionData, error: sessionDataError } = await supabase
+              .from('game_sessions')
+              .select('leagues(games_per_series)')
+              .eq('id', gameData.session_id)
+              .single();
+
+            if (sessionDataError) throw sessionDataError;
+
+            const gamesPerSeries = sessionData?.leagues?.games_per_series || 3;
+            setIsLastGameInSeries(sessionGames.length >= gamesPerSeries);
+          }
         }
+      } catch (error) {
+        console.error('Error fetching session data:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch session data. Please try again.",
+          variant: "destructive",
+        });
       }
     };
 
     fetchSessionData();
-  }, [gameId]);
+  }, [gameId, toast]);
 
   const handleEndSession = async () => {
     if (!sessionId) {
@@ -172,26 +187,35 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
       return;
     }
 
-    const { data: sessionGames } = await supabase
-      .from('games')
-      .select('id')
-      .eq('session_id', sessionId);
+    try {
+      const { data: sessionGames } = await supabase
+        .from('games')
+        .select('id')
+        .eq('session_id', sessionId);
 
-    // If this is the only game in the session, end the session
-    if (sessionGames && sessionGames.length <= 1) {
+      // If this is the only game in the session, end the session
+      if (sessionGames && sessionGames.length <= 1) {
+        await supabase
+          .from('game_sessions')
+          .update({ ended_at: new Date().toISOString() })
+          .eq('id', sessionId);
+      }
+
+      // Delete the current game
       await supabase
-        .from('game_sessions')
-        .update({ ended_at: new Date().toISOString() })
-        .eq('id', sessionId);
+        .from('games')
+        .delete()
+        .eq('id', gameId);
+
+      navigate('/');
+    } catch (error) {
+      console.error('Error discarding game:', error);
+      toast({
+        title: "Error",
+        description: "Failed to discard game. Please try again.",
+        variant: "destructive",
+      });
     }
-
-    // Delete the current game
-    await supabase
-      .from('games')
-      .delete()
-      .eq('id', gameId);
-
-    navigate('/');
   };
 
   const calculateSeriesAverage = () => {
