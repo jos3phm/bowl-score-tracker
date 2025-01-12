@@ -14,6 +14,7 @@ interface GameControlsProps {
   selectedPins?: Pin[];
   onBallSelect: (ballId: string | null) => void;
   selectedBallId: string | null;
+  showSpareButton?: boolean;
 }
 
 export const GameControls = ({
@@ -28,6 +29,7 @@ export const GameControls = ({
   selectedPins = [],
   onBallSelect,
   selectedBallId,
+  showSpareButton = false,
 }: GameControlsProps) => {
   return (
     <div className="space-y-4">
@@ -46,6 +48,7 @@ export const GameControls = ({
         currentShot={currentShot}
         isFirstShotStrike={isFirstShotStrike}
         selectedPins={selectedPins}
+        showSpareButton={showSpareButton}
       />
     </div>
   );
