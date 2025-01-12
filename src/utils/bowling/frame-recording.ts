@@ -63,39 +63,48 @@ export const recordRegularShot = (
   
   const frame = { ...frames[frameIndex] };
   const allPins = getAllPins();
-  const knockedDownPins = getKnockedDownPins(selectedPins, shot);
   
   console.log('Selected pins:', selectedPins);
-  console.log('Knocked down pins:', knockedDownPins);
   
   if (frameIndex === 9) { // 10th frame
     if (shot === 1) {
+      const knockedDownPins = getKnockedDownPins(selectedPins, 1);
       frame.firstShot = knockedDownPins;
       frame.isStrike = knockedDownPins.length === 10;
       if (!frame.isStrike && knockedDownPins.length > 1) {
         frame.isSplit = isSplit({ firstShot: [], secondShot: knockedDownPins });
       }
     } else if (shot === 2) {
-      frame.secondShot = knockedDownPins;
       if (frame.isStrike) {
-        // After a strike, this should be the actual number of pins knocked down
+        // After a strike in 10th frame, selected pins are the ones that remain standing
+        const knockedDownPins = allPins.filter(pin => !selectedPins.includes(pin));
+        frame.secondShot = knockedDownPins;
         frame.isSpare = false;
+        console.log('10th frame second shot after strike, knocked down:', knockedDownPins.length);
       } else {
         // Regular second shot logic
+        const knockedDownPins = getKnockedDownPins(selectedPins, 2);
+        frame.secondShot = knockedDownPins;
         const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
         frame.isSpare = knockedDownPins.length === remainingPins.length;
       }
     } else if (shot === 3) {
-      frame.thirdShot = knockedDownPins;
+      if (frame.isStrike || frame.isSpare) {
+        // For the third shot, selected pins are the ones knocked down
+        const knockedDownPins = getKnockedDownPins(selectedPins, 3);
+        frame.thirdShot = knockedDownPins;
+      }
     }
   } else {
     if (shot === 1) {
+      const knockedDownPins = getKnockedDownPins(selectedPins, 1);
       frame.firstShot = knockedDownPins;
       frame.isStrike = knockedDownPins.length === 10;
       if (!frame.isStrike && knockedDownPins.length > 1) {
         frame.isSplit = isSplit({ firstShot: [], secondShot: knockedDownPins });
       }
     } else {
+      const knockedDownPins = getKnockedDownPins(selectedPins, 2);
       frame.secondShot = knockedDownPins;
       const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
       frame.isSpare = knockedDownPins.length === remainingPins.length && !frame.isStrike;
