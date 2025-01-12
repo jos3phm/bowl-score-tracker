@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -14,6 +14,7 @@ import { LocationForm } from "./LocationForm";
 import { LeagueForm } from "./LeagueForm";
 import { useGameSetup } from "./hooks/useGameSetup";
 import { LaneConfig } from "@/types/game";
+import { BallSelector } from "../controls/BallSelector";
 
 export const GameSetupForm = () => {
   const {
@@ -38,6 +39,8 @@ export const GameSetupForm = () => {
     handleStartGame,
     getSecondLaneNumber,
   } = useGameSetup();
+
+  const [selectedBallId, setSelectedBallId] = useState<string | null>(null);
 
   // Set lane config to cross when game type changes to league
   useEffect(() => {
@@ -71,14 +74,17 @@ export const GameSetupForm = () => {
           </Select>
         </div>
 
-        <LocationForm
-          locations={locations || []}
-          locationId={locationId}
-          setLocationId={setLocationId}
-          showNewLocation={showNewLocation}
-          setShowNewLocation={setShowNewLocation}
-          onAddLocation={handleAddLocation}
-        />
+        {(gameType !== 'practice' || locationId) && (
+          <LocationForm
+            locations={locations || []}
+            locationId={locationId}
+            setLocationId={setLocationId}
+            showNewLocation={showNewLocation}
+            setShowNewLocation={setShowNewLocation}
+            onAddLocation={handleAddLocation}
+            isOptional={gameType === 'practice'}
+          />
+        )}
 
         {gameType === 'league' && (
           <LeagueForm
@@ -91,6 +97,14 @@ export const GameSetupForm = () => {
             locationId={locationId}
           />
         )}
+
+        <div className="space-y-2">
+          <Label>Starting Ball</Label>
+          <BallSelector
+            onBallSelect={setSelectedBallId}
+            selectedBallId={selectedBallId}
+          />
+        </div>
 
         <div className="space-y-2">
           <Label>Lane Configuration</Label>
@@ -112,11 +126,18 @@ export const GameSetupForm = () => {
           <Input
             type="number"
             min="1"
+            max="120"
             step="1"
             value={laneNumber}
             onChange={(e) => {
               const value = parseInt(e.target.value);
-              setLaneNumber(isNaN(value) ? '' : value);
+              if (isNaN(value) || value < 1) {
+                setLaneNumber('');
+              } else if (value > 120) {
+                setLaneNumber(120);
+              } else {
+                setLaneNumber(value);
+              }
             }}
             placeholder="Enter lane number"
           />
@@ -127,7 +148,11 @@ export const GameSetupForm = () => {
           )}
         </div>
 
-        <Button className="w-full" onClick={handleStartGame}>
+        <Button 
+          className="w-full" 
+          onClick={() => handleStartGame(selectedBallId)}
+          disabled={gameType !== 'practice' && !locationId}
+        >
           Start Game
         </Button>
       </CardContent>

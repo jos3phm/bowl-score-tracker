@@ -31,6 +31,7 @@ interface LocationFormProps {
     city?: string;
     state?: string;
   }) => Promise<any>;
+  isOptional?: boolean;
 }
 
 export const LocationForm = ({
@@ -40,6 +41,7 @@ export const LocationForm = ({
   showNewLocation,
   setShowNewLocation,
   onAddLocation,
+  isOptional = false,
 }: LocationFormProps) => {
   const [newLocationName, setNewLocationName] = useState("");
   const [address, setAddress] = useState("");
@@ -70,7 +72,7 @@ export const LocationForm = ({
   if (showNewLocation) {
     return (
       <div className="space-y-4">
-        <Label>New Location Details</Label>
+        <Label>New Location Details {isOptional && "(Optional)"}</Label>
         <Input
           value={newLocationName}
           onChange={(e) => setNewLocationName(e.target.value)}
@@ -118,11 +120,11 @@ export const LocationForm = ({
 
   return (
     <div className="space-y-2">
-      <Label>Location</Label>
+      <Label>Location {isOptional && "(Optional)"}</Label>
       <div className="flex gap-2">
         <Select value={locationId} onValueChange={setLocationId}>
           <SelectTrigger className="flex-1 bg-white">
-            <SelectValue placeholder="Select a location" />
+            <SelectValue placeholder={`Select a location${isOptional ? ' (optional)' : ''}`} />
           </SelectTrigger>
           <SelectContent className="bg-white">
             {locations?.map((location) => (

@@ -181,6 +181,16 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
     try {
       await handleSaveGame();
 
+      // First, delete any incomplete games in the session
+      const { error: deleteError } = await supabase
+        .from('games')
+        .delete()
+        .eq('session_id', currentSessionId)
+        .is('game_end_time', null);
+
+      if (deleteError) throw deleteError;
+
+      // Then end the session
       const { error: sessionError } = await supabase
         .from('game_sessions')
         .update({ ended_at: new Date().toISOString() })
@@ -193,7 +203,8 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
         description: "Session ended successfully!",
       });
 
-      navigate('/');
+      // Force reload to ensure dashboard state is updated
+      window.location.href = '/';
     } catch (error) {
       console.error('Error ending session:', error);
       toast({

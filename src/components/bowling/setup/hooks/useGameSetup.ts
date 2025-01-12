@@ -31,20 +31,11 @@ export const useGameSetup = () => {
     }
   };
 
-  const handleStartGame = async () => {
-    if (!locationId) {
+  const handleStartGame = async (selectedBallId: string | null) => {
+    if (!locationId && gameType !== 'practice') {
       toast({
         title: "Error",
         description: "Please select a location",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if ((gameType === 'league' || gameType === 'tournament') && !laneNumber) {
-      toast({
-        title: "Error",
-        description: "Please enter a lane number for league or tournament games",
         variant: "destructive",
       });
       return;
@@ -62,49 +53,64 @@ export const useGameSetup = () => {
 
     const secondLaneNumber = laneNumber && laneConfig === 'cross' ? getSecondLaneNumber(Number(laneNumber)) : null;
 
-    const gameData = {
-      user_id: userData.user.id,
-      game_type: gameType,
-      location_id: locationId,
-      lane_number: laneNumber || null,
-      second_lane_number: secondLaneNumber,
-      lane_config: laneConfig,
-      league_id: gameType === 'league' && leagueId ? leagueId : null,
-      game_start_time: new Date().toISOString(),
-    };
-
     try {
-      const { data: newGame, error } = await supabase
+      // Create a new session first
+      const { data: newSession, error: sessionError } = await supabase
+        .from('game_sessions')
+        .insert([{
+          user_id: userData.user.id,
+          location_id: locationId || null,
+          league_id: gameType === 'league' ? leagueId : null
+        }])
+        .select()
+        .single();
+
+      if (sessionError) throw sessionError;
+
+      // Then create the game
+      const gameData = {
+        user_id: userData.user.id,
+        game_type: gameType,
+        location_id: locationId || null,
+        lane_number: laneNumber || null,
+        second_lane_number: secondLaneNumber,
+        lane_config: laneConfig,
+        league_id: gameType === 'league' ? leagueId : null,
+        game_start_time: new Date().toISOString(),
+        session_id: newSession.id
+      };
+
+      const { data: newGame, error: gameError } = await supabase
         .from('games')
         .insert([gameData])
         .select()
-        .maybeSingle();
+        .single();
 
-      if (error) {
-        console.error('Game creation error:', error);
-        toast({
-          title: "Error",
-          description: "Failed to create game",
-          variant: "destructive",
-        });
-        return;
-      }
+      if (gameError) throw gameError;
 
-      if (!newGame?.id) {
-        toast({
-          title: "Error",
-          description: "Failed to create game: No game ID returned",
-          variant: "destructive",
-        });
-        return;
+      // If a ball was selected, create the initial ball usage record
+      if (selectedBallId && newGame) {
+        const { error: ballUsageError } = await supabase
+          .from('ball_usage')
+          .insert([{
+            game_id: newGame.id,
+            ball_id: selectedBallId,
+            frame_number: 1,
+            shot_number: 1,
+            remaining_pins: [1,2,3,4,5,6,7,8,9,10]
+          }]);
+
+        if (ballUsageError) {
+          console.error('Error creating initial ball usage:', ballUsageError);
+        }
       }
 
       navigate(`/new-game?gameId=${newGame.id}`);
     } catch (error) {
-      console.error('Game creation error:', error);
+      console.error('Error starting game:', error);
       toast({
         title: "Error",
-        description: "Failed to create game",
+        description: "Failed to start game",
         variant: "destructive",
       });
     }
