@@ -42,10 +42,12 @@ export const GameSetupForm = () => {
 
   const [selectedBallId, setSelectedBallId] = useState<string | null>(null);
 
-  // Set lane config to cross when game type changes to league
+  // Set lane config based on game type
   useEffect(() => {
     if (gameType === 'league') {
       setLaneConfig('cross');
+    } else if (gameType === 'practice') {
+      setLaneConfig('single');
     }
   }, [gameType, setLaneConfig]);
 
@@ -74,17 +76,15 @@ export const GameSetupForm = () => {
           </Select>
         </div>
 
-        {(gameType !== 'practice' || locationId) && (
-          <LocationForm
-            locations={locations || []}
-            locationId={locationId}
-            setLocationId={setLocationId}
-            showNewLocation={showNewLocation}
-            setShowNewLocation={setShowNewLocation}
-            onAddLocation={handleAddLocation}
-            isOptional={gameType === 'practice'}
-          />
-        )}
+        <LocationForm
+          locations={locations || []}
+          locationId={locationId}
+          setLocationId={setLocationId}
+          showNewLocation={showNewLocation}
+          setShowNewLocation={setShowNewLocation}
+          onAddLocation={handleAddLocation}
+          isOptional={gameType === 'practice'}
+        />
 
         {gameType === 'league' && (
           <LeagueForm
