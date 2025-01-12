@@ -45,7 +45,7 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
     handlePhotoChange,
     isSaving,
     handleSaveGame
-  } = useGameCompletion(frames, gameId); // Pass gameId to useGameCompletion
+  } = useGameCompletion(frames, gameId);
 
   useEffect(() => {
     const fetchSessionData = async () => {
@@ -121,7 +121,7 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
         });
 
         // Navigate to the new game
-        navigate(`/new-game?gameId=${newGame.id}`);
+        window.location.href = `/new-game?gameId=${newGame.id}`;
       }
     } catch (error) {
       console.error('Error starting next game:', error);
