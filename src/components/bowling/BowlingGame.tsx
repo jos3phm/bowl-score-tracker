@@ -96,8 +96,10 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
   const availablePins = currentFrame === 10 && currentShot === 3
     ? frames[9]?.isStrike
       ? frames[9].secondShot?.length === 10
-        ? remainingPins
-        : frames[9].secondShot as Pin[] // Only the pins that were knocked down in second shot are available
+        ? remainingPins // If second shot was strike, all pins available
+        : ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as Pin[]).filter(pin => 
+            !frames[9].secondShot?.includes(pin)
+          ) // Only the pins that were NOT knocked down in second shot are available
       : remainingPins
     : remainingPins;
 
