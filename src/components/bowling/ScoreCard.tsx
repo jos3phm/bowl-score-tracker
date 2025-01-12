@@ -63,7 +63,7 @@ export const ScoreCard = ({
       >
         {/* Frame History */}
         <div className="h-12 flex items-center justify-center">
-          <FrameHistory frame={frame} size="sm" />
+          <FrameHistory frame={frame} size="sm" frameNumber={index + 1} />
         </div>
         
         {/* Frame Number */}

@@ -4,15 +4,18 @@ import { cn } from "@/lib/utils";
 interface FrameHistoryProps {
   frame: Frame;
   size?: "sm" | "md";
+  frameNumber: number;
 }
 
 const PinDisplay = ({ 
   pin, 
-  isKnockedDown,
+  hitOnFirstShot,
+  hitOnSecondShot,
   size = "sm" 
 }: { 
   pin: Pin; 
-  isKnockedDown: boolean;
+  hitOnFirstShot: boolean;
+  hitOnSecondShot: boolean;
   size?: "sm" | "md";
 }) => {
   const sizeClasses = size === "sm" ? "w-2 h-2" : "w-3 h-3";
@@ -22,7 +25,11 @@ const PinDisplay = ({
       className={cn(
         "rounded-full",
         sizeClasses,
-        isKnockedDown ? "bg-gray-400" : "bg-white border border-gray-300"
+        {
+          "bg-black": hitOnFirstShot,
+          "bg-primary": hitOnSecondShot && !hitOnFirstShot,
+          "bg-white border border-black": !hitOnFirstShot && !hitOnSecondShot
+        }
       )}
     />
   );
@@ -37,14 +44,8 @@ const PinLayout = ({
   secondShot: Pin[] | null;
   size?: "sm" | "md";
 }) => {
-  const isKnockedDown = (pin: Pin) => {
-    if (secondShot) {
-      // If we have a second shot, show final state after both shots
-      return firstShot.includes(pin) || secondShot.includes(pin);
-    }
-    // Otherwise just show first shot state
-    return firstShot.includes(pin);
-  };
+  const isHitOnFirstShot = (pin: Pin) => firstShot.includes(pin);
+  const isHitOnSecondShot = (pin: Pin) => secondShot?.includes(pin) || false;
 
   const rowClassName = size === "sm" ? "gap-1" : "gap-1.5";
 
@@ -55,7 +56,8 @@ const PinLayout = ({
           <PinDisplay 
             key={pin} 
             pin={pin as Pin} 
-            isKnockedDown={isKnockedDown(pin as Pin)}
+            hitOnFirstShot={isHitOnFirstShot(pin as Pin)}
+            hitOnSecondShot={isHitOnSecondShot(pin as Pin)}
             size={size}
           />
         ))}
@@ -65,7 +67,8 @@ const PinLayout = ({
           <PinDisplay 
             key={pin} 
             pin={pin as Pin} 
-            isKnockedDown={isKnockedDown(pin as Pin)}
+            hitOnFirstShot={isHitOnFirstShot(pin as Pin)}
+            hitOnSecondShot={isHitOnSecondShot(pin as Pin)}
             size={size}
           />
         ))}
@@ -75,7 +78,8 @@ const PinLayout = ({
           <PinDisplay 
             key={pin} 
             pin={pin as Pin} 
-            isKnockedDown={isKnockedDown(pin as Pin)}
+            hitOnFirstShot={isHitOnFirstShot(pin as Pin)}
+            hitOnSecondShot={isHitOnSecondShot(pin as Pin)}
             size={size}
           />
         ))}
@@ -83,7 +87,8 @@ const PinLayout = ({
       <div className={cn("flex justify-center", rowClassName)}>
         <PinDisplay 
           pin={1} 
-          isKnockedDown={isKnockedDown(1)}
+          hitOnFirstShot={isHitOnFirstShot(1)}
+          hitOnSecondShot={isHitOnSecondShot(1)}
           size={size}
         />
       </div>
@@ -91,10 +96,43 @@ const PinLayout = ({
   );
 };
 
-export const FrameHistory = ({ frame, size = "sm" }: FrameHistoryProps) => {
-  // Only show history if frame is complete (has strike or second shot)
-  if (!frame.firstShot || (!frame.isStrike && !frame.secondShot)) return null;
+export const FrameHistory = ({ frame, size = "sm", frameNumber }: FrameHistoryProps) => {
+  // Only show history if frame has shots
+  if (!frame.firstShot) return null;
 
+  // For frame 10, we need to handle multiple pin sets
+  if (frameNumber === 10) {
+    return (
+      <div className="h-12 flex items-center justify-center gap-2">
+        {/* First shot pins */}
+        <PinLayout 
+          firstShot={frame.firstShot} 
+          secondShot={null}
+          size={size}
+        />
+        
+        {/* Show second set if there was a strike or second shot */}
+        {(frame.isStrike || frame.secondShot) && (
+          <PinLayout 
+            firstShot={frame.secondShot || []} 
+            secondShot={null}
+            size={size}
+          />
+        )}
+        
+        {/* Show third set only if first two were strikes */}
+        {frame.isStrike && frame.secondShot?.length === 10 && frame.thirdShot && (
+          <PinLayout 
+            firstShot={frame.thirdShot} 
+            secondShot={null}
+            size={size}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // For frames 1-9, show a single set with both shots
   return (
     <div className="h-12 flex items-center justify-center">
       <PinLayout 
