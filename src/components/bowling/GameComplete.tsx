@@ -43,7 +43,7 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
     handlePhotoChange,
     isSaving,
     handleSaveGame
-  } = useGameCompletion([]);
+  } = useGameCompletion(frames);
 
   useEffect(() => {
     const fetchSessionData = async () => {
@@ -93,8 +93,31 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
   };
 
   const handleNextGame = async () => {
-    await handleSaveGame();
-    onNewGame();
+    try {
+      // Save the current game first
+      await handleSaveGame();
+
+      // Create a new game in the same session
+      if (sessionId) {
+        const { data: newGame, error } = await supabase
+          .from('games')
+          .insert([{
+            session_id: sessionId,
+            game_type: 'practice',
+            user_id: (await supabase.auth.getUser()).data.user?.id
+          }])
+          .select()
+          .single();
+
+        if (error) throw error;
+        if (!newGame?.id) throw new Error('No game ID returned from creation');
+
+        // Navigate to the new game
+        navigate(`/new-game?gameId=${newGame.id}`);
+      }
+    } catch (error) {
+      console.error('Error starting next game:', error);
+    }
   };
 
   const handleDiscardGame = async () => {
