@@ -18,7 +18,7 @@ export const ScoreCard = ({
   onFrameClick,
   selectedFrame = null,
 }: ScoreCardProps) => {
-  const renderShot = (shot: Pin[] | null, isStrike: boolean, isSpare: boolean, frameIndex: number) => {
+  const renderShot = (shot: Pin[] | null, isStrike: boolean, isSpare: boolean, frameIndex: number, shotNumber: 1 | 2 | 3) => {
     if (!shot) return "";
     
     // Handle strikes
@@ -41,7 +41,27 @@ export const ScoreCard = ({
     }
     
     // Regular shot
-    return shot.length.toString();
+    const score = shot.length.toString();
+    
+    // Check for split condition on first shot
+    const frame = frames[frameIndex];
+    const isSplitShot = shotNumber === 1 && 
+      frame.firstShot && 
+      !frame.isStrike && 
+      isSplit({ 
+        firstShot: frame.firstShot,
+        secondShot: [1,2,3,4,5,6,7,8,9,10].filter(p => !frame.firstShot?.includes(p as Pin)) as Pin[]
+      });
+
+    if (isSplitShot) {
+      return (
+        <span className="inline-block rounded-full border-2 border-black px-2">
+          {score}
+        </span>
+      );
+    }
+
+    return score;
   };
 
   const renderFrame = (frame: Frame, index: number) => {
@@ -77,14 +97,14 @@ export const ScoreCard = ({
           index === 9 ? "grid-cols-3" : "grid-cols-2"
         )}>
           <div className="p-2 text-center border-r border-gray-300">
-            {renderShot(frame.firstShot, frame.isStrike, false, index)}
+            {renderShot(frame.firstShot, frame.isStrike, false, index, 1)}
           </div>
           <div className="p-2 text-center">
-            {renderShot(frame.secondShot, frame.isStrike, frame.isSpare, index)}
+            {renderShot(frame.secondShot, frame.isStrike, frame.isSpare, index, 2)}
           </div>
           {index === 9 && (
             <div className="p-2 text-center border-l border-gray-300">
-              {renderShot(frame.thirdShot, frame.isStrike, frame.isSpare, index)}
+              {renderShot(frame.thirdShot, frame.isStrike, frame.isSpare, index, 3)}
             </div>
           )}
         </div>
