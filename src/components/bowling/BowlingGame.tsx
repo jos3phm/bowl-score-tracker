@@ -37,12 +37,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     handleNewGame,
     handleSaveGame,
     isSaving,
-  } = useGameCompletion(frames);
-
-  const {
-    selectedHistoricalFrame,
-    setSelectedHistoricalFrame,
-  } = useHistoricalFrame();
+  } = useGameCompletion(frames, gameId);
 
   const handleShotWithBall = async (
     shotHandler: () => void,

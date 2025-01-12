@@ -72,11 +72,6 @@ export const useGameCompletion = (frames: Frame[], gameId: string) => {
         throw updateError;
       }
 
-      toast({
-        title: "Success",
-        description: "Game saved successfully!",
-      });
-
     } catch (error) {
       console.error('Error saving game:', error);
       toast({

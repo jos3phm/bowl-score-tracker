@@ -16,6 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface GameCompleteProps {
   totalScore: number;
@@ -35,6 +36,7 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const {
     notes,
@@ -112,11 +114,22 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
         if (error) throw error;
         if (!newGame?.id) throw new Error('No game ID returned from creation');
 
+        // Show success message
+        toast({
+          title: "Success",
+          description: "Game saved successfully!",
+        });
+
         // Navigate to the new game
         navigate(`/new-game?gameId=${newGame.id}`);
       }
     } catch (error) {
       console.error('Error starting next game:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start next game. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
