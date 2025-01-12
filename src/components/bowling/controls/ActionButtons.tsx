@@ -29,16 +29,16 @@ export const ActionButtons = ({
   // In 10th frame:
   // - First shot can be strike
   // - Second shot can be strike if first was strike, otherwise spare
-  // - Third shot can be strike if second was strike or spare
+  // - Third shot can be strike if second was strike, otherwise spare
   const canStrike = 
     currentShot === 1 || 
     (currentFrame === 10 && currentShot === 2 && isFirstShotStrike) ||
-    (currentFrame === 10 && currentShot === 3);
+    (currentFrame === 10 && currentShot === 3 && isFirstShotStrike && showSpareButton === false);
     
   const canSpare = 
     (currentShot === 2 && currentFrame !== 10) || 
     (currentFrame === 10 && currentShot === 2 && !isFirstShotStrike) ||
-    showSpareButton;
+    (currentFrame === 10 && currentShot === 3 && showSpareButton);
   
   const handleStrikeSpare = () => {
     if (canStrike) {
