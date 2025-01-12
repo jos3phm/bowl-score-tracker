@@ -62,13 +62,16 @@ export const recordRegularShot = (
   selectedPins: Pin[]
 ): Frame => {
   console.log(`Recording regular shot for frame ${frameIndex + 1}, shot ${shot}`);
-  console.log('Selected pins (knocked down):', selectedPins);
   
   const frame = { ...frames[frameIndex] };
   const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
-  // Selected pins are now the ones that were knocked down
-  const knockedDownPins = selectedPins;
+  // For first shot, selected pins are standing (unselected are knocked down)
+  // For second shot, selected pins are knocked down
+  const knockedDownPins = shot === 1 
+    ? allPins.filter(pin => !selectedPins.includes(pin))
+    : selectedPins;
+    
   console.log('Knocked down pins:', knockedDownPins);
   
   if (frameIndex === 9) { // 10th frame

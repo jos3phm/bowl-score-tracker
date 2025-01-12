@@ -38,7 +38,7 @@ export const PinDiagram = ({
     if (disabled || isHistoricalView) return;
     if (remainingPins !== undefined && !remainingPins.includes(pin)) return;
     
-    // Double tap now selects just this pin as knocked down
+    // Double tap selects just this pin
     onPinSelect([pin]);
     onRegularShot();
   }, [disabled, isHistoricalView, remainingPins, onPinSelect, onRegularShot]);
@@ -51,7 +51,7 @@ export const PinDiagram = ({
     
     const timer = setTimeout(() => {
       setIsLongPress(true);
-      // Long press now selects just this pin as knocked down
+      // Long press selects just this pin
       onPinSelect([pin]);
     }, 500);
 
