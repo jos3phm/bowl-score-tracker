@@ -125,7 +125,7 @@ export const useBallSelection = (gameId: string) => {
           return false;
         }
       } else {
-        // Insert new record
+        // Try to insert new record
         const { error: insertError } = await supabase
           .from('ball_usage')
           .insert({
@@ -136,27 +136,25 @@ export const useBallSelection = (gameId: string) => {
             remaining_pins: remainingPins || [],
           });
 
-        if (insertError) {
-          if (insertError.code === '23505') {
-            // If we get a duplicate error, try updating instead
-            const { error: retryError } = await supabase
-              .from('ball_usage')
-              .update({
-                ball_id: selectedBallId,
-                remaining_pins: remainingPins || [],
-              })
-              .eq('game_id', gameId)
-              .eq('frame_number', frameNumber)
-              .eq('shot_number', shotNumber);
+        // If we get a duplicate error, try updating instead
+        if (insertError && insertError.code === '23505') {
+          const { error: retryError } = await supabase
+            .from('ball_usage')
+            .update({
+              ball_id: selectedBallId,
+              remaining_pins: remainingPins || [],
+            })
+            .eq('game_id', gameId)
+            .eq('frame_number', frameNumber)
+            .eq('shot_number', shotNumber);
 
-            if (retryError) {
-              console.error('Error in retry update of ball usage:', retryError);
-              return false;
-            }
-          } else {
-            console.error('Error recording ball usage:', insertError);
+          if (retryError) {
+            console.error('Error in retry update of ball usage:', retryError);
             return false;
           }
+        } else if (insertError) {
+          console.error('Error recording ball usage:', insertError);
+          return false;
         }
       }
 
