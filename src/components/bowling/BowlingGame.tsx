@@ -67,7 +67,6 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     handleClear,
   );
 
-  // Check for spare ball preference when remaining pins change
   useEffect(() => {
     const checkAndSetSpareBall = async () => {
       const remainingPins = getRemainingPins(currentFrame, currentShot);
@@ -87,9 +86,8 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
 
   // For 10th frame, determine if we should show spare button
   const showSpareButton = currentFrame === 10 && (
-    (currentShot === 2 && !frames[9]?.isStrike && remainingPins?.length < 10) ||
-    (currentShot === 2 && frames[9]?.isStrike && remainingPins?.length < 10) ||
-    (currentShot === 3 && frames[9]?.secondShot && remainingPins?.length < 10)
+    (currentShot === 2 && remainingPins?.length < 10) ||
+    (currentShot === 3 && remainingPins?.length < 10)
   );
 
   if (isGameComplete) {

@@ -6,8 +6,7 @@ export const canMakeSpare = (frame: Frame, currentShot: 1 | 2 | 3): boolean => {
   // For 10th frame third shot
   if (currentShot === 3) {
     return frame.secondShot !== null && 
-           frame.secondShot.length < 10 &&
-           (frame.isStrike || frame.isSpare);
+           frame.secondShot.length < 10;
   }
   
   // Regular frame or 10th frame second shot
@@ -51,7 +50,7 @@ export const getRemainingPins = (frame: Frame, currentShot: 1 | 2 | 3): Pin[] =>
       return allPins;
     }
     
-    // After a strike + partial hit or regular second shot, only remaining pins
+    // After any other shot, only remaining pins from second shot
     return allPins.filter(pin => !frame.secondShot?.includes(pin));
   }
   

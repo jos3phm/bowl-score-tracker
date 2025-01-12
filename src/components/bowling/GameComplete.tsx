@@ -33,7 +33,6 @@ interface SeriesGame {
 export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameCompleteProps) => {
   const [sessionGames, setSessionGames] = useState<SeriesGame[]>([]);
   const [isLastGameInSeries, setIsLastGameInSeries] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -55,35 +54,35 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
           .from('games')
           .select('session_id')
           .eq('id', gameId)
-          .single();
+          .maybeSingle();
 
         if (gameError) throw gameError;
+        if (!gameData?.session_id) {
+          console.error('No session ID found for game:', gameId);
+          return;
+        }
+        
+        const { data: sessionGames, error: sessionError } = await supabase
+          .from('games')
+          .select('id, total_score')
+          .eq('session_id', gameData.session_id)
+          .order('created_at', { ascending: true });
 
-        if (gameData?.session_id) {
-          setSessionId(gameData.session_id);
+        if (sessionError) throw sessionError;
+
+        if (sessionGames) {
+          setSessionGames(sessionGames);
           
-          const { data: sessionGames, error: sessionError } = await supabase
-            .from('games')
-            .select('id, total_score')
-            .eq('session_id', gameData.session_id)
-            .order('created_at', { ascending: true });
+          const { data: sessionData, error: sessionDataError } = await supabase
+            .from('game_sessions')
+            .select('leagues(games_per_series)')
+            .eq('id', gameData.session_id)
+            .single();
 
-          if (sessionError) throw sessionError;
+          if (sessionDataError) throw sessionDataError;
 
-          if (sessionGames) {
-            setSessionGames(sessionGames);
-            
-            const { data: sessionData, error: sessionDataError } = await supabase
-              .from('game_sessions')
-              .select('leagues(games_per_series)')
-              .eq('id', gameData.session_id)
-              .single();
-
-            if (sessionDataError) throw sessionDataError;
-
-            const gamesPerSeries = sessionData?.leagues?.games_per_series || 3;
-            setIsLastGameInSeries(sessionGames.length >= gamesPerSeries);
-          }
+          const gamesPerSeries = sessionData?.leagues?.games_per_series || 3;
+          setIsLastGameInSeries(sessionGames.length >= gamesPerSeries);
         }
       } catch (error) {
         console.error('Error fetching session data:', error);
@@ -100,28 +99,28 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
 
   const handleEndSession = async () => {
     try {
-      // Ensure we have the latest session ID
+      await handleSaveGame();
+
       const { data: gameData, error: gameError } = await supabase
         .from('games')
         .select('session_id')
         .eq('id', gameId)
-        .single();
+        .maybeSingle();
 
       if (gameError) throw gameError;
       if (!gameData?.session_id) {
-        throw new Error('No session ID found');
+        toast({
+          title: "Error",
+          description: "No session found for this game.",
+          variant: "destructive",
+        });
+        return;
       }
 
-      const currentSessionId = gameData.session_id;
-
-      // First save the current game
-      await handleSaveGame();
-
-      // Then end the session
       const { error: sessionError } = await supabase
         .from('game_sessions')
         .update({ ended_at: new Date().toISOString() })
-        .eq('id', currentSessionId);
+        .eq('id', gameData.session_id);
 
       if (sessionError) throw sessionError;
 
@@ -130,7 +129,6 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
         description: "Session ended successfully!",
       });
 
-      // Navigate to home page
       navigate('/');
     } catch (error) {
       console.error('Error ending session:', error);
@@ -144,28 +142,28 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
 
   const handleNextGame = async () => {
     try {
-      // Ensure we have the latest session ID
+      await handleSaveGame();
+
       const { data: gameData, error: gameError } = await supabase
         .from('games')
         .select('session_id')
         .eq('id', gameId)
-        .single();
+        .maybeSingle();
 
       if (gameError) throw gameError;
       if (!gameData?.session_id) {
-        throw new Error('No session ID found');
+        toast({
+          title: "Error",
+          description: "No session found for this game.",
+          variant: "destructive",
+        });
+        return;
       }
 
-      const currentSessionId = gameData.session_id;
-
-      // Save the current game first
-      await handleSaveGame();
-
-      // Create a new game in the same session
       const { data: newGame, error } = await supabase
         .from('games')
         .insert([{
-          session_id: currentSessionId,
+          session_id: gameData.session_id,
           game_type: 'practice',
           user_id: (await supabase.auth.getUser()).data.user?.id
         }])
@@ -175,12 +173,6 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
       if (error) throw error;
       if (!newGame?.id) throw new Error('No game ID returned from creation');
 
-      toast({
-        title: "Success",
-        description: "Game saved successfully!",
-      });
-
-      // Navigate to the new game with a full page reload
       window.location.href = `/new-game?gameId=${newGame.id}`;
     } catch (error) {
       console.error('Error starting next game:', error);
