@@ -83,46 +83,79 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
   }, [gameId]);
 
   const handleEndSession = async () => {
-    if (!sessionId) return;
+    if (!sessionId) {
+      toast({
+        title: "Error",
+        description: "No session ID found. Unable to end session.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    await handleSaveGame();
-    await supabase
-      .from('game_sessions')
-      .update({ ended_at: new Date().toISOString() })
-      .eq('id', sessionId);
+    try {
+      // First save the current game
+      await handleSaveGame();
 
-    navigate('/');
+      // Then end the session
+      const { error: sessionError } = await supabase
+        .from('game_sessions')
+        .update({ ended_at: new Date().toISOString() })
+        .eq('id', sessionId);
+
+      if (sessionError) throw sessionError;
+
+      toast({
+        title: "Success",
+        description: "Session ended successfully!",
+      });
+
+      // Navigate to home page
+      navigate('/');
+    } catch (error) {
+      console.error('Error ending session:', error);
+      toast({
+        title: "Error",
+        description: "Failed to end session. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleNextGame = async () => {
+    if (!sessionId) {
+      toast({
+        title: "Error",
+        description: "No session ID found. Unable to create new game.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       // Save the current game first
       await handleSaveGame();
 
       // Create a new game in the same session
-      if (sessionId) {
-        const { data: newGame, error } = await supabase
-          .from('games')
-          .insert([{
-            session_id: sessionId,
-            game_type: 'practice',
-            user_id: (await supabase.auth.getUser()).data.user?.id
-          }])
-          .select()
-          .single();
+      const { data: newGame, error } = await supabase
+        .from('games')
+        .insert([{
+          session_id: sessionId,
+          game_type: 'practice',
+          user_id: (await supabase.auth.getUser()).data.user?.id
+        }])
+        .select()
+        .single();
 
-        if (error) throw error;
-        if (!newGame?.id) throw new Error('No game ID returned from creation');
+      if (error) throw error;
+      if (!newGame?.id) throw new Error('No game ID returned from creation');
 
-        // Show success message
-        toast({
-          title: "Success",
-          description: "Game saved successfully!",
-        });
+      toast({
+        title: "Success",
+        description: "Game saved successfully!",
+      });
 
-        // Navigate to the new game
-        window.location.href = `/new-game?gameId=${newGame.id}`;
-      }
+      // Navigate to the new game with a full page reload
+      window.location.href = `/new-game?gameId=${newGame.id}`;
     } catch (error) {
       console.error('Error starting next game:', error);
       toast({
