@@ -11,6 +11,7 @@ interface ActionButtonsProps {
   currentShot: 1 | 2 | 3;
   isFirstShotStrike?: boolean;
   selectedPins?: Pin[];
+  showSpareButton?: boolean;
 }
 
 export const ActionButtons = ({
@@ -23,6 +24,7 @@ export const ActionButtons = ({
   currentShot,
   isFirstShotStrike = false,
   selectedPins = [],
+  showSpareButton = false,
 }: ActionButtonsProps) => {
   // In 10th frame:
   // - First shot can be strike
@@ -35,7 +37,8 @@ export const ActionButtons = ({
     
   const canSpare = 
     (currentShot === 2 && currentFrame !== 10) || 
-    (currentFrame === 10 && currentShot === 2 && !isFirstShotStrike);
+    (currentFrame === 10 && currentShot === 2 && !isFirstShotStrike) ||
+    showSpareButton;
   
   const handleStrikeSpare = () => {
     if (canStrike) {
