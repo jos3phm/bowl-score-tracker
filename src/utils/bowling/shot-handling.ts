@@ -66,12 +66,10 @@ export const recordRegularShot = (
   const frame = { ...frames[frameIndex] };
   const allPins: Pin[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   
-  // For first shot, selected pins are standing (unselected are knocked down)
+  // For first shot, if no pins are knocked down (miss), record empty array
   // For second shot, selected pins are knocked down
-  const knockedDownPins = shot === 1 
-    ? allPins.filter(pin => !selectedPins.includes(pin))
-    : selectedPins;
-    
+  const knockedDownPins = selectedPins;
+  
   console.log('Knocked down pins:', knockedDownPins);
   
   if (frameIndex === 9) { // 10th frame
@@ -92,7 +90,8 @@ export const recordRegularShot = (
   } else {
     if (shot === 1) {
       frame.firstShot = knockedDownPins;
-      frame.isStrike = knockedDownPins.length === 10;
+      // Only mark as strike if explicitly using all pins
+      frame.isStrike = knockedDownPins.length === 10 && knockedDownPins.every(pin => allPins.includes(pin));
       if (!frame.isStrike && knockedDownPins.length > 1) {
         frame.isSplit = isSplit({ firstShot: [], secondShot: knockedDownPins });
       }
