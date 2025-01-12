@@ -47,9 +47,9 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
     handleSaveGame
   } = useGameCompletion(frames, gameId);
 
-  // Fetch session data immediately when component mounts
-
   useEffect(() => {
+    let isMounted = true;
+
     const fetchSessionData = async () => {
       try {
         const { data: gameData, error: gameError } = await supabase
@@ -58,15 +58,26 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
           .eq('id', gameId)
           .maybeSingle();
 
+        if (!isMounted) return;
         if (gameError) throw gameError;
         
         // If no session_id, create a new session
         if (!gameData?.session_id) {
+          const { data: userData } = await supabase.auth.getUser();
+          const userId = userData.user?.id;
+          
+          if (!userId) {
+            toast({
+              title: "Error",
+              description: "User not authenticated",
+              variant: "destructive",
+            });
+            return;
+          }
+
           const { data: newSession, error: sessionError } = await supabase
             .from('game_sessions')
-            .insert([{
-              user_id: gameData?.user_id || (await supabase.auth.getUser()).data.user?.id
-            }])
+            .insert([{ user_id: userId }])
             .select()
             .single();
 
@@ -80,48 +91,82 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
 
           if (updateError) throw updateError;
 
-          setCurrentSessionId(newSession.id);
-        } else {
+          if (isMounted) {
+            setCurrentSessionId(newSession.id);
+          }
+        } else if (isMounted) {
           setCurrentSessionId(gameData.session_id);
         }
-        
-        // Fetch session games if we have a session_id
-        if (currentSessionId) {
-          const { data: sessionGames, error: sessionError } = await supabase
-            .from('games')
-            .select('id, total_score')
-            .eq('session_id', currentSessionId)
-            .order('created_at', { ascending: true });
+      } catch (error) {
+        console.error('Error fetching session data:', error);
+        if (isMounted) {
+          toast({
+            title: "Error",
+            description: "Failed to fetch session data. Please try again.",
+            variant: "destructive",
+          });
+        }
+      }
+    };
 
-          if (sessionError) throw sessionError;
+    fetchSessionData();
 
-          if (sessionGames) {
-            setSessionGames(sessionGames);
-            
-            const { data: sessionData, error: sessionDataError } = await supabase
-              .from('game_sessions')
-              .select('leagues(games_per_series)')
-              .eq('id', currentSessionId)
-              .single();
+    return () => {
+      isMounted = false;
+    };
+  }, [gameId, toast]);
 
-            if (sessionDataError) throw sessionDataError;
+  // Fetch session games whenever currentSessionId changes
+  useEffect(() => {
+    let isMounted = true;
 
+    const fetchSessionGames = async () => {
+      if (!currentSessionId) return;
+
+      try {
+        const { data: sessionGames, error: sessionError } = await supabase
+          .from('games')
+          .select('id, total_score')
+          .eq('session_id', currentSessionId)
+          .order('created_at', { ascending: true });
+
+        if (!isMounted) return;
+        if (sessionError) throw sessionError;
+
+        if (sessionGames) {
+          setSessionGames(sessionGames);
+          
+          const { data: sessionData, error: sessionDataError } = await supabase
+            .from('game_sessions')
+            .select('leagues(games_per_series)')
+            .eq('id', currentSessionId)
+            .single();
+
+          if (sessionDataError) throw sessionDataError;
+
+          if (isMounted) {
             const gamesPerSeries = sessionData?.leagues?.games_per_series || 3;
             setIsLastGameInSeries(sessionGames.length >= gamesPerSeries);
           }
         }
       } catch (error) {
-        console.error('Error fetching session data:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch session data. Please try again.",
-          variant: "destructive",
-        });
+        console.error('Error fetching session games:', error);
+        if (isMounted) {
+          toast({
+            title: "Error",
+            description: "Failed to fetch session games. Please try again.",
+            variant: "destructive",
+          });
+        }
       }
     };
 
-    fetchSessionData();
-  }, [gameId, currentSessionId, toast]);
+    fetchSessionGames();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentSessionId, toast]);
 
   const handleEndSession = async () => {
     if (!currentSessionId) {

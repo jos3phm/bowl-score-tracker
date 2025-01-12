@@ -7,6 +7,7 @@ import { useHistoricalFrame } from "@/hooks/bowling/useHistoricalFrame";
 import { useGameCompletion } from "@/hooks/bowling/useGameCompletion";
 import { useEffect } from "react";
 import { usePinHandling } from "@/hooks/bowling/usePinHandling";
+import { Pin } from "@/types/game";
 
 interface BowlingGameProps {
   gameId: string;
@@ -95,7 +96,9 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
   const availablePins = currentFrame === 10 && currentShot === 3 && frames[9]?.isStrike && frames[9]?.secondShot
     ? frames[9].secondShot.length === 10 
       ? remainingPins 
-      : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(pin => frames[9].secondShot?.includes(pin))
+      : ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(pin => 
+          frames[9].secondShot?.includes(pin as Pin)
+        ) as Pin[])
     : remainingPins;
 
   if (isGameComplete) {
