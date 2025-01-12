@@ -47,6 +47,7 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
     handleSaveGame
   } = useGameCompletion(frames, gameId);
 
+  // Fetch session data immediately when component mounts
   useEffect(() => {
     const fetchSessionData = async () => {
       try {
@@ -99,20 +100,19 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
 
   const handleEndSession = async () => {
     try {
-      if (!sessionId) {
-        const { data: gameData, error: gameError } = await supabase
-          .from('games')
-          .select('session_id')
-          .eq('id', gameId)
-          .single();
+      // Ensure we have the latest session ID
+      const { data: gameData, error: gameError } = await supabase
+        .from('games')
+        .select('session_id')
+        .eq('id', gameId)
+        .single();
 
-        if (gameError) throw gameError;
-        if (!gameData?.session_id) {
-          throw new Error('No session ID found');
-        }
-
-        setSessionId(gameData.session_id);
+      if (gameError) throw gameError;
+      if (!gameData?.session_id) {
+        throw new Error('No session ID found');
       }
+
+      const currentSessionId = gameData.session_id;
 
       // First save the current game
       await handleSaveGame();
@@ -121,7 +121,7 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
       const { error: sessionError } = await supabase
         .from('game_sessions')
         .update({ ended_at: new Date().toISOString() })
-        .eq('id', sessionId);
+        .eq('id', currentSessionId);
 
       if (sessionError) throw sessionError;
 
@@ -144,20 +144,19 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
 
   const handleNextGame = async () => {
     try {
-      if (!sessionId) {
-        const { data: gameData, error: gameError } = await supabase
-          .from('games')
-          .select('session_id')
-          .eq('id', gameId)
-          .single();
+      // Ensure we have the latest session ID
+      const { data: gameData, error: gameError } = await supabase
+        .from('games')
+        .select('session_id')
+        .eq('id', gameId)
+        .single();
 
-        if (gameError) throw gameError;
-        if (!gameData?.session_id) {
-          throw new Error('No session ID found');
-        }
-
-        setSessionId(gameData.session_id);
+      if (gameError) throw gameError;
+      if (!gameData?.session_id) {
+        throw new Error('No session ID found');
       }
+
+      const currentSessionId = gameData.session_id;
 
       // Save the current game first
       await handleSaveGame();
@@ -166,7 +165,7 @@ export const GameComplete = ({ totalScore, onNewGame, frames, gameId }: GameComp
       const { data: newGame, error } = await supabase
         .from('games')
         .insert([{
-          session_id: sessionId,
+          session_id: currentSessionId,
           game_type: 'practice',
           user_id: (await supabase.auth.getUser()).data.user?.id
         }])
