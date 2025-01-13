@@ -46,7 +46,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
   ) => {
     if (selectedBallId) {
       try {
-        const remainingPins = getRemainingPins(currentFrame, currentShot);
+        const remainingPins = getRemainingPins(currentFrame, currentShot) || [];
         await recordBallUsage(currentFrame, currentShot, shotType, remainingPins);
       } catch (error) {
         console.error('Failed to record ball usage:', error);
@@ -70,7 +70,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
 
   useEffect(() => {
     const checkAndSetSpareBall = async () => {
-      const remainingPins = getRemainingPins(currentFrame, currentShot);
+      const remainingPins = getRemainingPins(currentFrame, currentShot) || [];
       if (currentShot === 2 && remainingPins && remainingPins.length === 1) {
         const preferredBallId = await checkSpareBallPreference(remainingPins);
         if (preferredBallId) {
@@ -82,7 +82,7 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     checkAndSetSpareBall();
   }, [currentFrame, currentShot, getRemainingPins, checkSpareBallPreference, handleBallSelect]);
 
-  const remainingPins = getRemainingPins(currentFrame, currentShot);
+  const remainingPins = getRemainingPins(currentFrame, currentShot) || [];
   console.log('Remaining pins for frame', currentFrame, 'shot', currentShot, ':', remainingPins);
 
   // For 10th frame, determine if we should show spare button
@@ -101,10 +101,10 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
       ? frames[9].secondShot?.length === 10
         ? remainingPins // If second shot was strike, all pins available
         : ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as Pin[]).filter(pin => 
-            !frames[9].secondShot?.includes(pin)
+            frames[9].secondShot ? !frames[9].secondShot.includes(pin) : true
           ) // Only pins that were NOT knocked down in second shot
-      : remainingPins
-    : remainingPins;
+      : remainingPins || []
+    : remainingPins || [];
 
   if (isGameComplete) {
     return (
