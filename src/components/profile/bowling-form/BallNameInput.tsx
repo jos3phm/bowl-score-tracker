@@ -42,8 +42,6 @@ export const BallNameInput = ({ value, onChange, onSearch, suggestions = [] }: B
       {suggestions.length > 0 && (
         <PopoverContent className="p-0" align="start">
           <Command>
-            <CommandInput placeholder="Search ball names..." />
-            <CommandEmpty>No ball name found.</CommandEmpty>
             <CommandGroup>
               {suggestions.map((name) => (
                 <CommandItem
