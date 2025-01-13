@@ -91,8 +91,9 @@ export const BowlingGame = ({ gameId }: BowlingGameProps) => {
     (currentShot === 2 && !frames[9]?.isStrike) ||
     // Third shot after strike + non-strike
     (currentShot === 3 && frames[9]?.isStrike && frames[9]?.secondShot && frames[9]?.secondShot.length < 10) ||
-    // Third shot when second shot wasn't a strike
-    (currentShot === 3 && !frames[9]?.isStrike && frames[9]?.secondShot && frames[9]?.secondShot.length < 10)
+    // Third shot when second shot wasn't a strike and wasn't a spare
+    (currentShot === 3 && !frames[9]?.isStrike && frames[9]?.secondShot && 
+      frames[9]?.secondShot.length < 10 && !frames[9]?.isSpare)
   );
 
   // Determine available pins for 10th frame

@@ -19,21 +19,24 @@ interface SplitParams {
   secondShot: Pin[];
 }
 
-// Define common split patterns
+// Define common split patterns (pins remaining after first shot)
 const commonSplits: Pin[][] = [
-  [3, 10],    // 3-10 split
-  [2, 7],     // 2-7 split
-  [4, 6],     // 4-6 split (baby split)
-  [4, 7],     // 4-7 split
-  [4, 10],    // 4-10 split
-  [6, 7],     // 6-7 split
-  [7, 10],    // 7-10 split (bedposts)
-  [8, 10],    // 8-10 split
-  [4, 9],     // 4-9 split
-  [3, 7],     // 3-7 split
-  [2, 10],    // 2-10 split
-  [5, 7],     // 5-7 split
-  [3, 6, 7],  // 3-6-7 split
+  [3, 10],     // 3-10 split
+  [2, 7],      // 2-7 split
+  [4, 6],      // 4-6 split (baby split)
+  [4, 7],      // 4-7 split
+  [4, 10],     // 4-10 split
+  [6, 7],      // 6-7 split
+  [7, 10],     // 7-10 split (bedposts)
+  [8, 10],     // 8-10 split
+  [4, 9],      // 4-9 split
+  [3, 7],      // 3-7 split
+  [2, 10],     // 2-10 split
+  [5, 7],      // 5-7 split
+  [3, 6, 7],   // 3-6-7 split
+  [4, 6, 7, 10], // Greek Church
+  [4, 6, 7],   // 4-6-7 split
+  [4, 7, 10],  // 4-7-10 split
 ];
 
 export const isSplit = ({ firstShot, secondShot }: SplitParams): boolean => {

@@ -17,10 +17,7 @@ export const recordStrike = (
     } else if (shot === 2) {
       frame.secondShot = allPins;
     } else if (shot === 3) {
-      // Only allow strike on third shot if second shot was also a strike
-      if (frame.secondShot?.length === 10) {
-        frame.thirdShot = allPins;
-      }
+      frame.thirdShot = allPins;
     }
   } else {
     frame.firstShot = allPins;
@@ -75,37 +72,32 @@ export const recordRegularShot = (
   
   if (frameIndex === 9) { // 10th frame
     if (shot === 1) {
-      const knockedDownPins = allPins.filter(pin => !selectedPins.includes(pin));
-      frame.firstShot = knockedDownPins;
-      frame.isStrike = knockedDownPins.length === 10;
-      if (!frame.isStrike && knockedDownPins.length > 0) {
-        frame.isSplit = isSplit({ firstShot: [], secondShot: selectedPins });
+      frame.firstShot = selectedPins;
+      frame.isStrike = selectedPins.length === 10;
+      if (!frame.isStrike && selectedPins.length > 0) {
+        const remainingPins = allPins.filter(pin => !selectedPins.includes(pin));
+        frame.isSplit = isSplit({ firstShot: selectedPins, secondShot: remainingPins });
       }
     } else if (shot === 2) {
       // For second shot after strike, use regular pin selection
-      const knockedDownPins = frame.isStrike 
-        ? allPins.filter(pin => !selectedPins.includes(pin))  // After strike, knocked down pins are inverse of selection
-        : selectedPins;  // After non-strike, knocked down pins are selected pins
-      frame.secondShot = knockedDownPins;
+      frame.secondShot = frame.isStrike 
+        ? selectedPins  // After strike, use selected pins directly
+        : selectedPins;  // After non-strike, use selected pins
       // Check for spare only if not following a strike
       if (!frame.isStrike) {
         const remainingPins = allPins.filter(pin => !frame.firstShot?.includes(pin));
-        frame.isSpare = knockedDownPins.length === remainingPins.length;
+        frame.isSpare = selectedPins.length === remainingPins.length;
       }
     } else if (shot === 3) {
-      // For third shot, use same logic as second shot
-      const knockedDownPins = frame.secondShot?.length === 10
-        ? allPins.filter(pin => !selectedPins.includes(pin))  // After strike, knocked down pins are inverse of selection
-        : selectedPins;  // After non-strike, knocked down pins are selected pins
-      frame.thirdShot = knockedDownPins;
+      frame.thirdShot = selectedPins;
     }
   } else {
     if (shot === 1) {
-      const knockedDownPins = allPins.filter(pin => !selectedPins.includes(pin));
-      frame.firstShot = knockedDownPins;
-      frame.isStrike = knockedDownPins.length === 10;
-      if (!frame.isStrike && knockedDownPins.length > 0) {
-        frame.isSplit = isSplit({ firstShot: [], secondShot: selectedPins });
+      frame.firstShot = selectedPins;
+      frame.isStrike = selectedPins.length === 10;
+      if (!frame.isStrike) {
+        const remainingPins = allPins.filter(pin => !selectedPins.includes(pin));
+        frame.isSplit = isSplit({ firstShot: selectedPins, secondShot: remainingPins });
       }
     } else {
       frame.secondShot = selectedPins;
