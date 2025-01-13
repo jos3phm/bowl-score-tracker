@@ -39,11 +39,7 @@ export const BallNameInput = ({
               const newValue = e.target.value;
               onChange(newValue);
               onSearch(newValue);
-              if (newValue) {
-                setOpen(true);
-              } else {
-                setOpen(false);
-              }
+              setOpen(newValue.length > 0);
             }}
             className="w-full"
           />
@@ -54,7 +50,7 @@ export const BallNameInput = ({
         align="start"
         side="bottom"
       >
-        <Command>
+        <Command shouldFilter={false}>
           <CommandList>
             <CommandGroup>
               {suggestions.length === 0 ? (
@@ -63,11 +59,10 @@ export const BallNameInput = ({
                 suggestions.map((suggestion) => (
                   <CommandItem
                     key={suggestion}
-                    onSelect={(currentValue) => {
-                      onChange(currentValue);
+                    onSelect={() => {
+                      onChange(suggestion);
                       setOpen(false);
                     }}
-                    value={suggestion}
                   >
                     {suggestion}
                   </CommandItem>
