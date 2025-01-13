@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import {
   Command,
+  CommandEmpty,
   CommandGroup,
   CommandItem,
 } from "@/components/ui/command";
@@ -43,13 +44,13 @@ export const BallNameInput = ({
         </div>
       </PopoverTrigger>
       {suggestions.length > 0 && (
-        <PopoverContent className="p-0 w-[--radix-popover-trigger-width]" align="start">
-          <Command value={value} shouldFilter={false}>
+        <PopoverContent className="p-0" align="start">
+          <Command>
+            <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
               {suggestions.map((suggestion) => (
                 <CommandItem
                   key={suggestion}
-                  value={suggestion}
                   onSelect={(currentValue) => {
                     onChange(currentValue);
                     setOpen(false);
