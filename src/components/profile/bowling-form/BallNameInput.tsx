@@ -34,11 +34,6 @@ export const BallNameInput = ({
     setOpen(newValue.length > 0);
   };
 
-  const handleSelect = (selectedValue: string) => {
-    onChange(selectedValue);
-    setOpen(false);
-  };
-
   return (
     <Popover 
       open={open && suggestions.length > 0} 
@@ -68,7 +63,10 @@ export const BallNameInput = ({
                 suggestions.map((suggestion) => (
                   <CommandItem
                     key={suggestion}
-                    onSelect={() => handleSelect(suggestion)}
+                    onSelect={() => {
+                      onChange(suggestion);
+                      setOpen(false);
+                    }}
                   >
                     {suggestion}
                   </CommandItem>
