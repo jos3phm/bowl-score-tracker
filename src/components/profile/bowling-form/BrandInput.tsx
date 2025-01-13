@@ -15,19 +15,31 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-const brands = [
-  "Brunswick",
-  "Storm",
-  "Hammer",
-  "Roto Grip",
-  "Motiv",
-  "Columbia 300",
-  "Track",
-  "DV8",
-  "Radical",
+const primaryBrands = [
   "900 Global",
-  "Other"
-].sort();
+  "Brunswick",
+  "Columbia 300",
+  "DV8",
+  "Ebonite",
+  "Hammer",
+  "Motiv",
+  "Radical",
+  "Roto Grip",
+  "Storm",
+];
+
+const secondaryBrands = [
+  "AMF",
+  "Dyno-Thane",
+  "Elite",
+  "Lane #1",
+  "Lane Masters",
+  "Lord Field",
+  "OnTheBallBowling",
+  "Pyramid",
+  "Track",
+  "Swag",
+];
 
 interface BrandInputProps {
   value: string;
@@ -44,7 +56,7 @@ export function BrandInput({ value, onChange }: BrandInputProps) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between bg-white"
+          className="w-full justify-between bg-white dark:bg-gray-800"
         >
           {value || "Select brand..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -54,8 +66,28 @@ export function BrandInput({ value, onChange }: BrandInputProps) {
         <Command>
           <CommandInput placeholder="Search brand..." />
           <CommandEmpty>No brand found.</CommandEmpty>
-          <CommandGroup>
-            {brands.map((brand) => (
+          <CommandGroup heading="Major Brands">
+            {primaryBrands.map((brand) => (
+              <CommandItem
+                key={brand}
+                value={brand}
+                onSelect={(currentValue) => {
+                  onChange(currentValue === value ? "" : currentValue);
+                  setOpen(false);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    value === brand ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                {brand}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+          <CommandGroup heading="Other Brands">
+            {secondaryBrands.map((brand) => (
               <CommandItem
                 key={brand}
                 value={brand}
