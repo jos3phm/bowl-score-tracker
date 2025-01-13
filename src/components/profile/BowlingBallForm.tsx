@@ -20,22 +20,18 @@ export type BowlingBall = {
   notes: string | null;
   brand: string | null;
   hook_rating: number | null;
-  is_spare_ball: boolean; // Added this line
+  is_spare_ball: boolean;
 };
 
 interface BowlingBallFormProps {
   onAdd: (ball: Omit<BowlingBall, 'id'>) => Promise<void>;
-  brandSuggestions: string[];
   nameSuggestions: string[];
-  onBrandSearch: (value: string) => void;
   onNameSearch: (value: string) => void;
 }
 
 export const BowlingBallForm = ({ 
   onAdd, 
-  brandSuggestions, 
   nameSuggestions, 
-  onBrandSearch,
   onNameSearch 
 }: BowlingBallFormProps) => {
   const { toast } = useToast();
@@ -46,7 +42,7 @@ export const BowlingBallForm = ({
     weight: "",
     hook_rating: "",
     notes: "",
-    is_spare_ball: false, // Added this line
+    is_spare_ball: false,
   });
 
   const handleAddBall = async () => {
@@ -94,7 +90,7 @@ export const BowlingBallForm = ({
         weight: newBall.weight ? parseFloat(newBall.weight) : null,
         notes: newBall.notes || null,
         hook_rating: newBall.hook_rating ? parseInt(newBall.hook_rating) : null,
-        is_spare_ball: false, // Default to false when adding a new ball
+        is_spare_ball: false,
       });
       setNewBall({ brand: "", name: "", weight: "", notes: "", hook_rating: "", is_spare_ball: false });
       toast({
@@ -114,8 +110,6 @@ export const BowlingBallForm = ({
         <BrandInput
           value={newBall.brand}
           onChange={(value) => setNewBall(prev => ({ ...prev, brand: value }))}
-          onSearch={onBrandSearch}
-          suggestions={brandSuggestions}
         />
 
         <BallNameInput
