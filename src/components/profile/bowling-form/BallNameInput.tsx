@@ -17,7 +17,7 @@ interface BallNameInputProps {
   value: string;
   onChange: (value: string) => void;
   onSearch: (value: string) => void;
-  suggestions: string[];
+  suggestions?: string[];
 }
 
 export const BallNameInput = ({ 
@@ -28,19 +28,23 @@ export const BallNameInput = ({
 }: BallNameInputProps) => {
   const [open, setOpen] = useState(false);
 
+  const handleInputChange = (newValue: string) => {
+    onChange(newValue);
+    onSearch(newValue);
+    setOpen(newValue.length > 0 && suggestions.length > 0);
+  };
+
   return (
-    <Popover open={open && suggestions.length > 0} onOpenChange={setOpen}>
+    <Popover 
+      open={open} 
+      onOpenChange={setOpen}
+    >
       <PopoverTrigger asChild>
         <div className="relative">
           <Input
             placeholder="Enter ball model (e.g., Phaze II, Quantum)"
             value={value}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              onChange(newValue);
-              onSearch(newValue);
-              setOpen(newValue.length > 0);
-            }}
+            onChange={(e) => handleInputChange(e.target.value)}
             className="w-full"
           />
         </div>
