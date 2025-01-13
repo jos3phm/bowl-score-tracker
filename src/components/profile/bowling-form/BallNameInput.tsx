@@ -18,7 +18,12 @@ interface BallNameInputProps {
   suggestions: string[];
 }
 
-export const BallNameInput = ({ value, onChange, onSearch, suggestions = [] }: BallNameInputProps) => {
+export const BallNameInput = ({ 
+  value, 
+  onChange, 
+  onSearch, 
+  suggestions = [] 
+}: BallNameInputProps) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -38,19 +43,19 @@ export const BallNameInput = ({ value, onChange, onSearch, suggestions = [] }: B
         </div>
       </PopoverTrigger>
       {suggestions.length > 0 && (
-        <PopoverContent className="p-0" align="start">
-          <Command value={value} shouldFilter={false}>
+        <PopoverContent className="p-0 w-[--radix-popover-trigger-width]" align="start">
+          <Command className="w-full">
             <CommandGroup>
-              {suggestions.map((name) => (
+              {suggestions.map((suggestion) => (
                 <CommandItem
-                  key={name}
-                  value={name}
-                  onSelect={(selectedValue) => {
-                    onChange(selectedValue);
+                  key={suggestion}
+                  value={suggestion}
+                  onSelect={(currentValue) => {
+                    onChange(currentValue);
                     setOpen(false);
                   }}
                 >
-                  {name}
+                  {suggestion}
                 </CommandItem>
               ))}
             </CommandGroup>
