@@ -31,12 +31,17 @@ export const BallNameInput = ({
   const handleInputChange = (newValue: string) => {
     onChange(newValue);
     onSearch(newValue);
-    setOpen(newValue.length > 0 && suggestions.length > 0);
+    setOpen(newValue.length > 0);
+  };
+
+  const handleSelect = (selectedValue: string) => {
+    onChange(selectedValue);
+    setOpen(false);
   };
 
   return (
     <Popover 
-      open={open} 
+      open={open && suggestions.length > 0} 
       onOpenChange={setOpen}
     >
       <PopoverTrigger asChild>
@@ -54,19 +59,16 @@ export const BallNameInput = ({
         align="start"
         side="bottom"
       >
-        <Command shouldFilter={false}>
+        <Command>
           <CommandList>
-            <CommandGroup heading="Suggestions">
+            <CommandGroup>
               {suggestions.length === 0 ? (
-                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandEmpty>No suggestions found.</CommandEmpty>
               ) : (
                 suggestions.map((suggestion) => (
                   <CommandItem
                     key={suggestion}
-                    onSelect={() => {
-                      onChange(suggestion);
-                      setOpen(false);
-                    }}
+                    onSelect={() => handleSelect(suggestion)}
                   >
                     {suggestion}
                   </CommandItem>
