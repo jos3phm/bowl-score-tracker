@@ -39,13 +39,20 @@ export const BallNameInput = ({
               const newValue = e.target.value;
               onChange(newValue);
               onSearch(newValue);
+              if (newValue) {
+                setOpen(true);
+              }
             }}
             className="w-full"
           />
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-        <Command shouldFilter={false}>
+      <PopoverContent 
+        className="w-[var(--radix-popover-trigger-width)] p-0" 
+        align="start"
+        side="bottom"
+      >
+        <Command>
           <CommandList>
             {suggestions.length === 0 ? (
               <CommandEmpty>No results found.</CommandEmpty>
