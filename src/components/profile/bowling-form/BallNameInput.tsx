@@ -44,29 +44,30 @@ export const BallNameInput = ({
           />
         </div>
       </PopoverTrigger>
-      {suggestions.length > 0 && (
-        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-          <Command>
-            <CommandList>
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+        <Command shouldFilter={false}>
+          <CommandList>
+            {suggestions.length === 0 ? (
               <CommandEmpty>No results found.</CommandEmpty>
+            ) : (
               <CommandGroup>
                 {suggestions.map((suggestion) => (
                   <CommandItem
                     key={suggestion}
+                    value={suggestion}
                     onSelect={(currentValue) => {
                       onChange(currentValue);
                       setOpen(false);
                     }}
-                    value={suggestion}
                   >
                     {suggestion}
                   </CommandItem>
                 ))}
               </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      )}
+            )}
+          </CommandList>
+        </Command>
+      </PopoverContent>
     </Popover>
   );
 };
