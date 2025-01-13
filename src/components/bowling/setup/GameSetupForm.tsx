@@ -54,7 +54,7 @@ export const GameSetupForm = () => {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>New Game Setup</CardTitle>
+        <CardTitle>Start a new game</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
@@ -140,7 +140,7 @@ export const GameSetupForm = () => {
                 setLaneNumber(value);
               }
             }}
-            placeholder="Enter lane number"
+            placeholder="Enter lane number (optional)"
           />
           {laneConfig === 'cross' && laneNumber && (
             <div className="text-sm text-muted-foreground">

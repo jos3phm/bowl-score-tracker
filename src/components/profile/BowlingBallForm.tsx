@@ -110,7 +110,6 @@ export const BowlingBallForm = ({
 
   return (
     <div className="space-y-4 pt-4 border-t">
-      <h4 className="font-medium">Add New Ball</h4>
       <div className="space-y-2">
         <BrandInput
           value={newBall.brand}
@@ -144,9 +143,21 @@ export const BowlingBallForm = ({
 
         <Input
           type="number"
+          min="0"
+          max="10"
+          step="1"
           placeholder="Hook Rating (0-10)"
           value={newBall.hook_rating}
-          onChange={(e) => setNewBall(prev => ({ ...prev, hook_rating: e.target.value }))}
+          onChange={(e) => {
+            const value = parseInt(e.target.value);
+            if (isNaN(value) || value < 0) {
+              setNewBall(prev => ({ ...prev, hook_rating: "" }));
+            } else if (value > 10) {
+              setNewBall(prev => ({ ...prev, hook_rating: "10" }));
+            } else {
+              setNewBall(prev => ({ ...prev, hook_rating: value.toString() }));
+            }
+          }}
         />
 
         <Input

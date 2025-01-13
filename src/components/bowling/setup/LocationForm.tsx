@@ -120,7 +120,7 @@ export const LocationForm = ({
 
   return (
     <div className="space-y-2">
-      <Label>Location {isOptional && "(Optional)"}</Label>
+      <Label>Location</Label>
       <div className="flex gap-2">
         <Select value={locationId} onValueChange={setLocationId}>
           <SelectTrigger className="flex-1 bg-white">
