@@ -8,7 +8,6 @@ export const useBallSelection = (gameId: string) => {
   const [defaultBallId, setDefaultBallId] = useState<string | null>(null);
   const [previousBallId, setPreviousBallId] = useState<string | null>(null);
 
-  // Fetch last used ball from previous game in session
   useEffect(() => {
     const fetchLastUsedBall = async () => {
       try {
@@ -97,7 +96,7 @@ export const useBallSelection = (gameId: string) => {
 
     try {
       // First, check if a record already exists
-      const { data: existingRecord, error: fetchError } = await supabase
+      const { data: existingRecord } = await supabase
         .from('ball_usage')
         .select('id')
         .eq('game_id', gameId)
@@ -105,18 +104,13 @@ export const useBallSelection = (gameId: string) => {
         .eq('shot_number', shotNumber)
         .maybeSingle();
 
-      if (fetchError) {
-        console.error('Error checking existing ball usage:', fetchError);
-        return false;
-      }
-
       if (existingRecord) {
         // Update existing record
         const { error: updateError } = await supabase
           .from('ball_usage')
           .update({
             ball_id: selectedBallId,
-            remaining_pins: remainingPins || [],
+            remaining_pins: remainingPins || []
           })
           .eq('id', existingRecord.id);
 
@@ -125,7 +119,7 @@ export const useBallSelection = (gameId: string) => {
           return false;
         }
       } else {
-        // Try to insert new record
+        // Insert new record
         const { error: insertError } = await supabase
           .from('ball_usage')
           .insert({
@@ -133,26 +127,10 @@ export const useBallSelection = (gameId: string) => {
             ball_id: selectedBallId,
             frame_number: frameNumber,
             shot_number: shotNumber,
-            remaining_pins: remainingPins || [],
+            remaining_pins: remainingPins || []
           });
 
-        // If we get a duplicate error, try updating instead
-        if (insertError && insertError.code === '23505') {
-          const { error: retryError } = await supabase
-            .from('ball_usage')
-            .update({
-              ball_id: selectedBallId,
-              remaining_pins: remainingPins || [],
-            })
-            .eq('game_id', gameId)
-            .eq('frame_number', frameNumber)
-            .eq('shot_number', shotNumber);
-
-          if (retryError) {
-            console.error('Error in retry update of ball usage:', retryError);
-            return false;
-          }
-        } else if (insertError) {
+        if (insertError) {
           console.error('Error recording ball usage:', insertError);
           return false;
         }
