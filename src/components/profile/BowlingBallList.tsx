@@ -13,43 +13,30 @@ interface BowlingBallListProps {
 
 export const BowlingBallList = ({ bowlingBalls, onDelete, onAdd }: BowlingBallListProps) => {
   const { toast } = useToast();
-  const [brandSuggestions, setBrandSuggestions] = useState<string[]>([]);
   const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
 
-  const fetchSuggestions = async (field: 'brand' | 'name', value: string) => {
+  const fetchNameSuggestions = async (value: string) => {
     if (!value) {
-      if (field === 'brand') {
-        setBrandSuggestions([]);
-      } else {
-        setNameSuggestions([]);
-      }
+      setNameSuggestions([]);
       return;
     }
     
     const { data, error } = await supabase
       .from('bowling_balls')
-      .select(field)
-      .ilike(field, `${value}%`)
+      .select('name')
+      .ilike('name', `${value}%`)
       .limit(5);
 
     if (error) {
-      console.error(`Error fetching ${field} suggestions:`, error);
-      if (field === 'brand') {
-        setBrandSuggestions([]);
-      } else {
-        setNameSuggestions([]);
-      }
+      console.error(`Error fetching name suggestions:`, error);
+      setNameSuggestions([]);
       return;
     }
 
-    const uniqueValues = Array.from(new Set(data.map(item => item[field])))
+    const uniqueValues = Array.from(new Set(data.map(item => item.name)))
       .filter((item): item is string => item !== null);
 
-    if (field === 'brand') {
-      setBrandSuggestions(uniqueValues);
-    } else {
-      setNameSuggestions(uniqueValues);
-    }
+    setNameSuggestions(uniqueValues);
   };
 
   const handleAdd = async (ball: Omit<BowlingBall, 'id'>) => {
@@ -68,7 +55,6 @@ export const BowlingBallList = ({ bowlingBalls, onDelete, onAdd }: BowlingBallLi
 
   const handleToggleSpare = async (id: string, isSpare: boolean) => {
     try {
-      // First, if we're setting a new spare ball, unset any existing spare ball
       if (isSpare) {
         const { error: unsetError } = await supabase
           .from('bowling_balls')
@@ -86,7 +72,6 @@ export const BowlingBallList = ({ bowlingBalls, onDelete, onAdd }: BowlingBallLi
         }
       }
 
-      // Then update the selected ball
       const { error } = await supabase
         .from('bowling_balls')
         .update({ is_spare_ball: isSpare })
@@ -101,7 +86,6 @@ export const BowlingBallList = ({ bowlingBalls, onDelete, onAdd }: BowlingBallLi
         return;
       }
 
-      // Refresh the list by refetching the data
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
@@ -146,10 +130,8 @@ export const BowlingBallList = ({ bowlingBalls, onDelete, onAdd }: BowlingBallLi
 
         <BowlingBallForm
           onAdd={handleAdd}
-          brandSuggestions={brandSuggestions}
           nameSuggestions={nameSuggestions}
-          onBrandSearch={(value) => fetchSuggestions('brand', value)}
-          onNameSearch={(value) => fetchSuggestions('name', value)}
+          onNameSearch={fetchNameSuggestions}
         />
       </CardContent>
     </Card>

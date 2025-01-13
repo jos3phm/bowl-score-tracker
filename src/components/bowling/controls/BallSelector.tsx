@@ -26,7 +26,6 @@ export const BallSelector = ({
 }: BallSelectorProps) => {
   const { toast } = useToast();
   const [showNewBall, setShowNewBall] = useState(false);
-  const [brandSuggestions, setBrandSuggestions] = useState<string[]>([]);
   const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
 
   const { data: bowlingBalls, isError, refetch } = useQuery({
@@ -70,7 +69,6 @@ export const BallSelector = ({
         description: "Bowling ball added successfully",
       });
 
-      // Refetch the balls list and select the new ball
       await refetch();
       if (data) {
         onBallSelect(data.id);
@@ -83,19 +81,6 @@ export const BallSelector = ({
         description: "Failed to add bowling ball",
         variant: "destructive",
       });
-    }
-  };
-
-  const handleBrandSearch = async (value: string) => {
-    const { data } = await supabase
-      .from('bowling_balls')
-      .select('brand')
-      .ilike('brand', `%${value}%`)
-      .limit(5);
-    
-    if (data) {
-      const uniqueBrands = [...new Set(data.map(item => item.brand).filter(Boolean))];
-      setBrandSuggestions(uniqueBrands);
     }
   };
 
@@ -127,9 +112,7 @@ export const BallSelector = ({
         </div>
         <BowlingBallForm
           onAdd={handleAddBall}
-          brandSuggestions={brandSuggestions}
           nameSuggestions={nameSuggestions}
-          onBrandSearch={handleBrandSearch}
           onNameSearch={handleNameSearch}
         />
       </div>
