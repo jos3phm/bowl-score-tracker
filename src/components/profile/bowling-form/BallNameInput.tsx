@@ -41,6 +41,8 @@ export const BallNameInput = ({
               onSearch(newValue);
               if (newValue) {
                 setOpen(true);
+              } else {
+                setOpen(false);
               }
             }}
             className="w-full"
@@ -54,24 +56,24 @@ export const BallNameInput = ({
       >
         <Command>
           <CommandList>
-            {suggestions.length === 0 ? (
-              <CommandEmpty>No results found.</CommandEmpty>
-            ) : (
-              <CommandGroup>
-                {suggestions.map((suggestion) => (
+            <CommandGroup>
+              {suggestions.length === 0 ? (
+                <CommandEmpty>No results found.</CommandEmpty>
+              ) : (
+                suggestions.map((suggestion) => (
                   <CommandItem
                     key={suggestion}
-                    value={suggestion}
                     onSelect={(currentValue) => {
                       onChange(currentValue);
                       setOpen(false);
                     }}
+                    value={suggestion}
                   >
                     {suggestion}
                   </CommandItem>
-                ))}
-              </CommandGroup>
-            )}
+                ))
+              )}
+            </CommandGroup>
           </CommandList>
         </Command>
       </PopoverContent>
