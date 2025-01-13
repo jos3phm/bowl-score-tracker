@@ -20,19 +20,20 @@ interface BallNameInputProps {
   suggestions: string[];
 }
 
-export const BallNameInput = ({ value, onChange, onSearch, suggestions }: BallNameInputProps) => {
+export const BallNameInput = ({ value, onChange, onSearch, suggestions = [] }: BallNameInputProps) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open && suggestions.length > 0} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <div className="relative">
           <Input
             placeholder="Enter ball model (e.g., Phaze II, Quantum)"
             value={value}
             onChange={(e) => {
-              onChange(e.target.value);
-              onSearch(e.target.value);
+              const newValue = e.target.value;
+              onChange(newValue);
+              onSearch(newValue);
             }}
             className="w-full"
           />
@@ -47,6 +48,7 @@ export const BallNameInput = ({ value, onChange, onSearch, suggestions }: BallNa
               {suggestions.map((name) => (
                 <CommandItem
                   key={name}
+                  value={name}
                   onSelect={() => {
                     onChange(name);
                     setOpen(false);
