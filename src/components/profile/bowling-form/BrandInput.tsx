@@ -1,4 +1,7 @@
-import { Input } from "@/components/ui/input";
+import * as React from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -11,54 +14,68 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useState } from "react";
+
+const brands = [
+  "Brunswick",
+  "Storm",
+  "Hammer",
+  "Roto Grip",
+  "Motiv",
+  "Columbia 300",
+  "Track",
+  "DV8",
+  "Radical",
+  "900 Global",
+  "Other"
+].sort();
 
 interface BrandInputProps {
   value: string;
   onChange: (value: string) => void;
-  onSearch: (value: string) => void;
-  suggestions: string[];
 }
 
-export const BrandInput = ({ value, onChange, onSearch, suggestions }: BrandInputProps) => {
-  const [open, setOpen] = useState(false);
+export function BrandInput({ value, onChange }: BrandInputProps) {
+  const [open, setOpen] = React.useState(false);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <div className="relative">
-          <Input
-            placeholder="Enter brand name (e.g., Storm, Brunswick)"
-            value={value}
-            onChange={(e) => {
-              onChange(e.target.value);
-              onSearch(e.target.value);
-            }}
-            className="w-full"
-          />
-        </div>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between bg-white"
+        >
+          {value || "Select brand..."}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
       </PopoverTrigger>
-      {suggestions.length > 0 && (
-        <PopoverContent className="p-0" align="start">
-          <Command>
-            <CommandInput placeholder="Search brands..." />
-            <CommandEmpty>No brand found.</CommandEmpty>
-            <CommandGroup>
-              {suggestions.map((brand) => (
-                <CommandItem
-                  key={brand}
-                  onSelect={() => {
-                    onChange(brand);
-                    setOpen(false);
-                  }}
-                >
-                  {brand}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
-        </PopoverContent>
-      )}
+      <PopoverContent className="w-full p-0">
+        <Command>
+          <CommandInput placeholder="Search brand..." />
+          <CommandEmpty>No brand found.</CommandEmpty>
+          <CommandGroup>
+            {brands.map((brand) => (
+              <CommandItem
+                key={brand}
+                value={brand}
+                onSelect={(currentValue) => {
+                  onChange(currentValue === value ? "" : currentValue);
+                  setOpen(false);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    value === brand ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                {brand}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
     </Popover>
   );
-};
+}
