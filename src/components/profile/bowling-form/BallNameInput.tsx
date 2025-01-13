@@ -1,9 +1,7 @@
 import { Input } from "@/components/ui/input";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
 } from "@/components/ui/command";
 import {
@@ -41,14 +39,14 @@ export const BallNameInput = ({ value, onChange, onSearch, suggestions = [] }: B
       </PopoverTrigger>
       {suggestions.length > 0 && (
         <PopoverContent className="p-0" align="start">
-          <Command>
+          <Command value={value} shouldFilter={false}>
             <CommandGroup>
               {suggestions.map((name) => (
                 <CommandItem
                   key={name}
                   value={name}
-                  onSelect={() => {
-                    onChange(name);
+                  onSelect={(selectedValue) => {
+                    onChange(selectedValue);
                     setOpen(false);
                   }}
                 >
