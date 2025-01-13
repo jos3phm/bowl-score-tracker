@@ -20,62 +20,29 @@ interface SplitParams {
 }
 
 // Define common split patterns
-const commonSplits: [Pin, Pin][] = [
-  [3, 10], // 3-10 split
-  [2, 7],  // 2-7 split
-  [4, 6],  // 4-6 split (baby split)
-  [4, 7],  // 4-7 split
-  [4, 10], // 4-10 split
-  [6, 7],  // 6-7 split
-  [7, 10], // 7-10 split (bedposts)
-  [8, 10], // 8-10 split
-  [4, 9],  // 4-9 split
-  [3, 7],  // 3-7 split
-  [2, 10], // 2-10 split
-  [5, 7],  // 5-7 split
+const commonSplits: Pin[][] = [
+  [3, 10],    // 3-10 split
+  [2, 7],     // 2-7 split
+  [4, 6],     // 4-6 split (baby split)
+  [4, 7],     // 4-7 split
+  [4, 10],    // 4-10 split
+  [6, 7],     // 6-7 split
+  [7, 10],    // 7-10 split (bedposts)
+  [8, 10],    // 8-10 split
+  [4, 9],     // 4-9 split
+  [3, 7],     // 3-7 split
+  [2, 10],    // 2-10 split
+  [5, 7],     // 5-7 split
+  [3, 6, 7],  // 3-6-7 split
 ];
 
 export const isSplit = ({ firstShot, secondShot }: SplitParams): boolean => {
-  // If there aren't exactly 2 pins remaining, it's not a split
-  if (secondShot.length !== 2) return false;
+  // Get the pins that are still standing
+  const standingPins = secondShot.sort((a, b) => a - b);
   
-  const [pin1, pin2] = secondShot.sort((a, b) => a - b);
-  
-  // First, check if this is a common split pattern
-  for (const [splitPin1, splitPin2] of commonSplits) {
-    if (pin1 === splitPin1 && pin2 === splitPin2) {
-      return true;
-    }
-  }
-  
-  // If not a common split, check if the pins are non-adjacent
-  // and there's no path between them through knocked down pins
-  if (!pinNeighbors[pin1].includes(pin2)) {
-    // For two non-adjacent pins, we consider it a split if they're
-    // separated by at least one pin position
-    return Math.abs(pin1 - pin2) > 2;
-  }
-  
-  return false;
-};
-
-// Helper function to check if there's a path of standing pins between two pins
-const hasConnectingPath = (start: Pin, end: Pin, standingPins: Pin[]): boolean => {
-  const visited = new Set<Pin>();
-  const queue: Pin[] = [start];
-  
-  while (queue.length > 0) {
-    const current = queue.shift()!;
-    if (current === end) return true;
-    
-    if (!visited.has(current)) {
-      visited.add(current);
-      
-      // Add all standing neighbors to queue
-      const neighbors = pinNeighbors[current].filter(pin => standingPins.includes(pin));
-      queue.push(...neighbors);
-    }
-  }
-  
-  return false;
+  // Check if this matches any common split pattern
+  return commonSplits.some(splitPattern => {
+    if (splitPattern.length !== standingPins.length) return false;
+    return splitPattern.every((pin, index) => pin === standingPins[index]);
+  });
 };
