@@ -52,7 +52,7 @@ export const BallNameInput = ({
       >
         <Command shouldFilter={false}>
           <CommandList>
-            <CommandGroup>
+            <CommandGroup heading="Suggestions">
               {suggestions.length === 0 ? (
                 <CommandEmpty>No results found.</CommandEmpty>
               ) : (
